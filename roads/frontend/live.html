@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Live scan | Nagrik Roads</title>
-  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="icon" href="assets/favicon-64.png" type="image/png">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#f1f3f5">
   <link rel="stylesheet" href="styles.css">
@@ -44,11 +44,11 @@
     @media (max-width: 520px) { main { padding: 12px 12px 40px; } .panel { padding: 12px; } .brand-sub { display: none; } }
   </style>
 </head>
-<body>
+<body data-need="public citizen crew">
+  <script src="gate.js"></script>
   <header class="site-header">
     <div class="header-inner">
       <a class="brand" href="/roads/app" aria-label="Nagrik Roads app">
-        <img src="assets/logo.png" alt="" width="34" height="34">
         <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Live road scan</span></span>
       </a>
       <a class="btn btn-small" href="/roads/dashboard#/map" target="_blank">See it on the map ↗</a>

@@ -132,7 +132,7 @@ pip install fastapi uvicorn python-multipart ultralytics supervision opencv-pyth
 
 - Dashboard: <http://localhost:8000/>
 - Phone capture: <http://localhost:8000/capture>
-- Useful env vars: `ROADSENSE_MODEL` (path to .pt/.onnx; default order: `backend/models/roadsense_y26n.pt` → `rdd_yolov8s.pt` → Pothole Pilot ONNX), `ROADSENSE_CONF` (default 0.15, tuned on Indian val: see backend/data/eval/tuning.json), `ROADSENSE_DEPTH=1` (depth index), `ROADSENSE_DEVICE` (default `cpu`), `ROADSENSE_NAGRIK=0` (turn off ward/officer/tender lookup, on by default), `ROADSENSE_DATA_DIR` (database + media folder). Full table in `ARCHITECTURE.md`.
+- Useful env vars: `ROADSENSE_MODEL` (path to .pt/.onnx; default order: `backend/models/roadsense_y26s.pt` → `roadsense_y26n.pt` → `rdd_yolov8s.pt` → Pothole Pilot ONNX), `ROADSENSE_CONF` (default 0.20, tuned on Indian val for roadsense_y26s: see backend/data/eval/tuning_y26s.json), `ROADSENSE_COMBINE=0` (uploads use only the main model instead of main model for potholes + `rdd_yolov8s` for cracks), `ROADSENSE_DEPTH=1` (depth index), `ROADSENSE_DEVICE` (default `cpu`), `ROADSENSE_NAGRIK=0` (turn off ward/officer/tender lookup, on by default), `ROADSENSE_DATA_DIR` (database + media folder). Full table in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ### Using the phone capture page over Wi-Fi (LAN)
 
@@ -210,4 +210,4 @@ Use `--server http://<laptop-ip>:8000` when the bridge runs on a different machi
 - **Map data** © OpenStreetMap contributors, ODbL (Overpass API, Nominatim). Tiles follow the OSM tile usage policy.
 - **Weather**: [Open-Meteo](https://open-meteo.com/), free non-commercial API, CC BY 4.0 data.
 - **Civic data**: [Nagrik](https://nagrik.in.net/) public API (wards, officials, tenders). Used with attribution, responses are cached, and we have requested permission for continued use.
-- Research notes: see `RESEARCH.md`. Build contract: see `ARCHITECTURE.md`.
+- Research notes: [`docs/RESEARCH.md`](docs/RESEARCH.md). Build contract: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

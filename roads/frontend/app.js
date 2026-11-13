@@ -123,7 +123,8 @@
   }
   // show only the sections this account may use (the server enforces the same rules)
   function applyNav() {
-    document.querySelectorAll('[data-need]').forEach((el) => { el.hidden = !can(...el.dataset.need.split(' ')); });
+    const role = ME ? ME.role : 'public';
+    document.querySelectorAll('[data-need]').forEach((el) => { el.hidden = !el.dataset.need.split(' ').includes(role); });
   }
   function renderUserBox() {
     applyNav();
@@ -347,6 +348,12 @@
     document.title = (TITLES[name] ? TITLES[name] + ' | ' : '') + 'Nagrik Roads Bengaluru';
     VIEW.innerHTML = '';
     const fn = routes[name];
+    if (name === 'upload' && can('officer', 'admin')) {
+      VIEW.innerHTML = stateHtml('empty', 'Scanning is for citizens and repair crews',
+        'Ward officers review what citizens and crews scan. Open the review queue to check new detections.',
+        '<p><a class="btn btn-primary" href="#/review">Go to Review</a></p>');
+      return;
+    }
     if (!fn) {
       VIEW.innerHTML = stateHtml('empty', 'Page not found', 'That address does not match any section.',
         '<p><a class="btn" href="#/upload">Go to Inspect</a></p>');
@@ -1666,6 +1673,13 @@
 
   // ================================================================ VIEW: Reports
   async function viewReports(root, _arg, alive) {
+    if (!can('officer', 'admin')) {  // ward digest and defect register: ward officers and administrators only
+      root.innerHTML = `<div class="view-head"><h1>Reports</h1>
+        <p>The ward digest and the full defect register, for ward officers.</p></div>
+        ${ME ? `<div class="state"><h2>Ward officers only</h2><p>You are signed in as ${esc(ME.role_label || ME.role)}. Reports need a ward officer or administrator account.</p></div>`
+             : signInHtml('see ward reports')}`;
+      return;
+    }
     const csv = pageUrl('csv');
     root.innerHTML = `
       <div class="view-head"><h1>Reports</h1>

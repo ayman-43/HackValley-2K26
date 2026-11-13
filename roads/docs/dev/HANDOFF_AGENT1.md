@@ -1,7 +1,7 @@
 # Nagrik Roads – Agent 1 handoff (core pipeline + API)
 
 Status as of 2026-11-13 14:30. Written so work can continue from another account/session.
-Read `ARCHITECTURE.md` first (the binding contract), then this file.
+Read `../ARCHITECTURE.md` first (the binding contract), then this file.
 
 ## State
 - Agent 1 work is **DONE**. Test passes, server verified on port 8000, nothing is running.

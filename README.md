@@ -71,16 +71,32 @@ The trained model `roads/backend/models/roadsense_y26s.pt` is included. Optional
 
 | Path | What it is |
 |---|---|
-| [`roads/`](roads/README.md) | **Nagrik Roads**: Python/FastAPI backend, web dashboard, phone app, training and evaluation scripts |
-| [`roads/docs/results/`](roads/docs/results/RESULTS.md) | Model results for the judges |
-| [`roads/dataset/`](roads/dataset/README.md) | Training data description and licences |
-| `backend/server.mjs`, `start.mjs` | Node server: serves the Nagrik pages and forwards `/roads`, `/api`, `/media`, `/eval` to Nagrik Roads |
-| repository root (`bengaluru/`, `assets/`, …) | The Nagrik civic-data pages that Nagrik Roads plugs into (see below) |
+```
+├── start.cmd, start.mjs      one command starts everything (Nagrik on :5501, Nagrik Roads on :8000)
+├── roads/                    Nagrik Roads: the road-damage system
+│   ├── backend/app/          FastAPI server: detection, tracking, dedup, risk, sign-in, reports
+│   ├── backend/tests/        tests
+│   ├── backend/models/       trained detector (roadsense_y26s.pt)
+│   ├── frontend/             website pages: home, dashboard, phone app, live scan, sign-in
+│   ├── scripts/              dataset, training, evaluation and live-camera tools (see scripts/README.md)
+│   ├── dataset/              training data description, splits and licences
+│   └── docs/                 architecture, research notes, results for the judges
+│       └── results/          model accuracy, plots, Kaggle training log
+└── nagrik/                   Nagrik civic-data site that Nagrik Roads plugs into
+    └── backend/server.mjs    serves the Nagrik pages and forwards /roads, /api, /media, /eval to Nagrik Roads
+```
+
+| Start here | |
+|---|---|
+| [`roads/README.md`](roads/README.md) | How Nagrik Roads works, requirement by requirement |
+| [`roads/docs/results/RESULTS.md`](roads/docs/results/RESULTS.md) | Model results for the judges |
+| [`roads/docs/ARCHITECTURE.md`](roads/docs/ARCHITECTURE.md) | Components, API and settings |
+| [`roads/dataset/README.md`](roads/dataset/README.md) | Training data and licences |
 
 ## About Nagrik
 
 [Nagrik (nagrik.in.net)](https://nagrik.in.net/) is an independent civic-data project that republishes public
-records on Bengaluru's wards, officials and public works. The Nagrik pages in this repository are a local
+records on Bengaluru's wards, officials and public works. The Nagrik pages in `nagrik/` are a local
 rebuild of its public site, included to show Nagrik Roads running inside it as one application; ward, officer and
 tender data come from Nagrik's public API, with attribution.
 

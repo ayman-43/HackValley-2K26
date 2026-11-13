@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node backend/server.mjs",
-    "dev": "node --watch backend/server.mjs"
+    "start": "node nagrik/backend/server.mjs",
+    "dev": "node --watch nagrik/backend/server.mjs"
   },
   "engines": { "node": ">=20" }
 }

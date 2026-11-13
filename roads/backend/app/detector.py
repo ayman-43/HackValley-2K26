@@ -1,7 +1,7 @@
 """Road-damage detection (YOLO) + ByteTrack video tracking.
 
-Model selection (first that exists): env ROADSENSE_MODEL -> backend/models/roadsense_y26n.pt
--> backend/models/rdd_yolov8s.pt -> reference/pothole-pilot/ai_model/weights.onnx
+Model selection (first that exists): env ROADSENSE_MODEL -> backend/models/roadsense_y26s.pt
+-> roadsense_y26n.pt -> backend/models/rdd_yolov8s.pt -> reference/pothole-pilot/ai_model/weights.onnx
 (RDD YOLOv8s is preferred over the Pothole Pilot ONNX: F1 0.66 vs 0.02 on RDD India).
 Device comes from env ROADSENSE_DEVICE (default "cpu").
 """

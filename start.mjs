@@ -67,7 +67,7 @@ if (existing) {
 process.env.ROADS_URL = roadsUrl;
 process.env.PORT = String(PORT);
 if (await status(`http://127.0.0.1:${PORT}/`)) fail(`port ${PORT} is already in use. Close the other Nagrik window first.`);
-await import('./backend/server.mjs');
+await import('./nagrik/backend/server.mjs');
 for (let i = 0; i < 20 && !(await status(`http://127.0.0.1:${PORT}/roads/`)); i++) await sleep(500);
 
 const url = `http://localhost:${PORT}/`;

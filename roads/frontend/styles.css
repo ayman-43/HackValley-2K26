@@ -1,7 +1,7 @@
 /* Nagrik Roads — civic public-record style, matched to Nagrik (nagrik.in.net), whose ward/officer/tender
    data Nagrik Roads uses. Light civic grey, slate ink, Instrument Sans with tight headlines, thin-bordered
    white cards, monospace blue for data, one amber accent. Nagrik Roads keeps its own name and logo.
-   Previous themes: styles.dark.css (night HUD), styles.old.css (original). */
+   Previous themes: themes/styles.dark.css (night HUD), themes/styles.old.css (original), not loaded. */
 
 @import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 
@@ -96,9 +96,9 @@ code { font: .86em var(--font-mono); background: var(--surface-2); padding: .1em
   display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
 }
 .brand { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
-.brand img { display: block; }
+.brand img { display: none; }  /* wordmark only, like Nagrik's header */
 .brand-text { display: flex; flex-direction: column; }
-.brand-name { font-size: 1.22rem; font-weight: 700; letter-spacing: -.04em; line-height: 1.05; }
+.brand-name { font-size: 1.375rem; font-weight: 700; letter-spacing: -.055em; line-height: 1.05; }  /* Nagrik wordmark */
 .brand-name::after { content: "."; color: var(--amber); }
 .brand-sub { font-size: .76rem; color: var(--ink-2); }
 .live-stats { display: flex; flex-wrap: wrap; gap: 0; margin: 0; }

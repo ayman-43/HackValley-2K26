@@ -6,7 +6,7 @@
   <title>Nagrik Roads Bengaluru</title>
   <meta name="description" content="Nagrik Roads: AI road-damage detection, tracking and repair workflow for Bengaluru roads.">
   <meta name="theme-color" content="#f1f3f5">
-  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="icon" href="assets/favicon-64.png" type="image/png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" crossorigin="">
   <link rel="stylesheet" href="styles.css">
@@ -16,7 +16,6 @@
   <header class="site-header">
     <div class="header-inner">
       <a class="brand" href="/roads/" aria-label="Nagrik Roads home">
-        <img src="assets/logo.png" alt="" width="36" height="36">
         <span class="brand-text">
           <span class="brand-name">Nagrik Roads</span>
           <span class="brand-sub">Bengaluru road condition desk</span>
@@ -31,7 +30,7 @@
     <nav class="main-nav" aria-label="Sections">
       <a href="#/map" data-route="map">Map</a>
       <a href="#/defects" data-route="defects">Defects</a>
-      <a href="#/upload" data-route="upload">Scan a road</a>
+      <a href="#/upload" data-route="upload" data-need="public citizen crew">Scan a road</a>
       <a href="#/review" data-route="review" data-need="officer admin">Review <span class="nav-count" id="nav-review-count" hidden></span></a>
       <a href="#/reports" data-route="reports" data-need="officer admin">Reports</a>
       <details class="nav-more">
@@ -41,11 +40,11 @@
           <a href="/roads/route.html" data-need="crew officer admin">Repair route planner</a>
           <a href="/roads/roads.html">Road health by street</a>
           <a href="#/metrics" data-route="metrics">Model accuracy</a>
-          <a href="/roads/training.html" data-need="admin">Model training</a>
+          <a href="/roads/training.html">Model training</a>
           <a href="/roads/users.html" data-need="admin">Manage accounts</a>
         </div>
       </details>
-      <a href="/roads/app" class="nav-app">Phone app</a>
+      <a href="/roads/app" class="nav-app" data-need="public citizen crew">Phone app</a>
     </nav>
   </header>
 

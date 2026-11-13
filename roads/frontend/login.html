@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sign in | Nagrik Roads</title>
-  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="icon" href="assets/favicon-64.png" type="image/png">
   <link rel="stylesheet" href="styles.css">
   <style>
     :root {
@@ -143,13 +143,14 @@
       .m-brand { display: flex !important; margin-bottom: 20px; }
     }
     .m-brand { display: none; }
+      .official-note { margin-top: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-2); font-size: .86rem; color: var(--ink-2); }
+    .official-note b { color: var(--ink); }
   </style>
 </head>
 <body>
   <div class="auth">
     <aside class="road" aria-label="About Nagrik Roads accounts">
       <a class="brand" href="/roads/" aria-label="Nagrik Roads home">
-        <img src="assets/logo.png" alt="" width="36" height="36">
         <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Bengaluru road condition desk</span></span>
       </a>
       <div>
@@ -171,7 +172,6 @@
     <main class="desk" id="main">
       <div class="panel-auth">
         <a class="brand m-brand" href="/roads/" aria-label="Nagrik Roads home">
-          <img src="assets/logo.png" alt="" width="32" height="32">
           <span class="brand-text"><span class="brand-name">Nagrik Roads</span></span>
         </a>
 
@@ -199,22 +199,9 @@
         <!-- Create account -->
         <section id="pane-up" role="tabpanel" aria-labelledby="tab-up" hidden>
           <h2>Create your account</h2>
-          <p class="sub">Citizens can start right away. Officer and crew accounts start as citizen accounts until an administrator approves them.</p>
+          <p class="sub">Report potholes, scan roads and follow repairs on the map. It takes a few seconds and is free.</p>
           <form class="f" id="f-up" novalidate>
             <div class="msg err" id="up-err" role="alert"></div>
-            <fieldset class="roles">
-              <legend>I am a</legend>
-              <label class="role"><input type="radio" name="role" value="citizen" checked>
-                <div><b>Citizen</b><span>Report potholes, scan roads, follow repairs on the map</span></div><em class="now">Instant</em></label>
-              <label class="role"><input type="radio" name="role" value="crew">
-                <div><b>Repair crew</b><span>Plan the repair round and mark potholes fixed</span></div><em>Needs approval</em></label>
-              <label class="role"><input type="radio" name="role" value="officer">
-                <div><b>Ward officer</b><span>Review AI detections, schedule repairs, read ward reports</span></div><em>Needs approval</em></label>
-            </fieldset>
-            <div class="official" id="official">
-              <div><label for="up-emp">Employee or crew ID</label><input type="text" id="up-emp" maxlength="40" placeholder="BBMP-CREW-07"></div>
-              <div><label for="up-ward">Ward <span class="hint">optional</span></label><input type="text" id="up-ward" maxlength="60" placeholder="Koramangala"></div>
-            </div>
             <div><label for="up-name">Full name</label><input type="text" id="up-name" autocomplete="name" maxlength="80" required></div>
             <div><label for="up-email">Email</label><input type="email" id="up-email" autocomplete="email" autocapitalize="none" spellcheck="false" required></div>
             <div><label for="up-pw">Password</label>
@@ -224,6 +211,8 @@
             <button class="go-btn" type="submit" id="up-go">Create account</button>
           </form>
           <p class="alt">Already have an account? <button type="button" data-goto="in">Sign in</button></p>
+          <p class="official-note"><b>City official?</b> Ward officer and repair crew accounts are created by your department's
+            administrator, not through this form. Sign in with the details they give you.</p>
         </section>
 
         <!-- after an officer/crew request -->
@@ -275,9 +264,9 @@
       if (role) {
         const n = FEATURES.filter(([, who]) => who.includes(role)).length;
         $('acc-p').textContent = `${NAMES[role]}: ${n} of ${FEATURES.length} features.` +
-          (role === 'citizen' ? '' : ' Until an administrator approves you, you get citizen access.');
+          (role === 'citizen' ? ' Official accounts are created by an administrator.' : '');
       } else {
-        $('acc-p').textContent = 'Choose a role when you create an account to see it here.';
+        $('acc-p').textContent = 'New accounts are citizen accounts. Officials get their account from an administrator.';
       }
     }
 
@@ -288,7 +277,7 @@
       $('tab-up').setAttribute('aria-selected', String(up));
       $('pane-in').hidden = up; $('pane-up').hidden = !up; $('pane-done').hidden = true;
       document.title = (up ? 'Create account' : 'Sign in') + ' | Nagrik Roads';
-      highlight(up ? document.querySelector('input[name="role"]:checked').value : null);
+      highlight(up ? 'citizen' : null);
       history.replaceState(null, '', location.pathname + '?' + (() => { const p = new URLSearchParams(location.search);
         if (up) p.set('mode', 'signup'); else p.delete('mode'); return p.toString(); })());
       (up ? $('up-name') : $('in-email')).focus();
@@ -304,10 +293,6 @@
       const i = $(b.dataset.toggle); const showing = i.type === 'text';
       i.type = showing ? 'password' : 'text'; b.textContent = showing ? 'Show' : 'Hide';
       b.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
-    }));
-    document.querySelectorAll('input[name="role"]').forEach((r) => r.addEventListener('change', () => {
-      highlight(r.value);
-      $('official').classList.toggle('show', r.value !== 'citizen');
     }));
 
     const err = (id, m) => { const e = $(id); e.textContent = m; e.classList.add('show'); };
@@ -334,13 +319,10 @@
     // ---- create account
     $('f-up').addEventListener('submit', async (e) => {
       e.preventDefault(); clear('up-err');
-      const role = document.querySelector('input[name="role"]:checked').value;
-      const body = { role, name: $('up-name').value.trim(), email: $('up-email').value.trim(), password: $('up-pw').value,
-        employee_id: $('up-emp').value.trim(), ward: $('up-ward').value.trim() };
+      const body = { name: $('up-name').value.trim(), email: $('up-email').value.trim(), password: $('up-pw').value };
       if (!body.name) return err('up-err', 'Enter your full name.');
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.email)) return err('up-err', 'Enter a valid email address.');
       if (body.password.length < 8) return err('up-err', 'Password must be at least 8 characters.');
-      if (role !== 'citizen' && !body.employee_id) return err('up-err', 'Enter your employee or crew ID so an administrator can check it.');
       $('up-go').disabled = true; $('up-go').textContent = 'Creating account…';
       try {
         const j = await post('/api/auth/signup', body);

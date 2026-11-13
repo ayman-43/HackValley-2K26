@@ -9,3 +9,8 @@ __pycache__/
 *.log
 *.avi
 .env
+
+# scratch output and files that are not ours to publish
+runs/
+docs/hackathon/
+*.pptx

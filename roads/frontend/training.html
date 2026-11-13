@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Model training | Nagrik Roads</title>
-  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="icon" href="assets/favicon-64.png" type="image/png">
   <link rel="stylesheet" href="styles.css">
   <style>
     .live-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
@@ -24,60 +24,108 @@
     .step p { margin: 0; color: var(--ink-2); font-size: .88rem; }
     .classes { display: flex; flex-wrap: wrap; gap: 8px; }
     .imgs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
-    .imgs img { width: 100%; border-radius: var(--r-md); border: 1px solid var(--line); display: block; }
+    .imgs img { width: 100%; border-radius: var(--r-md); border: 1px solid var(--line); display: block; background: #fff; }
+    .imgs figure { margin: 0; }
+    .imgs figcaption { color: var(--ink-2); font-size: .84rem; margin-top: 6px; }
+    .hero-model { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 28px; align-items: start; }
+    @media (max-width: 860px) { .hero-model { grid-template-columns: minmax(0, 1fr); } }
+    .score { font-weight: 700; font-size: clamp(3.2rem, 9vw, 5.2rem); letter-spacing: -.06em; line-height: .95; color: var(--ink); }
+    .score-label { color: var(--ink-2); margin: 6px 0 16px; }
+    .bar { position: relative; height: 8px; background: var(--bg-2); border-radius: 999px; min-width: 70px; }
+    .bar > span { position: absolute; inset: 0 auto 0 0; background: var(--data); border-radius: 999px; }
+    .mine td, .mine th { font-weight: 650; background: var(--accent-soft); }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
   </style>
 </head>
-<body data-need="admin">
+<body>
   <script src="gate.js"></script>
   <header class="site-header">
     <div class="header-inner">
       <a class="brand" href="/roads/" aria-label="Nagrik Roads home">
-        <img src="assets/logo.png" alt="" width="36" height="36">
         <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Bengaluru road condition desk</span></span>
       </a>
     </div>
     <nav class="main-nav" aria-label="Sections">
       <a href="/roads/dashboard#/map">Map</a>
       <a href="/roads/dashboard#/defects">Defects</a>
-      <a href="/roads/dashboard#/upload">Scan a road</a>
-      <a href="/roads/dashboard#/review">Review</a>
-      <a href="/roads/dashboard#/reports">Reports</a>
+      <a href="/roads/dashboard#/upload" data-need="public citizen crew">Scan a road</a>
+      <a href="/roads/dashboard#/review" data-need="officer admin">Review</a>
+      <a href="/roads/dashboard#/reports" data-need="officer admin">Reports</a>
       <details class="nav-more">
         <summary>More</summary>
         <div class="nav-menu">
-          <a href="/roads/route.html">Repair route planner</a>
+          <a href="/roads/route.html" data-need="crew officer admin">Repair route planner</a>
           <a href="/roads/roads.html">Road health by street</a>
           <a href="/roads/dashboard#/metrics">Model accuracy</a>
           <a href="/roads/training.html" aria-current="page">Model training</a>
         </div>
       </details>
-      <a href="/roads/app" class="nav-app">Phone app</a>
+      <a href="/roads/app" class="nav-app" data-need="public citizen crew">Phone app</a>
     </nav>
   </header>
 
   <main id="main">
     <div class="view-head">
       <h1>Model training</h1>
-      <p>Two detectors, trained on the same 21,562 road images. This page refreshes every 5 seconds.</p>
+      <p>How the detector inside Nagrik Roads was trained, and how accurate it is on 3,653 road images it never saw while training.</p>
     </div>
 
+    <section class="panel">
+      <h2>Final model: YOLO26s, trained on Kaggle</h2>
+      <div class="hero-model">
+        <div id="kg-summary"><p class="muted">Loading results</p></div>
+        <div>
+          <div id="kg-chart"></div>
+          <div class="legend" id="kg-legend"></div>
+        </div>
+      </div>
+    </section>
+
     <div class="grid-2">
-      <section class="panel" aria-live="polite">
-        <h2>Laptop run: YOLO26n</h2>
-        <div id="local-live" class="loading muted small">Reading training log</div>
+      <section class="panel">
+        <h2>Accuracy by data source</h2>
+        <p class="muted small">mAP50 on each validation set. BharatPotHole is Indian dashcam footage, the closest match to Bengaluru.</p>
+        <div class="table-wrap" id="kg-sources"></div>
       </section>
       <section class="panel">
-        <h2>Cloud run: YOLO26s on Kaggle</h2>
-        <div id="kaggle"><p class="muted">Checking Kaggle</p></div>
+        <h2>Accuracy by damage type</h2>
+        <p class="muted small">mAP50 for each class across all 3,653 validation images.</p>
+        <div class="table-wrap" id="kg-classes"></div>
       </section>
     </div>
 
     <section class="panel">
-      <h2>Accuracy after each epoch</h2>
-      <p class="muted small">Measured on 3,653 held-out validation images the model never trains on. mAP50 is the standard detection score: higher is better.</p>
-      <div id="chart"></div>
-      <div class="legend" id="chart-legend"></div>
+      <h2>How it improved</h2>
+      <p class="muted small">F1 (balance of precision and recall) on Indian validation images. Higher is better.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Model</th><th class="num">Indian dashcam potholes (BharatPotHole)</th><th class="num">Indian roads, all 4 types (RDD India)</th></tr></thead>
+        <tbody>
+          <tr><td>Off-the-shelf RDD2022 YOLOv8s (starting point)</td><td class="num">0.03</td><td class="num">0.65*</td></tr>
+          <tr><td>Our YOLO26n, laptop RTX 2050, 29 epochs</td><td class="num">0.49</td><td class="num">0.50</td></tr>
+          <tr class="mine"><td>Our YOLO26s, Kaggle T4, 148 epochs</td><td class="num">0.68</td><td class="num">0.54</td></tr>
+          <tr><td>YOLO26s + RDD2022 crack model (used for uploads)</td><td class="num">0.67</td><td class="num">0.61</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted small" style="margin-top:8px">* The off-the-shelf model was trained on RDD2022 challenge data that very likely includes these RDD India images, so that score is optimistic. It almost never finds potholes in Indian dashcam footage.</p>
     </section>
+
+    <section class="panel">
+      <h2>What the model sees</h2>
+      <p class="muted small">Plots from the Kaggle run. Click an image to open it full size.</p>
+      <div class="imgs" id="kg-images"></div>
+    </section>
+
+    <div class="grid-2">
+      <section class="panel" aria-live="polite">
+        <h2>Earlier run: YOLO26n on the laptop</h2>
+        <div id="local-live" class="loading muted small">Reading training log</div>
+      </section>
+      <section class="panel">
+        <h2>Laptop run, accuracy after each epoch</h2>
+        <div id="chart"></div>
+        <div class="legend" id="chart-legend"></div>
+      </section>
+    </div>
 
     <section class="panel">
       <h2>What the model learns from</h2>
@@ -97,13 +145,13 @@
       <div class="pipeline">
         <div class="step"><h3>1. Collect</h3><p>Four public road-damage datasets from India and the US, all labelled with boxes around each defect.</p></div>
         <div class="step"><h3>2. Unify</h3><p>Every dataset is converted to the same YOLO format and the same four classes, then split 83% train and 17% validation with a fixed seed.</p></div>
-        <div class="step"><h3>3. Train</h3><p>YOLO26n on the laptop and the larger YOLO26s on a Kaggle GPU, starting from weights pre-trained on COCO.</p></div>
-        <div class="step"><h3>4. Pick the winner</h3><p>Both are scored on the Indian validation images. The best one replaces the current model in the app.</p></div>
+        <div class="step"><h3>3. Train</h3><p>YOLO26n on the laptop (29 epochs) and the larger YOLO26s on a free Kaggle T4 GPU (148 epochs), both starting from weights pre-trained on COCO.</p></div>
+        <div class="step"><h3>4. Pick the winner</h3><p>Both were scored on the Indian validation images. YOLO26s won and now runs in the app.</p></div>
       </div>
     </section>
 
     <section class="panel">
-      <h2>Sample training batches</h2>
+      <h2>Sample training batches (laptop run)</h2>
       <p class="muted small">Augmented images exactly as the model sees them, with the labelled boxes.</p>
       <div class="imgs">
         <img src="/api/training/img/train_batch0.jpg" alt="Training batch with labelled road damage" loading="lazy">
@@ -122,10 +170,56 @@
     };
     const $ = (s) => document.querySelector(s);
     const fmt = (n) => Number(n).toLocaleString('en-IN');
-    let dsDone = false;
+    let dsDone = false, kgDone = false;
+    const SOURCES = { all: 'All validation images', bharatpothole: 'BharatPotHole (Indian dashcam)', rdd_india: 'RDD2022 India',
+      rdd_usa: 'RDD2022 United States', kaggle_potholes: 'Kaggle Potholes' };
+    const CLASSES = { longitudinal_crack: 'Longitudinal crack', transverse_crack: 'Transverse crack', alligator_crack: 'Alligator crack', pothole: 'Pothole' };
+    const CAPTIONS = { 'example_predictions.jpg': 'What the model found on validation images', 'example_ground_truth.jpg': 'The same images, labelled by people',
+      'training_curves.png': 'Losses and accuracy over 148 epochs', 'confusion_matrix.png': 'Which damage types get confused',
+      'precision_recall_curve.png': 'Precision vs recall for each class', 'f1_curve.png': 'F1 at every confidence threshold' };
+    const ORDER = ['example_predictions.jpg', 'example_ground_truth.jpg', 'training_curves.png', 'confusion_matrix.png', 'precision_recall_curve.png', 'f1_curve.png'];
+    const barRow = (name, v, strong) => `<tr${strong ? ' class="mine"' : ''}><td>${name}</td><td class="num" style="width:4.5em">${v.toFixed(3)}</td>
+      <td style="width:40%"><div class="bar" role="img" aria-label="${(v * 100).toFixed(0)} percent"><span style="width:${(v * 100).toFixed(1)}%"></span></div></td></tr>`;
 
-    function chart(eps) {
-      if (!eps.length) { $('#chart').innerHTML = '<p class="muted">No finished epochs yet.</p>'; return; }
+    function renderKaggle(k) {
+      const eps = k.epochs || [];
+      const sets = Array.isArray(k.metrics) ? k.metrics : [];
+      const all = sets.find((x) => x.set === 'all');
+      if (!eps.length && !all) {
+        $('#kg-summary').innerHTML = `<p class="muted">Kaggle run status: ${k.status}. Results appear here once the run's files are downloaded into docs/results.</p>`;
+        return;
+      }
+      const best = eps.reduce((a, b) => (b.map50 > (a ? a.map50 : -1) ? b : a), null);
+      $('#kg-summary').innerHTML = `
+        <div class="badge-row"><span class="badge risk-Low">Finished</span>${k.in_app ? '<span class="badge">Running in the app now</span>' : ''}</div>
+        <div class="score num">${(all ? all.mAP50 : best.map50).toFixed(3)}</div>
+        <div class="score-label">mAP50 on 3,653 unseen road images, best saved model</div>
+        <dl class="kv">
+          <dt>Precision</dt><dd class="num">${all ? all.precision.toFixed(3) : best.precision.toFixed(3)}</dd>
+          <dt>Recall</dt><dd class="num">${all ? all.recall.toFixed(3) : best.recall.toFixed(3)}</dd>
+          ${all ? `<dt>F1</dt><dd class="num">${all.f1.toFixed(3)}</dd><dt>mAP50-95</dt><dd class="num">${all.mAP50_95.toFixed(3)}</dd>` : ''}
+          <dt>Training</dt><dd>${eps.length} epochs on a ${k.device}, 640 px images</dd>
+          <dt>Training data</dt><dd>17,909 images from India and the US</dd>
+          <dt>Notebook</dt><dd><a href="https://www.kaggle.com/code/${k.kernel}" target="_blank" rel="noopener">Open on Kaggle</a></dd>
+        </dl>`;
+      chart(eps, '#kg-chart', '#kg-legend');
+      if (sets.length) {
+        const ordered = ['all', 'bharatpothole', 'rdd_india', 'rdd_usa', 'kaggle_potholes'].map((n) => sets.find((x) => x.set === n)).filter(Boolean);
+        $('#kg-sources').innerHTML = `<table><thead><tr><th>Validation set</th><th class="num">mAP50</th><th><span class="sr-only">Bar</span></th></tr></thead><tbody>${
+          ordered.map((x) => barRow(SOURCES[x.set] || x.set, x.mAP50, x.set === 'bharatpothole')).join('')}</tbody></table>`;
+      }
+      if (all && all.per_class_mAP50) {
+        $('#kg-classes').innerHTML = `<table><thead><tr><th>Damage type</th><th class="num">mAP50</th><th><span class="sr-only">Bar</span></th></tr></thead><tbody>${
+          Object.entries(all.per_class_mAP50).map(([c, v]) => barRow(CLASSES[c] || c, v, c === 'pothole')).join('')}</tbody></table>`;
+      }
+      const imgs = (k.images || []).slice().sort((a, b) => ORDER.indexOf(a.split('/').pop()) - ORDER.indexOf(b.split('/').pop()));
+      $('#kg-images').innerHTML = imgs.map((u) => { const n = u.split('/').pop();
+        return `<figure><a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="${CAPTIONS[n] || n}" loading="lazy"></a><figcaption>${CAPTIONS[n] || n}</figcaption></figure>`; }).join('')
+        || '<p class="muted">No plots found in docs/results.</p>';
+    }
+
+    function chart(eps, box = '#chart', legend = '#chart-legend') {
+      if (!eps.length) { $(box).innerHTML = '<p class="muted">No finished epochs yet.</p>'; return; }
       const W = 760, H = 260, L = 40, R = 12, T = 12, B = 30;
       const maxE = Math.max(eps[eps.length - 1].epoch, 10);
       const x = (e) => L + (e - 1) / Math.max(maxE - 1, 1) * (W - L - R);
@@ -133,16 +227,16 @@
       const series = [['map50', '#b8860b', 'mAP50'], ['precision', '#2b6c9b', 'Precision'], ['recall', '#2f7d55', 'Recall']];
       let g = '';
       for (let v = 0; v <= 0.8001; v += 0.2) g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v.toFixed(1)}</text>`;
-      for (let e = 1; e <= maxE; e += Math.ceil(maxE / 10)) g += `<text x="${x(e)}" y="${H - 8}" text-anchor="middle">${e}</text>`;
+      for (let e = 1; e <= maxE; e += Math.ceil(maxE / 10 / 5) * 5 || 1) g += `<text x="${x(e)}" y="${H - 8}" text-anchor="middle">${e}</text>`;
       const lines = series.map(([k, c]) => {
         const pts = eps.map((p) => `${x(p.epoch).toFixed(1)},${y(p[k]).toFixed(1)}`).join(' ');
         const last = eps[eps.length - 1];
         return `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="${k === 'map50' ? 3 : 2}" stroke-linejoin="round" />` +
           `<circle cx="${x(last.epoch)}" cy="${y(last[k])}" r="4" fill="${c}"/>`;
       }).join('');
-      $('#chart').innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Validation accuracy by epoch">${g}${lines}<text x="${W - R}" y="${y(0) - 6}" text-anchor="end">epoch</text></svg>`;
+      $(box).innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Validation accuracy by epoch">${g}${lines}<text x="${W - R}" y="${y(0) - 6}" text-anchor="end">epoch</text></svg>`;
       const first = eps[0], last = eps[eps.length - 1];
-      $('#chart-legend').innerHTML = series.map(([k, c, n]) => `<span><i class="legend-line" style="background:${c}"></i>${n} <b class="num">${last[k].toFixed(3)}</b></span>`).join('') +
+      $(legend).innerHTML = series.map(([k, c, n]) => `<span><i class="legend-line" style="background:${c}"></i>${n} <b class="num">${last[k].toFixed(3)}</b></span>`).join('') +
         `<span class="muted">mAP50 went from ${first.map50.toFixed(2)} at epoch ${first.epoch} to ${last.map50.toFixed(2)} at epoch ${last.epoch}</span>`;
     }
 
@@ -161,7 +255,7 @@
         el.innerHTML = `
           <div class="live-card"><span class="pulse-dot off" aria-hidden="true"></span>
             <div><div class="big-epoch">Done<small> · ${eps.length} of ${lv.epochs} epochs</small></div>
-            <div class="muted small">${d.local.device} · the trained model now runs in the app</div></div></div>
+            <div class="muted small">${d.local.device} · replaced by the Kaggle YOLO26s model</div></div></div>
           <dl class="kv" style="margin-top:14px">
             <dt>Final accuracy</dt><dd><b class="num">mAP50 ${last.map50.toFixed(3)}</b> · precision ${last.precision.toFixed(2)} · recall ${last.recall.toFixed(2)}</dd>
             <dt>Started at</dt><dd class="num">mAP50 ${eps[0].map50.toFixed(3)} after epoch 1</dd>
@@ -185,17 +279,7 @@
           ${best ? `<dt>Best so far</dt><dd><b class="num">mAP50 ${best.map50.toFixed(3)}</b> at epoch ${best.epoch}</dd>` : ''}
         </dl>` : '<p class="muted">No training progress in the log yet.</p>';
 
-      const k = d.kaggle;
-      const st = { running: ['Running', 'risk-Low'], complete: ['Finished', 'risk-Low'], queued: ['Queued', 'risk-Medium'], error: ['Failed', 'risk-Critical'] }[k.status] || [k.status, ''];
-      $('#kaggle').innerHTML = `
-        <div class="live-card"><span class="pulse-dot ${k.status === 'running' ? '' : 'off'}" aria-hidden="true"></span>
-          <div><span class="badge ${st[1]}">${st[0]}</span> <span class="muted small">${k.device}</span></div></div>
-        <dl class="kv" style="margin-top:14px">
-          <dt>Model</dt><dd>${k.model}: a larger version of the laptop model, more accurate but too big to train well on a 4 GB GPU</dd>
-          <dt>Plan</dt><dd>Up to ${k.max_epochs} epochs, stops itself after 10.5 h</dd>
-          <dt>Notebook</dt><dd><a href="https://www.kaggle.com/code/${k.kernel}" target="_blank" rel="noopener">Open on Kaggle</a></dd>
-        </dl>
-        <p class="muted small" style="margin-top:10px">Kaggle publishes the logs and weights when the run finishes; then both models are compared on Indian roads.</p>`;
+      if (!kgDone) { renderKaggle(d.kaggle); kgDone = true; }
 
       chart(eps);
       if (!dsDone) {

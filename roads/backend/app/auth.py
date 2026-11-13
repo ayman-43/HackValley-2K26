@@ -67,7 +67,6 @@ RULES = [
     ("GET", r"^/api/review/queue$", {"officer", "admin"}),
     ("GET", r"^/api/digest$", {"officer", "admin"}),
     ("GET", r"^/api/report/", {"officer", "admin"}),
-    ("GET", r"^/api/training", {"admin"}),
     ("POST", r"^/api/defects/\d+/repair$", {"crew", "officer", "admin"}),
     ("POST", r"^/api/defects/\d+/repaired_by$", {"crew", "officer", "admin"}),
     ("POST", r"^/api/crew/route$", {"crew", "officer", "admin"}),
@@ -80,7 +79,7 @@ RULES = [(m, re.compile(p), roles) for m, p, roles in RULES]
 LIMITS = [
     ("POST", re.compile(r"^/api/inspections$"), 30, 3600),
     ("POST", re.compile(r"^/api/live/start$"), 20, 3600),
-    ("POST", re.compile(r"^/api/auth/login$"), 10, 300),
+    ("POST", re.compile(r"^/api/auth/login$"), 20, 300),
     ("POST", re.compile(r"^/api/auth/google$"), 20, 300),
     ("POST", re.compile(r"^/api/auth/supabase$"), 20, 300),
     ("POST", re.compile(r"^/api/auth/signup$"), 10, 3600),
@@ -203,8 +202,18 @@ def _start_session(response: Response, user: dict) -> None:
     response.set_cookie(COOKIE, token, max_age=SESSION_HOURS * 3600, httponly=True, samesite="lax", path="/")
 
 
-def _rate_limited(request: Request) -> bool:
+def client_ip(request: Request) -> str:
+    """The visitor's address. Behind the local Nagrik site (Node on :5501) every request comes from 127.0.0.1,
+    so the X-Forwarded-For it adds is used, but only when the request itself comes from this machine."""
     ip = request.client.host if request.client else "?"
+    fwd = request.headers.get("x-forwarded-for", "")
+    if fwd and ip in ("127.0.0.1", "::1", "localhost"):
+        ip = fwd.split(",")[0].strip().removeprefix("::ffff:") or ip
+    return ip
+
+
+def _rate_limited(request: Request) -> bool:
+    ip = client_ip(request)
     for method, rx, n, per in LIMITS:
         if request.method == method and rx.match(request.url.path):
             q = _hits[(ip, rx.pattern)]
@@ -255,7 +264,11 @@ class Login(BaseModel):
 def login(body: Login, response: Response):
     ident = body.username.strip().lower()
     u = STORE.find_user("email" if "@" in ident else "username", ident)
-    if not u or not u.get("active") or not check_password(body.password, u.get("password_hash") or ""):
+    stored = (u or {}).get("password_hash") or ""
+    # a password pasted with a stray space at either end still works
+    ok = check_password(body.password, stored) or (body.password != body.password.strip()
+                                                    and check_password(body.password.strip(), stored))
+    if not u or not u.get("active") or not ok:
         time.sleep(0.4)  # slow down guessing
         raise HTTPException(401, "Wrong username or password.")
     _start_session(response, u)
@@ -273,8 +286,9 @@ class Signup(BaseModel):
 
 @router.post("/signup")
 def signup(body: Signup, response: Response):
-    """Create an account with email + password and sign in. Citizens get access at once; a ward officer or
-    repair crew request starts as a citizen until an administrator approves it (nobody can sign up as admin)."""
+    """Public sign-up creates a CITIZEN account and signs it in. Official accounts (ward officer, repair crew,
+    administrator) are never self-service: an administrator creates them on the accounts page. Any role sent
+    by the client is ignored (older clients may still send one)."""
     name = body.name.strip()
     email = _clean_email(body.email)
     if not name or len(name) > 80:
@@ -283,20 +297,12 @@ def signup(body: Signup, response: Response):
         raise HTTPException(400, "Enter your email address.")
     if len(body.password) < 8:
         raise HTTPException(400, "Password must be at least 8 characters.")
-    if body.role not in ("citizen", "officer", "crew"):
-        raise HTTPException(400, "Choose Citizen, Ward officer or Repair crew.")
     if STORE.find_user("email", email):
         raise HTTPException(400, "An account with this email already exists. Sign in instead.")
-    details = None
-    if body.role != "citizen":
-        emp, ward = (body.employee_id or "").strip()[:40], (body.ward or "").strip()[:60]
-        if not emp:
-            raise HTTPException(400, "Enter your employee / crew ID so an administrator can check it.")
-        details = f"ID {emp}" + (f" · {ward}" if ward else "")
     role = "admin" if email in ADMIN_EMAILS else "citizen"
     uid = STORE.insert_user({"username": _unique_username(email), "name": name, "email": email, "role": role,
-                             "requested_role": body.role if body.role != "citizen" and role != "admin" else None,
-                             "details": details, "password_hash": hash_password(body.password), "active": 1,
+                             "requested_role": None, "details": None,
+                             "password_hash": hash_password(body.password), "active": 1,
                              "created_at": _iso(_now())})
     u = STORE.get_user(uid)
     _start_session(response, u)

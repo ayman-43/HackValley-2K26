@@ -348,25 +348,58 @@ def _kaggle_status():
         return {"status": "unknown", "kernel": KAGGLE_KERNEL, "error": str(e)[:120]}
 
 
+RESULTS_DIR = ROOT / "docs" / "results"   # finished Kaggle YOLO26s run (results.csv, metrics, plots)
+RESULT_IMAGES = {"training_curves.png", "confusion_matrix.png", "precision_recall_curve.png", "f1_curve.png",
+                 "example_predictions.jpg", "example_ground_truth.jpg"}
+
+
+def _epochs_csv(csv: Path) -> list:
+    """Ultralytics results.csv -> one dict per epoch."""
+    epochs = []
+    if not csv.is_file():
+        return epochs
+    lines = csv.read_text().strip().splitlines()
+    head = [h.strip() for h in lines[0].split(",")]
+    for ln in lines[1:]:
+        row = dict(zip(head, (v.strip() for v in ln.split(","))))
+        try:
+            epochs.append({"epoch": int(float(row["epoch"])),
+                           "precision": float(row["metrics/precision(B)"]),
+                           "recall": float(row["metrics/recall(B)"]),
+                           "map50": float(row["metrics/mAP50(B)"]),
+                           "map50_95": float(row["metrics/mAP50-95(B)"]),
+                           "box_loss": float(row["train/box_loss"]),
+                           "cls_loss": float(row["train/cls_loss"])})
+        except (KeyError, ValueError):
+            pass
+    return epochs
+
+
+def _kaggle_run() -> dict:
+    epochs = _epochs_csv(RESULTS_DIR / "kaggle_y26s_results.csv")
+    mfile = next((p for p in (MODELS_DIR / "roadsense_y26s_metrics.json", RESULTS_DIR / "roadsense_y26s_metrics.json")
+                  if p.is_file()), None)
+    metrics = _read_json(mfile) if mfile else None
+    if epochs:  # finished: the results were downloaded, no need to ask the Kaggle CLI
+        status = {"status": "complete", "kernel": KAGGLE_KERNEL}
+    else:
+        status = _cached("kaggle", 120, _kaggle_status)
+    images = [n for n in sorted(RESULT_IMAGES) if (RESULTS_DIR / n).is_file()]
+    return {"model": "YOLO26s", "device": "Kaggle GPU (Tesla T4)", "imgsz": 640, "max_epochs": 150, **status,
+            "epochs": epochs, "metrics": metrics, "in_app": detector.model_info().get("name") == "roadsense_y26s.pt",
+            "images": [f"/api/training/results/{n}" for n in images]}
+
+
+@app.get("/api/training/results/{name}", include_in_schema=False)
+def training_result_img(name: str):
+    if name not in RESULT_IMAGES or not (RESULTS_DIR / name).is_file():
+        raise HTTPException(404)
+    return FileResponse(RESULTS_DIR / name)
+
+
 @app.get("/api/training")
 def training():
-    epochs = []
-    csv = TRAIN_RUN / "results.csv"
-    if csv.is_file():
-        lines = csv.read_text().strip().splitlines()
-        head = [h.strip() for h in lines[0].split(",")]
-        for ln in lines[1:]:
-            row = dict(zip(head, (v.strip() for v in ln.split(","))))
-            try:
-                epochs.append({"epoch": int(float(row["epoch"])),
-                               "precision": float(row["metrics/precision(B)"]),
-                               "recall": float(row["metrics/recall(B)"]),
-                               "map50": float(row["metrics/mAP50(B)"]),
-                               "map50_95": float(row["metrics/mAP50-95(B)"]),
-                               "box_loss": float(row["train/box_loss"]),
-                               "cls_loss": float(row["train/cls_loss"])})
-            except (KeyError, ValueError):
-                pass
+    epochs = _epochs_csv(TRAIN_RUN / "results.csv")
     live = {"running": False}
     log = TRAIN_HOME / "train_log.txt"
     if log.is_file():
@@ -389,8 +422,7 @@ def training():
     return {
         "local": {"model": "YOLO26n", "device": "Laptop GPU (RTX 2050, 4 GB)", "imgsz": 640, "batch": 8,
                   "epochs": epochs, "live": live},
-        "kaggle": {"model": "YOLO26s", "device": "Kaggle GPU (Tesla T4)", "imgsz": 640, "max_epochs": 60,
-                   **_cached("kaggle", 120, _kaggle_status)},
+        "kaggle": _kaggle_run(),
         "dataset": _cached("ds", 3600, _dataset_counts),
         "classes": ["Longitudinal crack", "Transverse crack", "Alligator crack", "Pothole"],
     }

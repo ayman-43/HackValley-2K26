@@ -29,7 +29,7 @@ Read `ARCHITECTURE.md` first (the binding contract), then this file.
 | ROADSENSE_DEVICE | cpu | never use the GPU while training |
 | ROADSENSE_DEPTH | 0 | 1 = Depth-Anything depth index (heavy, CPU) |
 | ROADSENSE_NAGRIK | 0 | 1 = ward/officials/tenders enrichment |
-| ROADSENSE_CONF | 0.15 | detection confidence threshold (tuned) |
+| ROADSENSE_CONF | 0.20 | detection confidence threshold (tuned for roadsense_y26s) |
 | ROADSENSE_DATA_DIR | backend/data | DB + media + uploads (tests use a temp dir) |
 
 ## Key behaviour

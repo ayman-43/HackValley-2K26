@@ -24,14 +24,24 @@ except Exception:  # pragma: no cover
 ROOT = Path(__file__).resolve().parents[2]
 MODELS_DIR = ROOT / "backend" / "models"
 CANDIDATES = [
+    MODELS_DIR / "roadsense_y26s.pt",  # Kaggle T4, 148 epochs: BharatPotHole F1 0.68 (y26n: 0.49)
     MODELS_DIR / "roadsense_y26n.pt",
     MODELS_DIR / "rdd_yolov8s.pt",
     ROOT / "reference" / "pothole-pilot" / "ai_model" / "weights.onnx",
 ]
 DEVICE = os.environ.get("ROADSENSE_DEVICE", "cpu")
-# 0.15 maximises F1 on the Indian validation sets for roadsense_y26n at imgsz 640
-# (scripts/tune_detector.py -> backend/data/eval/tuning.json: F1 0.458 -> 0.501, recall 35% -> 46%)
-CONF = float(os.environ.get("ROADSENSE_CONF", 0.15))
+# 0.20 maximises F1 on the Indian validation sets for roadsense_y26s at imgsz 640
+# (scripts/tune_detector.py -> backend/data/eval/tuning_y26s.json; for roadsense_y26n the best was 0.15)
+CONF = float(os.environ.get("ROADSENSE_CONF", 0.20))
+
+# Combined detector for uploads (photos and videos; live scan stays single-model for speed):
+# potholes from the main model, cracks from a second crack model (rdd_yolov8s, much better on cracks).
+# scripts/eval_combo.py -> backend/data/eval/combo.json: RDD India F1 0.501 -> 0.589 (transverse cracks 0 -> 0.60),
+# BharatPotHole 0.494 -> 0.485. Turn off with ROADSENSE_COMBINE=0.
+CRACK_CLASSES = {"longitudinal_crack", "transverse_crack", "alligator_crack"}
+CRACK_MODEL = Path(os.environ.get("ROADSENSE_CRACK_MODEL", str(MODELS_DIR / "rdd_yolov8s.pt")))
+CRACK_CONF = float(os.environ.get("ROADSENSE_CRACK_CONF", 0.35))
+CRACK_TRACK_OFFSET = 1_000_000  # crack track IDs live in their own range so they never collide with pothole IDs
 
 # Canonical classes (RDD2022 / CRDDC2022 labels D00, D10, D20, D40)
 CLASSES = ["longitudinal_crack", "transverse_crack", "alligator_crack", "pothole"]
@@ -86,6 +96,33 @@ def model():
     return _model
 
 
+_crack_model = None
+
+
+def combine_enabled() -> bool:
+    return (os.environ.get("ROADSENSE_COMBINE", "1") != "0" and CRACK_MODEL.exists()
+            and CRACK_MODEL.resolve() != model_path().resolve())
+
+
+def _load_crack():
+    from ultralytics import YOLO
+    log.info("loading crack model %s on %s", CRACK_MODEL, DEVICE)
+    return YOLO(str(CRACK_MODEL), task="detect")
+
+
+def crack_model():
+    global _crack_model
+    if _crack_model is None:
+        _crack_model = _load_crack()
+    return _crack_model
+
+
+def _merge(main_dets: list[dict], crack_dets: list[dict]) -> list[dict]:
+    """Potholes from the main model, cracks (conf >= CRACK_CONF) from the crack model."""
+    return ([d for d in main_dets if d["damage_class"] not in CRACK_CLASSES]
+            + [d for d in crack_dets if d["damage_class"] in CRACK_CLASSES and d["confidence"] >= CRACK_CONF])
+
+
 def canonical(name: str) -> str:
     n = str(name).lower()
     if "pot" in n or n.startswith("d40"):
@@ -123,7 +160,11 @@ def detect_image(img: np.ndarray) -> list[dict]:
     """Detections on one BGR image: [{bbox, confidence, damage_class, track_id=None}]."""
     with _lock:
         r = model().predict(img, conf=CONF, device=DEVICE, verbose=False)[0]
-    return _boxes(r)
+        dets = _boxes(r)
+        if combine_enabled():
+            rc = crack_model().predict(img, conf=min(CONF, CRACK_CONF), device=DEVICE, verbose=False)[0]
+            dets = _merge(dets, _boxes(rc))
+    return dets
 
 
 def draw(img, dets, label_fn=None):
@@ -182,6 +223,8 @@ def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: in
     counted = set()
     line_y = int(size[1] * line_frac)
     m = _load()  # fresh tracker state for this video
+    mc = _load_crack() if combine_enabled() else None  # own ByteTrack state for cracks
+    crack_dets: list[dict] = []
     idx = 0
     processed = 0
     try:
@@ -199,6 +242,15 @@ def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: in
             if _privacy is not None:  # tracked on the original; stored best frames + video are redacted
                 frame = _privacy.redact(frame)
             dets = _boxes(r)
+            if mc is not None:
+                if processed % 2 == 0:  # cracks do not move: every other analysed frame is enough
+                    rc = mc.track(frame, persist=True, tracker="bytetrack.yaml", conf=min(CONF, CRACK_CONF),
+                                  device=DEVICE, verbose=False)[0]
+                    crack_dets = [{**d, "track_id": None if d["track_id"] is None else d["track_id"] + CRACK_TRACK_OFFSET}
+                                  for d in _boxes(rc)]
+                    dets = _merge(dets, crack_dets)
+                else:
+                    dets = [d for d in dets if d["damage_class"] not in CRACK_CLASSES]
             raw += len(dets)
             for d in dets:
                 if d["track_id"] is None:
@@ -231,11 +283,12 @@ def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: in
     finally:
         cap.release()
         writer.release()
-        try:
-            for trk in getattr(m.predictor, "trackers", []) or []:
-                trk.reset()
-        except Exception:
-            pass
+        for mm in (m, mc):
+            try:
+                for trk in getattr(getattr(mm, "predictor", None), "trackers", []) or []:
+                    trk.reset()
+            except Exception:
+                pass
 
     uniques = []
     for tid, tr in tracks.items():

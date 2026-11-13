@@ -35,7 +35,10 @@ If you need something from another owner's file, write it in your final report i
 | `ROADSENSE_NAGRIK` | `1` | `0` disables Nagrik ward/officer/tender enrichment |
 | `ROADSENSE_DEPTH` | `0` | `1` enables Depth-Anything depth index in severity (heavy) |
 | `ROADSENSE_DATA_DIR` | `backend/data` | Database + media folder (tests use a temp dir) |
-| `ROADSENSE_CONF` | `0.15` | Detection confidence threshold (tuned with scripts/tune_detector.py) |
+| `ROADSENSE_CONF` | `0.20` | Detection confidence threshold (tuned for roadsense_y26s with scripts/tune_detector.py) |
+| `ROADSENSE_COMBINE` | `1` | Uploads (photos/videos) use potholes from the main model + cracks from the crack model; `0` = main model only. Live scan always uses the main model |
+| `ROADSENSE_CRACK_MODEL` | `backend/models/rdd_yolov8s.pt` | Crack model for the combined detector (scripts/eval_combo.py) |
+| `ROADSENSE_CRACK_CONF` | `0.35` | Confidence threshold for crack boxes from the crack model |
 | `PIN_MEMORY` | – | Set `False` when training on Windows (avoids CUDA "resource already mapped" crash) |
 
 ## Data model (`backend/app/db.py`, SQLite, owned by Agent 1 — already written)

@@ -1,0 +1,396 @@
+{
+  "generated_at": "2026-11-13T14:03:31+00:00",
+  "device": "0",
+  "conf": 0.25,
+  "iou_match": 0.5,
+  "imgsz": 640,
+  "limit": null,
+  "classes": [
+    "longitudinal_crack",
+    "transverse_crack",
+    "alligator_crack",
+    "pothole"
+  ],
+  "notes": "P/R/F1 at conf>=0.25, IoU 0.5; mAP50 via ultralytics ap_per_class on conf>=0.001 preds, mean over classes present in the ground truth.",
+  "caveats": "y26n epoch 29/30 (run killed during epoch 30) vs rdd_yolov8s; India val sets",
+  "datasets": {
+    "val_in": {
+      "source": "C:/Users/ayman/roadsense-data/roadsense/val_in.txt",
+      "n_images": 770,
+      "n_instances": {
+        "longitudinal_crack": 174,
+        "transverse_crack": 7,
+        "alligator_crack": 205,
+        "pothole": 350
+      },
+      "models": {
+        "roadsense-data/roadsense_y26n_ep29.pt": {
+          "model": "C:/Users/ayman/roadsense-data/roadsense_y26n_ep29.pt",
+          "model_names": {
+            "0": "longitudinal_crack",
+            "1": "transverse_crack",
+            "2": "alligator_crack",
+            "3": "pothole"
+          },
+          "overall": {
+            "precision": 0.6339,
+            "recall": 0.3505,
+            "f1": 0.4514,
+            "tp": 258,
+            "n_pred": 407,
+            "n_gt": 736,
+            "map50": 0.3603,
+            "map50_95": 0.1536,
+            "map_classes": [
+              "longitudinal_crack",
+              "transverse_crack",
+              "alligator_crack",
+              "pothole"
+            ]
+          },
+          "per_class": {
+            "longitudinal_crack": {
+              "precision": 0.6,
+              "recall": 0.1897,
+              "f1": 0.2882,
+              "tp": 33,
+              "n_pred": 55,
+              "n_gt": 174,
+              "map50": 0.3164,
+              "map50_95": 0.135,
+              "supported": true
+            },
+            "transverse_crack": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "tp": 0,
+              "n_pred": 1,
+              "n_gt": 7,
+              "map50": 0.0733,
+              "map50_95": 0.0342,
+              "supported": true
+            },
+            "alligator_crack": {
+              "precision": 0.6587,
+              "recall": 0.5366,
+              "f1": 0.5914,
+              "tp": 110,
+              "n_pred": 167,
+              "n_gt": 205,
+              "map50": 0.6079,
+              "map50_95": 0.2763,
+              "supported": true
+            },
+            "pothole": {
+              "precision": 0.625,
+              "recall": 0.3286,
+              "f1": 0.4307,
+              "tp": 115,
+              "n_pred": 184,
+              "n_gt": 350,
+              "map50": 0.4438,
+              "map50_95": 0.169,
+              "supported": true
+            }
+          },
+          "ms_per_image": 24.8
+        },
+        "models/rdd_yolov8s.pt": {
+          "model": "backend/models/rdd_yolov8s.pt",
+          "model_names": {
+            "0": "Longitudinal Crack",
+            "1": "Transverse Crack",
+            "2": "Alligator Crack",
+            "3": "Potholes"
+          },
+          "overall": {
+            "precision": 0.6448,
+            "recall": 0.6535,
+            "f1": 0.6491,
+            "tp": 481,
+            "n_pred": 746,
+            "n_gt": 736,
+            "map50": 0.675,
+            "map50_95": 0.3648,
+            "map_classes": [
+              "longitudinal_crack",
+              "transverse_crack",
+              "alligator_crack",
+              "pothole"
+            ]
+          },
+          "per_class": {
+            "longitudinal_crack": {
+              "precision": 0.5988,
+              "recall": 0.5747,
+              "f1": 0.5865,
+              "tp": 100,
+              "n_pred": 167,
+              "n_gt": 174,
+              "map50": 0.6178,
+              "map50_95": 0.3139,
+              "supported": true
+            },
+            "transverse_crack": {
+              "precision": 0.4286,
+              "recall": 0.4286,
+              "f1": 0.4286,
+              "tp": 3,
+              "n_pred": 7,
+              "n_gt": 7,
+              "map50": 0.6116,
+              "map50_95": 0.3196,
+              "supported": true
+            },
+            "alligator_crack": {
+              "precision": 0.6996,
+              "recall": 0.7951,
+              "f1": 0.7443,
+              "tp": 163,
+              "n_pred": 233,
+              "n_gt": 205,
+              "map50": 0.8306,
+              "map50_95": 0.5002,
+              "supported": true
+            },
+            "pothole": {
+              "precision": 0.6342,
+              "recall": 0.6143,
+              "f1": 0.6241,
+              "tp": 215,
+              "n_pred": 339,
+              "n_gt": 350,
+              "map50": 0.6402,
+              "map50_95": 0.3255,
+              "supported": true
+            }
+          },
+          "ms_per_image": 35.7
+        }
+      }
+    },
+    "val_bp": {
+      "source": "C:/Users/ayman/roadsense-data/roadsense/val_bp.txt",
+      "n_images": 2007,
+      "n_instances": {
+        "longitudinal_crack": 0,
+        "transverse_crack": 0,
+        "alligator_crack": 0,
+        "pothole": 3331
+      },
+      "models": {
+        "roadsense-data/roadsense_y26n_ep29.pt": {
+          "model": "C:/Users/ayman/roadsense-data/roadsense_y26n_ep29.pt",
+          "model_names": {
+            "0": "longitudinal_crack",
+            "1": "transverse_crack",
+            "2": "alligator_crack",
+            "3": "pothole"
+          },
+          "overall": {
+            "precision": 0.616,
+            "recall": 0.3642,
+            "f1": 0.4577,
+            "tp": 1213,
+            "n_pred": 1969,
+            "n_gt": 3331,
+            "map50": 0.4176,
+            "map50_95": 0.1442,
+            "map_classes": [
+              "pothole"
+            ]
+          },
+          "per_class": {
+            "longitudinal_crack": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "tp": 0,
+              "n_pred": 0,
+              "n_gt": 0,
+              "map50": 0.0,
+              "map50_95": 0.0,
+              "supported": true
+            },
+            "transverse_crack": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "tp": 0,
+              "n_pred": 0,
+              "n_gt": 0,
+              "map50": 0.0,
+              "map50_95": 0.0,
+              "supported": true
+            },
+            "alligator_crack": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "tp": 0,
+              "n_pred": 0,
+              "n_gt": 0,
+              "map50": 0.0,
+              "map50_95": 0.0,
+              "supported": true
+            },
+            "pothole": {
+              "precision": 0.616,
+              "recall": 0.3642,
+              "f1": 0.4577,
+              "tp": 1213,
+              "n_pred": 1969,
+              "n_gt": 3331,
+              "map50": 0.4176,
+              "map50_95": 0.1442,
+              "supported": true
+            }
+          },
+          "ms_per_image": 20.7
+        },
+        "models/rdd_yolov8s.pt": {
+          "model": "backend/models/rdd_yolov8s.pt",
+          "model_names": {
+            "0": "Longitudinal Crack",
+            "1": "Transverse Crack",
+            "2": "Alligator Crack",
+            "3": "Potholes"
+          },
+          "overall": {
+            "precision": 0.1267,
+            "recall": 0.0138,
+            "f1": 0.0249,
+            "tp": 46,
+            "n_pred": 363,
+            "n_gt": 3331,
+            "map50": 0.0168,
+            "map50_95": 0.0042,
+            "map_classes": [
+              "pothole"
+            ]
+          },
+          "per_class": {
+            "longitudinal_crack": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "tp": 0,
+              "n_pred": 62,
+              "n_gt": 0,
+              "map50": 0.0,
+              "map50_95": 0.0,
+              "supported": true
+            },
+            "transverse_crack": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "tp": 0,
+              "n_pred": 48,
+              "n_gt": 0,
+              "map50": 0.0,
+              "map50_95": 0.0,
+              "supported": true
+            },
+            "alligator_crack": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "tp": 0,
+              "n_pred": 109,
+              "n_gt": 0,
+              "map50": 0.0,
+              "map50_95": 0.0,
+              "supported": true
+            },
+            "pothole": {
+              "precision": 0.3194,
+              "recall": 0.0138,
+              "f1": 0.0265,
+              "tp": 46,
+              "n_pred": 144,
+              "n_gt": 3331,
+              "map50": 0.0168,
+              "map50_95": 0.0042,
+              "supported": true
+            }
+          },
+          "ms_per_image": 22.3
+        }
+      }
+    }
+  },
+  "results": [
+    {
+      "dataset": "val_in",
+      "model": "roadsense-data/roadsense_y26n_ep29.pt",
+      "precision": 0.6339,
+      "recall": 0.3505,
+      "f1": 0.4514,
+      "tp": 258,
+      "n_pred": 407,
+      "n_gt": 736,
+      "map50": 0.3603,
+      "map50_95": 0.1536,
+      "map_classes": [
+        "longitudinal_crack",
+        "transverse_crack",
+        "alligator_crack",
+        "pothole"
+      ],
+      "ms_per_image": 24.8
+    },
+    {
+      "dataset": "val_in",
+      "model": "models/rdd_yolov8s.pt",
+      "precision": 0.6448,
+      "recall": 0.6535,
+      "f1": 0.6491,
+      "tp": 481,
+      "n_pred": 746,
+      "n_gt": 736,
+      "map50": 0.675,
+      "map50_95": 0.3648,
+      "map_classes": [
+        "longitudinal_crack",
+        "transverse_crack",
+        "alligator_crack",
+        "pothole"
+      ],
+      "ms_per_image": 35.7
+    },
+    {
+      "dataset": "val_bp",
+      "model": "roadsense-data/roadsense_y26n_ep29.pt",
+      "precision": 0.616,
+      "recall": 0.3642,
+      "f1": 0.4577,
+      "tp": 1213,
+      "n_pred": 1969,
+      "n_gt": 3331,
+      "map50": 0.4176,
+      "map50_95": 0.1442,
+      "map_classes": [
+        "pothole"
+      ],
+      "ms_per_image": 20.7
+    },
+    {
+      "dataset": "val_bp",
+      "model": "models/rdd_yolov8s.pt",
+      "precision": 0.1267,
+      "recall": 0.0138,
+      "f1": 0.0249,
+      "tp": 46,
+      "n_pred": 363,
+      "n_gt": 3331,
+      "map50": 0.0168,
+      "map50_95": 0.0042,
+      "map_classes": [
+        "pothole"
+      ],
+      "ms_per_image": 22.3
+    }
+  ]
+}

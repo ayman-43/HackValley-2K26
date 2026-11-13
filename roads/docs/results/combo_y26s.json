@@ -1,0 +1,433 @@
+{
+ "a": "C:/Users/ayman/roadsense-data/kaggle_y26s_out/export/roadsense_y26s.pt",
+ "b": "C:\\Users\\ayman\\OneDrive\\Desktop\\Hackvalley 2K26\\backend\\models\\rdd_yolov8s.pt",
+ "pothole_conf": 0.2,
+ "sets": {
+  "val_in": {
+   "A_alone@0.15": {
+    "overall": {
+     "precision": 0.5947,
+     "recall": 0.4864,
+     "f1": 0.5351,
+     "tp": 358,
+     "n_pred": 602,
+     "n_gt": 736
+    },
+    "longitudinal_crack": {
+     "precision": 0.5766,
+     "recall": 0.3678,
+     "f1": 0.4491,
+     "tp": 64,
+     "n_pred": 111,
+     "n_gt": 174
+    },
+    "transverse_crack": {
+     "precision": 0.3333,
+     "recall": 0.2857,
+     "f1": 0.3077,
+     "tp": 2,
+     "n_pred": 6,
+     "n_gt": 7
+    },
+    "alligator_crack": {
+     "precision": 0.6411,
+     "recall": 0.6537,
+     "f1": 0.6473,
+     "tp": 134,
+     "n_pred": 209,
+     "n_gt": 205
+    },
+    "pothole": {
+     "precision": 0.5725,
+     "recall": 0.4514,
+     "f1": 0.5048,
+     "tp": 158,
+     "n_pred": 276,
+     "n_gt": 350
+    }
+   },
+   "B_alone@0.25": {
+    "overall": {
+     "precision": 0.6941,
+     "recall": 0.6535,
+     "f1": 0.6732,
+     "tp": 481,
+     "n_pred": 693,
+     "n_gt": 736
+    },
+    "longitudinal_crack": {
+     "precision": 0.6579,
+     "recall": 0.5747,
+     "f1": 0.6135,
+     "tp": 100,
+     "n_pred": 152,
+     "n_gt": 174
+    },
+    "transverse_crack": {
+     "precision": 0.6,
+     "recall": 0.4286,
+     "f1": 0.5,
+     "tp": 3,
+     "n_pred": 5,
+     "n_gt": 7
+    },
+    "alligator_crack": {
+     "precision": 0.7376,
+     "recall": 0.7951,
+     "f1": 0.7653,
+     "tp": 163,
+     "n_pred": 221,
+     "n_gt": 205
+    },
+    "pothole": {
+     "precision": 0.6825,
+     "recall": 0.6143,
+     "f1": 0.6466,
+     "tp": 215,
+     "n_pred": 315,
+     "n_gt": 350
+    }
+   },
+   "combo_crack@0.15": {
+    "overall": {
+     "precision": 0.5767,
+     "recall": 0.6182,
+     "f1": 0.5967,
+     "tp": 455,
+     "n_pred": 789,
+     "n_gt": 736
+    },
+    "longitudinal_crack": {
+     "precision": 0.4821,
+     "recall": 0.6954,
+     "f1": 0.5694,
+     "tp": 121,
+     "n_pred": 251,
+     "n_gt": 174
+    },
+    "transverse_crack": {
+     "precision": 0.4167,
+     "recall": 0.7143,
+     "f1": 0.5263,
+     "tp": 5,
+     "n_pred": 12,
+     "n_gt": 7
+    },
+    "alligator_crack": {
+     "precision": 0.6254,
+     "recall": 0.8634,
+     "f1": 0.7254,
+     "tp": 177,
+     "n_pred": 283,
+     "n_gt": 205
+    },
+    "pothole": {
+     "precision": 0.6255,
+     "recall": 0.4343,
+     "f1": 0.5126,
+     "tp": 152,
+     "n_pred": 243,
+     "n_gt": 350
+    }
+   },
+   "combo_crack@0.25": {
+    "overall": {
+     "precision": 0.6731,
+     "recall": 0.5679,
+     "f1": 0.6161,
+     "tp": 418,
+     "n_pred": 621,
+     "n_gt": 736
+    },
+    "longitudinal_crack": {
+     "precision": 0.6579,
+     "recall": 0.5747,
+     "f1": 0.6135,
+     "tp": 100,
+     "n_pred": 152,
+     "n_gt": 174
+    },
+    "transverse_crack": {
+     "precision": 0.6,
+     "recall": 0.4286,
+     "f1": 0.5,
+     "tp": 3,
+     "n_pred": 5,
+     "n_gt": 7
+    },
+    "alligator_crack": {
+     "precision": 0.7376,
+     "recall": 0.7951,
+     "f1": 0.7653,
+     "tp": 163,
+     "n_pred": 221,
+     "n_gt": 205
+    },
+    "pothole": {
+     "precision": 0.6255,
+     "recall": 0.4343,
+     "f1": 0.5126,
+     "tp": 152,
+     "n_pred": 243,
+     "n_gt": 350
+    }
+   },
+   "combo_crack@0.35": {
+    "overall": {
+     "precision": 0.7281,
+     "recall": 0.5204,
+     "f1": 0.607,
+     "tp": 383,
+     "n_pred": 526,
+     "n_gt": 736
+    },
+    "longitudinal_crack": {
+     "precision": 0.7921,
+     "recall": 0.4598,
+     "f1": 0.5818,
+     "tp": 80,
+     "n_pred": 101,
+     "n_gt": 174
+    },
+    "transverse_crack": {
+     "precision": 1.0,
+     "recall": 0.4286,
+     "f1": 0.6,
+     "tp": 3,
+     "n_pred": 3,
+     "n_gt": 7
+    },
+    "alligator_crack": {
+     "precision": 0.8268,
+     "recall": 0.722,
+     "f1": 0.7708,
+     "tp": 148,
+     "n_pred": 179,
+     "n_gt": 205
+    },
+    "pothole": {
+     "precision": 0.6255,
+     "recall": 0.4343,
+     "f1": 0.5126,
+     "tp": 152,
+     "n_pred": 243,
+     "n_gt": 350
+    }
+   }
+  },
+  "val_bp": {
+   "A_alone@0.15": {
+    "overall": {
+     "precision": 0.734,
+     "recall": 0.6328,
+     "f1": 0.6797,
+     "tp": 2108,
+     "n_pred": 2872,
+     "n_gt": 3331
+    },
+    "longitudinal_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 0,
+     "n_gt": 0
+    },
+    "transverse_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 0,
+     "n_gt": 0
+    },
+    "alligator_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 0,
+     "n_gt": 0
+    },
+    "pothole": {
+     "precision": 0.734,
+     "recall": 0.6328,
+     "f1": 0.6797,
+     "tp": 2108,
+     "n_pred": 2872,
+     "n_gt": 3331
+    }
+   },
+   "B_alone@0.25": {
+    "overall": {
+     "precision": 0.1293,
+     "recall": 0.0135,
+     "f1": 0.0245,
+     "tp": 45,
+     "n_pred": 348,
+     "n_gt": 3331
+    },
+    "longitudinal_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 58,
+     "n_gt": 0
+    },
+    "transverse_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 47,
+     "n_gt": 0
+    },
+    "alligator_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 107,
+     "n_gt": 0
+    },
+    "pothole": {
+     "precision": 0.3309,
+     "recall": 0.0135,
+     "f1": 0.026,
+     "tp": 45,
+     "n_pred": 136,
+     "n_gt": 3331
+    }
+   },
+   "combo_crack@0.15": {
+    "overall": {
+     "precision": 0.6705,
+     "recall": 0.6103,
+     "f1": 0.639,
+     "tp": 2033,
+     "n_pred": 3032,
+     "n_gt": 3331
+    },
+    "longitudinal_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 123,
+     "n_gt": 0
+    },
+    "transverse_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 93,
+     "n_gt": 0
+    },
+    "alligator_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 170,
+     "n_gt": 0
+    },
+    "pothole": {
+     "precision": 0.7683,
+     "recall": 0.6103,
+     "f1": 0.6803,
+     "tp": 2033,
+     "n_pred": 2646,
+     "n_gt": 3331
+    }
+   },
+   "combo_crack@0.25": {
+    "overall": {
+     "precision": 0.7113,
+     "recall": 0.6103,
+     "f1": 0.657,
+     "tp": 2033,
+     "n_pred": 2858,
+     "n_gt": 3331
+    },
+    "longitudinal_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 58,
+     "n_gt": 0
+    },
+    "transverse_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 47,
+     "n_gt": 0
+    },
+    "alligator_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 107,
+     "n_gt": 0
+    },
+    "pothole": {
+     "precision": 0.7683,
+     "recall": 0.6103,
+     "f1": 0.6803,
+     "tp": 2033,
+     "n_pred": 2646,
+     "n_gt": 3331
+    }
+   },
+   "combo_crack@0.35": {
+    "overall": {
+     "precision": 0.7345,
+     "recall": 0.6103,
+     "f1": 0.6667,
+     "tp": 2033,
+     "n_pred": 2768,
+     "n_gt": 3331
+    },
+    "longitudinal_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 25,
+     "n_gt": 0
+    },
+    "transverse_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 25,
+     "n_gt": 0
+    },
+    "alligator_crack": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "tp": 0,
+     "n_pred": 72,
+     "n_gt": 0
+    },
+    "pothole": {
+     "precision": 0.7683,
+     "recall": 0.6103,
+     "f1": 0.6803,
+     "tp": 2033,
+     "n_pred": 2646,
+     "n_gt": 3331
+    }
+   }
+  }
+ },
+ "cpu_ms_A": 134.7,
+ "cpu_ms_A_plus_B": 279.1
+}

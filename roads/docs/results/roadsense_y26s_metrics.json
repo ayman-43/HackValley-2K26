@@ -1,0 +1,66 @@
+[
+  {
+    "set": "all",
+    "precision": 0.7188,
+    "recall": 0.6335,
+    "f1": 0.6735,
+    "mAP50": 0.6858,
+    "mAP50_95": 0.3685,
+    "per_class_mAP50": {
+      "longitudinal_crack": 0.7089,
+      "transverse_crack": 0.6372,
+      "alligator_crack": 0.709,
+      "pothole": 0.6881
+    }
+  },
+  {
+    "set": "rdd_india",
+    "precision": 0.6537,
+    "recall": 0.4195,
+    "f1": 0.511,
+    "mAP50": 0.4997,
+    "mAP50_95": 0.2161,
+    "per_class_mAP50": {
+      "longitudinal_crack": 0.4428,
+      "transverse_crack": 0.3778,
+      "alligator_crack": 0.693,
+      "pothole": 0.485
+    }
+  },
+  {
+    "set": "bharatpothole",
+    "precision": 0.791,
+    "recall": 0.5914,
+    "f1": 0.6768,
+    "mAP50": 0.6591,
+    "mAP50_95": 0.319,
+    "per_class_mAP50": {
+      "pothole": 0.6591
+    }
+  },
+  {
+    "set": "rdd_usa",
+    "precision": 0.6628,
+    "recall": 0.5759,
+    "f1": 0.6163,
+    "mAP50": 0.6181,
+    "mAP50_95": 0.3517,
+    "per_class_mAP50": {
+      "longitudinal_crack": 0.7713,
+      "transverse_crack": 0.6438,
+      "alligator_crack": 0.7677,
+      "pothole": 0.2897
+    }
+  },
+  {
+    "set": "kaggle_potholes",
+    "precision": 0.8178,
+    "recall": 0.7303,
+    "f1": 0.7715,
+    "mAP50": 0.8062,
+    "mAP50_95": 0.5442,
+    "per_class_mAP50": {
+      "pothole": 0.8062
+    }
+  }
+]

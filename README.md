@@ -14,11 +14,21 @@ really happened.
 
 ![HackValley 2K26](https://img.shields.io/badge/HackValley-2K26-20262d?style=for-the-badge) ![PS 02](https://img.shields.io/badge/Problem%20statement-PS%2002-c9761b?style=for-the-badge) ![mAP50 0.686](https://img.shields.io/badge/mAP50-0.686-2f7d55?style=for-the-badge)
 
-![YOLO26s](https://img.shields.io/badge/Detector-YOLO26s-2b6c9b?style=flat-square) ![ByteTrack](https://img.shields.io/badge/Tracking-ByteTrack-2b6c9b?style=flat-square) ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?style=flat-square&logo=fastapi&logoColor=white) ![Node 20](https://img.shields.io/badge/Node-20+-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white) ![Runs on CPU](https://img.shields.io/badge/Runs%20on-a%20laptop%20CPU-5f6b77?style=flat-square)
+![YOLO26s](https://img.shields.io/badge/Detector-YOLO26s-2b6c9b?style=flat-square) ![Tracking](https://img.shields.io/badge/Tracking-count%20once-2b6c9b?style=flat-square) ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?style=flat-square&logo=fastapi&logoColor=white) ![Node 20](https://img.shields.io/badge/Node-20+-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white) ![Runs on CPU](https://img.shields.io/badge/Runs%20on-a%20laptop%20CPU-5f6b77?style=flat-square)
 
 ### 🌐 Live demo: **[nagrik-roads.vercel.app/roads](https://nagrik-roads.vercel.app/roads/)**
 
-<sub>Website on Vercel · AI backend on a [Hugging Face Space](https://huggingface.co/spaces/ayman43/nagrik-roads-backend) · installable as a phone app from the same address</sub>
+| | Live link |
+|---|---|
+| Nagrik Roads (website + phone app) | https://nagrik-roads.vercel.app/roads/ |
+| Officials' dashboard and map | https://nagrik-roads.vercel.app/roads/dashboard |
+| Live scan (phone camera) | https://nagrik-roads.vercel.app/roads/live |
+| Model training results | https://nagrik-roads.vercel.app/roads/training |
+| Nagrik city site | https://nagrik-roads.vercel.app/ |
+| AI backend (Hugging Face Space) | https://huggingface.co/spaces/ayman43/nagrik-roads-backend |
+| API health check | https://nagrik-roads.vercel.app/api/health |
+
+<sub>Website on Vercel · AI backend on Hugging Face · open the Roads link on a phone and tap <b>Install app</b> (iPhone: Share → Add to Home Screen). The free backend sleeps when idle: the first visit can take a minute.</sub>
 
 [Features](#features) · [Screenshots](#screenshots) · [Results](#results) · [PS 02 checklist](#ps-02-checklist) · [Run it](#run-it) · [How it works](#how-it-works)
 
@@ -99,7 +109,7 @@ really happened.
 
 ### 🧠 Under the hood
 - **YOLO26s detector** trained on 17,909 images from Indian and US roads (Kaggle Tesla T4, 148 epochs)
-- **ByteTrack** counts each defect once; tracks shorter than 3 frames are dropped as flicker
+- **Frame linking** counts each defect once: detections are linked across frames by position (tolerating missed frames), and a defect counts when seen in 2+ frames or once with high confidence
 - **Three-layer duplicate check**: within 15 m, similar image (perceptual hash + colour histogram), compatible damage type
 - **Privacy by default**: faces and number plates are blurred in every saved photo and video
 - **Runs on a laptop CPU** (~135 ms per frame), so a municipal office needs no GPU
@@ -175,7 +185,7 @@ The same results are on the website at `/roads/training.html`.
 | Generate reports | ✅ | Printable complaint, daily ward digest, CSV register (`reports.py`) |
 | Show defect counts and categories | ✅ | Header stats, dashboard summary, `GET /api/stats` |
 | Dashboard of analysed samples | ✅ | Map, defects, defect detail, reports, model accuracy |
-| **Unique pothole tracking** | ✅ | ByteTrack across frames, ≥3-frame tracks, class by confidence vote |
+| **Unique pothole tracking** | ✅ | Frame linking across frames (tolerates missed frames from a moving vehicle), ≥2-frame or high-confidence tracks, class by confidence vote |
 | **Duplicate report detection** | ✅ | GPS ≤15 m + image similarity + class check (`dedup.py`) |
 | **Risk prediction** | ✅ | Explainable 0–100 score + "dangerous in about N days" forecast (`risk.py`) |
 | **Manual verification and correction** | ✅ | Review queue: confirm, reject, change type, redraw box (`review.py`) |
@@ -206,7 +216,7 @@ Every official-only action is checked by the server, so hiding a button is never
 ```mermaid
 flowchart LR
     A["📷 Phone, dashcam<br>or photo"] --> B["🔍 YOLO26s<br>detects damage"]
-    B --> C["1️⃣ ByteTrack<br>counts each once"]
+    B --> C["1️⃣ Frame linking<br>counts each once"]
     C --> D["📍 GPS + duplicate check<br>new or already known?"]
     D --> E["⚠️ Risk score<br>road, schools, rain"]
     E --> F["🏛️ Ward officer<br>reviews and schedules"]
@@ -217,7 +227,7 @@ flowchart LR
 
 | Layer | Built with |
 |---|---|
-| Detection | Ultralytics YOLO26s, ByteTrack, OpenCV, ONNX Runtime |
+| Detection | Ultralytics YOLO26s, frame-linking tracker (`detector.FrameLinker`), OpenCV, ONNX Runtime |
 | Backend | Python 3.12, FastAPI, SQLite (MongoDB-ready accounts store) |
 | Web | Plain HTML/CSS/JS, MapLibre + Leaflet, installable phone app (PWA) |
 | Civic site | Nagrik, Node 20 server that also forwards `/roads` to the backend |

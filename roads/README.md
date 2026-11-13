@@ -2,7 +2,7 @@
 
 **AI road-damage and pothole detection for Bengaluru.** Hackathon problem statement PS 02, "AI-Based Road Damage and Pothole Detection System".
 
-Nagrik Roads turns any phone into a road-survey dashcam. You record a ride (or upload photos or videos), and a lightweight YOLO26n detector trained on Indian roads finds potholes and three kinds of cracks. ByteTrack follows each defect across frames so it is counted **once**. GPS, image similarity and class checks recognise a pothole that was already reported, so it updates the existing record instead of creating a duplicate. Every defect gets a severity rating and an explainable risk score, built from road class, speed limit, nearby schools and hospitals, repeat reports and the rain forecast. The system also forecasts when a defect is likely to become dangerous. An admin can confirm, reject or redraw each AI detection. Re-inspections of the same street show whether a defect is worsening, improving or repaired, and Nagrik Roads flags repairs that failed within 90 days. Each defect is linked to its BBMP ward, the responsible officer and recent road tenders through the public Nagrik API. Officers get one daily digest, not a flood of alerts. Everything runs on free, open tools with no paid API.
+Nagrik Roads turns any phone into a road-survey dashcam. You record a ride (or upload photos or videos), and a lightweight YOLO26n detector trained on Indian roads finds potholes and three kinds of cracks. A frame-linking tracker follows each defect across frames so it is counted **once**. GPS, image similarity and class checks recognise a pothole that was already reported, so it updates the existing record instead of creating a duplicate. Every defect gets a severity rating and an explainable risk score, built from road class, speed limit, nearby schools and hospitals, repeat reports and the rain forecast. The system also forecasts when a defect is likely to become dangerous. An admin can confirm, reject or redraw each AI detection. Re-inspections of the same street show whether a defect is worsening, improving or repaired, and Nagrik Roads flags repairs that failed within 90 days. Each defect is linked to its BBMP ward, the responsible officer and recent road tenders through the public Nagrik API. Officers get one daily digest, not a flood of alerts. Everything runs on free, open tools with no paid API.
 
 ---
 
@@ -25,7 +25,7 @@ Nagrik Roads turns any phone into a road-survey dashcam. You record a ride (or u
 
 | # | Requirement | How / where |
 |---|---|---|
-| 1 | Unique pothole tracking | `model.track(..., tracker="bytetrack.yaml")`. Tracks seen in fewer than 3 frames are dropped as flicker, and each track's class comes from a confidence-weighted vote (`detector.track_video`). The sample video gives **3,520 raw detections → 94 unique potholes** (`scripts/evaluate.py`) |
+| 1 | Unique pothole tracking | `detector.FrameLinker` links detections across frames by position, tolerating missed frames and fast motion from a bike or car (ByteTrack confirmed almost nothing on real rides: a 9 s ride over ~10 potholes counted 1, now 8 potholes + 2 cracks). A defect counts when seen in 2+ frames or once above 0.5 confidence, and each track's class comes from a confidence-weighted vote (`detector.track_video`). The sample video gives **3,520 raw detections → 94 unique potholes** (`scripts/evaluate.py`) |
 | 2 | Duplicate report detection | `backend/app/dedup.py` checks 3 layers: a GPS radius of 15 m or less, image similarity (pHash + colour histogram), and a compatible class. A duplicate adds an observation and increments `report_count`. Without GPS, only very high similarity (0.92 or more) counts as a match |
 | 3 | Road-damage risk prediction | `backend/app/risk.py`: a transparent additive 0–100 score from severity, OSM road class and speed limit, nearby schools, hospitals and bus stops (Overpass), report count, 72-hour rain (Open-Meteo) and trend. Every score lists its factors. Labels are Low, Medium, High and Critical, and high-risk defects are highlighted on the map |
 | 4 | Manual verification and correction | Review queue (`backend/app/review.py` + dashboard): confirm, reject, change class or redraw the box. Verified corrections export as a YOLO dataset for retraining (`/api/export/corrections`) |
@@ -37,7 +37,7 @@ Nagrik Roads turns any phone into a road-survey dashcam. You record a ride (or u
 |---|---|
 | YOLO / SSD / equivalent | YOLO26n (ours, ONNX for CPU), with the Pothole Pilot YOLO26n and RDD2022 YOLOv8s as baselines |
 | Image preprocessing | Letterbox resize and normalisation at 640 px. Large uploads are downscaled (INTER_AREA). Video frames are sampled with a stride and resized for tracking. Crops are normalised for fingerprinting. Training uses mosaic, HSV and flip augmentation |
-| Video-based object tracking | ByteTrack (Ultralytics), with a 3-frame minimum track length |
+| Video-based object tracking | `detector.FrameLinker` (distance-based linking with gap tolerance), 2-frame minimum or one high-confidence frame |
 | Image similarity and/or location for dedup | Both: haversine radius plus pHash/histogram similarity (`dedup.py`) |
 | Clear risk scoring + simple verification UI | `risk.compute_risk` (documented weights, factor list) and the review queue |
 | Inspection dates and locations over time | SQLite `inspections` and `observations` tables (timestamp, lat/lon, severity, bbox) feed the timeline and trend (`backend/app/db.py`) |
@@ -64,7 +64,7 @@ Nagrik Roads turns any phone into a road-survey dashcam. You record a ride (or u
  ┌──────────────────────────── FastAPI  backend/app/main.py ─────────────────────────────┐
  │  POST /api/inspections ──► background job ──► pipeline.process_inspection()           │
  │                                                                                         │
- │   detector.py  YOLO26n (ONNX/PT, CPU) ──► ByteTrack (unique IDs, ≥3 frames)            │
+ │   detector.py  YOLO26n (ONNX/PT, CPU) ──► FrameLinker (unique IDs, ≥2 frames)           │
  │        │                                                                                │
  │   geo.py  EXIF / GPS track interpolation ──► lat,lon per detection                      │
  │   severity.py  type × area (× depth index) ──► Low/Medium/High                          │

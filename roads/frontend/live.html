@@ -23,6 +23,7 @@
     .cam .hud { position: absolute; left: 8px; right: 8px; top: 8px; display: flex; justify-content: space-between; gap: 6px; pointer-events: none; }
     .pill { background: rgba(255, 255, 255, .9); color: var(--ink); border-radius: 999px; padding: 2px 9px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
     .pill.live { color: #fff; background: var(--danger); }
+    #gps-pill { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
     .pill.live::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #fff; margin-right: 5px; vertical-align: 1px; animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: .2; } }
     .scanline { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #fff, transparent); opacity: .7; top: 0; animation: sweep 2.2s linear infinite; pointer-events: none; }
@@ -177,35 +178,56 @@
       if (!fixAt) return;
       const age = Math.round((Date.now() - fixAt) / 1000);
       $('loc-age').textContent = age <= 1 ? 'live' : `updated ${age} s ago`;
+      // a stuck position must be visible on the camera view too, not only below the map
+      if (!sim && fix && age > 5) $('gps-pill').textContent = `${gpsLabel(fix)} · ${age} s ago`;
     }, 1000);
 
-    // ---- GPS: real device location, updated continuously. A precise fix can time out on laptops
-    // (no GPS chip), so after a timeout we retry with normal accuracy (Wi-Fi / network location).
-    let watchId = null;
+    // ---- GPS: the phone's real position, updated continuously while the page is open.
+    // Two watches run side by side: precise satellite GPS (never cached) and network location (Wi-Fi / mobile
+    // network). The network position only fills in until satellite GPS locks on, or when satellite GPS has
+    // been silent for 10 s (tunnel, indoors); it never replaces a recent satellite fix. Laptops without a GPS
+    // chip get the network position.
+    let gpsWatch = null, netWatch = null, gpsFixAt = 0;
     const GPS_ERR = {
       1: 'Location permission is blocked. Click the lock icon in the address bar → Site settings → Location → Allow, then press Real GPS.',
       2: 'This device cannot find its location. On Windows turn on Settings → Privacy & security → Location, or use a phone.',
       3: 'Finding your location is taking too long. Move near a window or press Real GPS to try again.',
     };
-    function startGps(precise = true) {
+    function gpsLabel(f) {
+      const kmh = f.speed != null && f.speed > 0.5 ? ` · ${Math.round(f.speed * 3.6)} km/h` : '';
+      return `📍 ${f.latitude.toFixed(5)}, ${f.longitude.toFixed(5)} · ±${Math.round(f.accuracy)} m${kmh}`;
+    }
+    function onFix(p, source) {
+      if (source === 'network' && Date.now() - gpsFixAt < 10000) return;  // keep the recent satellite fix
+      if (source === 'gps') gpsFixAt = Date.now();
+      const c = p.coords;
+      fix = { latitude: c.latitude, longitude: c.longitude, accuracy: c.accuracy, speed: c.speed, heading: c.heading };
+      if (!sim) {
+        $('gps-pill').textContent = gpsLabel(fix);
+        showPosition(fix, source === 'network' ? 'Approximate position from Wi-Fi / mobile network until satellite GPS locks on.' : '');
+      }
+      if ($('msg').dataset.gps) { msg(''); delete $('msg').dataset.gps; }
+    }
+    function onGpsError(e, source) {
+      if (fix) return;  // a timeout while we already have a position is harmless: the watch keeps running
+      if (e.code !== 1 && source === 'gps') return;  // satellite still searching: network location may answer first
+      $('gps-pill').textContent = 'GPS unavailable';
+      locState((GPS_ERR[e.code] || 'Location is unavailable.') + ' Or choose Demo route.', true);
+      msg('Without a location, detections are found but not pinned on the map.', true);
+      $('msg').dataset.gps = '1';
+    }
+    function startGps() {
       if (!('geolocation' in navigator)) { $('gps-pill').textContent = 'No GPS'; locState('This browser has no location support. Choose Demo route to try the scan.', true); return; }
       if (!window.isSecureContext) { locState('Location needs https (or localhost). Open the site over https.', true); }
-      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      if (gpsWatch != null) navigator.geolocation.clearWatch(gpsWatch);
+      if (netWatch != null) navigator.geolocation.clearWatch(netWatch);
       if (!fix) $('gps-pill').textContent = 'GPS: finding you…';
-      watchId = navigator.geolocation.watchPosition((p) => {
-        fix = p.coords;
-        if (!sim) { $('gps-pill').textContent = `GPS ±${Math.round(fix.accuracy)} m`; showPosition(fix); }
-        if ($('msg').dataset.gps) { msg(''); delete $('msg').dataset.gps; }
-      }, (e) => {
-        if (fix) return;  // a later timeout while we already have a position is harmless
-        if (precise && e.code !== 1) { startGps(false); return; }  // retry with network location
-        $('gps-pill').textContent = 'GPS unavailable';
-        locState((GPS_ERR[e.code] || 'Location is unavailable.') + ' Or choose Demo route.', true);
-        msg('Without a location, detections are found but not pinned on the map.', true);
-        $('msg').dataset.gps = '1';
-      }, { enableHighAccuracy: precise, maximumAge: precise ? 1000 : 10000, timeout: precise ? 15000 : 30000 });
+      gpsWatch = navigator.geolocation.watchPosition((p) => onFix(p, 'gps'), (e) => onGpsError(e, 'gps'),
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
+      netWatch = navigator.geolocation.watchPosition((p) => onFix(p, 'network'), (e) => onGpsError(e, 'network'),
+        { enableHighAccuracy: false, maximumAge: 5000, timeout: 30000 });
     }
-    startGps(true);
+    startGps();
 
     // ---- simulated demo route: 100 Feet Road, Indiranagar, north to south at 25 km/h (7 m/s), clearly labelled
     const ROUTE = [[12.9784, 77.6408], [12.9634, 77.6411]];
@@ -226,8 +248,8 @@
       if (on) { follow = true; showPosition(simFix(), 'Demo route: simulated position on 100 Feet Road, Indiranagar.'); if ($('msg').dataset.gps) { msg(''); delete $('msg').dataset.gps; } msg('Demo route: the position moves along 100 Feet Road, Indiranagar at 25 km/h. Switch to Real GPS on a real drive.'); }
       else {
         follow = true;
-        $('gps-pill').textContent = fix ? `GPS ±${Math.round(fix.accuracy)} m` : 'GPS: waiting';
-        if (fix) showPosition(fix); else { $('loc-coords').textContent = 'Waiting for location…'; startGps(true); }
+        $('gps-pill').textContent = fix ? gpsLabel(fix) : 'GPS: waiting';
+        if (fix) showPosition(fix); else { $('loc-coords').textContent = 'Waiting for location…'; startGps(); }
       }
     }
     $('btn-simgps').onclick = () => setSim(true);

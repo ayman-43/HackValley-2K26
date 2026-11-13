@@ -40,6 +40,7 @@ const json = (res, status, body) => {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
     'Content-Length': Buffer.byteLength(payload),
+    'Access-Control-Allow-Origin': '*',
     'Cache-Control': 'no-store',
     'X-Content-Type-Options': 'nosniff'
   });
@@ -76,10 +77,40 @@ async function upstreamJson(path) {
   return { body, contentType: response.headers.get('content-type') || 'application/json; charset=utf-8' };
 }
 
+async function upstreamPost(path, body, headers = {}) {
+  const response = await fetch(`${upstream}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      ...headers
+    },
+    body: typeof body === 'string' ? body : JSON.stringify(body),
+    signal: AbortSignal.timeout(15000)
+  });
+  const resBody = await response.text();
+  return {
+    status: response.status,
+    body: resBody,
+    contentType: response.headers.get('content-type') || 'application/json; charset=utf-8'
+  };
+}
+
+async function readRequestBody(req) {
+  if (req.method !== 'POST' && req.method !== 'PUT' && req.method !== 'PATCH') return '';
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', reject);
+  });
+}
+
 function sendBody(res, status, body, contentType = 'application/json; charset=utf-8') {
   res.writeHead(status, {
     'Content-Type': contentType,
     'Content-Length': Buffer.byteLength(body),
+    'Access-Control-Allow-Origin': '*',
     'Cache-Control': 'public, max-age=60',
     'X-Content-Type-Options': 'nosniff'
   });
@@ -102,7 +133,7 @@ const cityCodeToSlug = {
   PUN: 'pune'
 };
 
-async function api(url, res) {
+async function api(url, req, res, bodyText = '') {
   const path = url.pathname.replace(/\/+$/, '') || '/';
   if (path === '/api/health') {
     return json(res, 200, { status: 'ok', service: 'nagrik-local-api', cities: 5, bengaluruSnapshotDate: '2026-11-13' });
@@ -135,6 +166,58 @@ async function api(url, res) {
   const subPath = path.slice('/api/v1/'.length);
   const segments = subPath.split('/');
   const [first, second, third] = segments;
+
+  // Handle /api/v1/resolve endpoint
+  if (first === 'resolve') {
+    if (req.method !== 'POST') {
+      return json(res, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: 'The /api/v1/resolve endpoint requires POST.' } });
+    }
+
+    let parsedBody = {};
+    try { parsedBody = JSON.parse(bodyText || '{}'); } catch {}
+    const forwardHeaders = {};
+    if (req.headers['accept-language']) forwardHeaders['accept-language'] = req.headers['accept-language'];
+
+    try {
+      const proxied = await upstreamPost('/api/v1/resolve', bodyText || '{}', forwardHeaders);
+      if (proxied.status < 500) {
+        return sendBody(res, proxied.status, proxied.body, proxied.contentType);
+      }
+      throw new Error(`Upstream returned ${proxied.status}`);
+    } catch (upstreamErr) {
+      // Fallback for Bengaluru offline / local resolution
+      const city = (parsedBody.city || 'BLR').toUpperCase();
+      if (city === 'BLR' && (parsedBody.ward_id || parsedBody.locality_id)) {
+        try {
+          const wardsData = await dataset('wards.json');
+          const targetWard = wardsData.items.find((w) =>
+            Number(w.ward_id) === Number(parsedBody.ward_id) ||
+            Number(w.id) === Number(parsedBody.ward_id)
+          );
+          if (targetWard) {
+            const [peopleData, worksData] = await Promise.all([dataset('people.json'), dataset('works.json')]);
+            const fallbackResponse = {
+              location: { lat: null, lng: null, source: 'ward', resolved_query: targetWard.name },
+              ward: targetWard,
+              zone: null,
+              zone_parent: null,
+              corporation_name: targetWard.corporation || 'Bengaluru Central City Corporation',
+              corporation_name_local: targetWard.corporation_local || '',
+              councillor: peopleData.councillors?.find((c) => Number(c.ward_id) === Number(targetWard.ward_id)) || null,
+              councillors: peopleData.councillors?.filter((c) => Number(c.ward_id) === Number(targetWard.ward_id)) || [],
+              officials: peopleData.officials?.slice(0, 10) || [],
+              helplines: peopleData.helplines || [],
+              projects_micro: worksData.items?.filter((w) => Number(w.ward_id) === Number(targetWard.ward_id)).slice(0, 50) || [],
+              projects_macro: [],
+              projects_citywide: []
+            };
+            return json(res, 200, fallbackResponse);
+          }
+        } catch {}
+      }
+      return json(res, 502, { error: { code: 'RESOLVE_FAILED', message: upstreamErr.message } });
+    }
+  }
 
   let cityCode = (url.searchParams.get('city') || '').toUpperCase();
   let citySlug = '';
@@ -318,6 +401,12 @@ async function api(url, res) {
   }
 
   try {
+    if (req.method === 'POST') {
+      const proxied = await upstreamPost(`${upstreamEndpoint}?${params}`, bodyText, {
+        ...(req.headers['accept-language'] ? { 'accept-language': req.headers['accept-language'] } : {})
+      });
+      return sendBody(res, proxied.status, proxied.body, proxied.contentType);
+    }
     const proxied = await upstreamJson(`${upstreamEndpoint}?${params}`);
     return sendBody(res, 200, proxied.body, proxied.contentType);
   } catch (error) {
@@ -413,10 +502,25 @@ const ROADS_LINK_TAG = '<script src="/nagrik-roads-link.js" defer></script>';
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    if (isRoadsPath(url.pathname)) return proxyToRoads(req, res);
-    if (req.method !== 'GET' && req.method !== 'HEAD') {
-      return json(res, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: 'This read-only server accepts GET/HEAD only.' } });
+if (isRoadsPath(url.pathname)) return proxyToRoads(req, res);
+
+    // Handle CORS preflight
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, HEAD, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept, Accept-Language, Origin'
+      });
+      return res.end();
     }
+
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      if (req.method !== 'POST' || !url.pathname.startsWith('/api/')) {
+        return json(res, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: 'This server accepts GET/HEAD for static files and GET/POST for API.' } });
+      }
+    }
+
+    const bodyText = await readRequestBody(req);
 
     // React router loader data requests (.data)
     if (url.pathname.endsWith('.data')) {
@@ -459,8 +563,12 @@ const server = createServer(async (req, res) => {
       return res.end('/* cloudflare challenge stub */');
     }
 
-    const handled = await api(url, res);
+    const handled = await api(url, req, res, bodyText);
     if (handled !== false) return;
+
+    if (req.method === 'POST') {
+      return notFound(res);
+    }
 
     let pathname;
     try { pathname = decodeURIComponent(url.pathname); } catch { return notFound(res); }

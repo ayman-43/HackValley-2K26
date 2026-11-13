@@ -16,6 +16,10 @@ really happened.
 
 ![YOLO26s](https://img.shields.io/badge/Detector-YOLO26s-2b6c9b?style=flat-square) ![ByteTrack](https://img.shields.io/badge/Tracking-ByteTrack-2b6c9b?style=flat-square) ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?style=flat-square&logo=fastapi&logoColor=white) ![Node 20](https://img.shields.io/badge/Node-20+-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white) ![Runs on CPU](https://img.shields.io/badge/Runs%20on-a%20laptop%20CPU-5f6b77?style=flat-square)
 
+### 🌐 Live demo: **[nagrik-roads.vercel.app/roads](https://nagrik-roads.vercel.app/roads/)**
+
+<sub>Website on Vercel · AI backend on a [Hugging Face Space](https://huggingface.co/spaces/ayman43/nagrik-roads-backend) · installable as a phone app from the same address</sub>
+
 [Features](#features) · [Screenshots](#screenshots) · [Results](#results) · [PS 02 checklist](#ps-02-checklist) · [Run it](#run-it) · [How it works](#how-it-works)
 
 <img src="roads/docs/screenshots/home.jpg" alt="Nagrik Roads home page: Scan a road, See the map, Get it fixed" width="900">

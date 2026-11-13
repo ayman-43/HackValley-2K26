@@ -115,7 +115,7 @@
       <div class="imgs" id="kg-images"></div>
     </section>
 
-    <div class="grid-2">
+    <div class="grid-2" id="laptop-run">
       <section class="panel" aria-live="polite">
         <h2>Earlier run: YOLO26n on the laptop</h2>
         <div id="local-live" class="loading muted small">Reading training log</div>
@@ -150,7 +150,7 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel" id="laptop-batches">
       <h2>Sample training batches (laptop run)</h2>
       <p class="muted small">Augmented images exactly as the model sees them, with the labelled boxes.</p>
       <div class="imgs">
@@ -246,6 +246,10 @@
       catch (e) { $('#local-live').className = 'state state-error'; $('#local-live').textContent = 'Server not reachable. Start the backend on port 8000.'; return; }
       if (!d || !d.local) { clearInterval(window._trainTimer); return; }  // not signed in as admin: gate.js shows the sign-in screen
       const lv = d.local.live, eps = d.local.epochs;
+      // the laptop run's log and images exist only on the training laptop, not on the hosted server
+      const hasLaptopRun = eps.length > 0 || !!lv.epoch;
+      $('#laptop-run').hidden = !hasLaptopRun;
+      $('#laptop-batches').hidden = !hasLaptopRun;
       const best = eps.reduce((a, b) => (b.map50 > (a ? a.map50 : -1) ? b : a), null);
       const el = $('#local-live');
       el.className = '';

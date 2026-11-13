@@ -476,6 +476,9 @@ def _frontend_file(rel: str):
         raise HTTPException(404) from None  # path escapes the frontend folder
     if p.is_file():
         return FileResponse(p)
+    html = p.with_name(p.name + ".html")  # clean URLs (/roads/live -> live.html), same as the Vercel site
+    if p.name and html.is_file():
+        return FileResponse(html)
     raise HTTPException(404, f"{rel} not found (frontend not built yet?)")
 
 

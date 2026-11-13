@@ -1,59 +1,92 @@
-# Nagrik · HackValley 2026
+# Nagrik Roads
 
-One application, two ideas:
+**AI road-damage detection for Bengaluru: find every pothole, count it once, fix the most dangerous first.**
 
-- **Nagrik**: know who runs your city, what is being built and with how much public money (wards, officials, public works, sources).
-- **Nagrik Roads** (HackValley 2026, PS 02): AI road-damage detection for Bengaluru. A phone or dashcam finds potholes and cracks, each defect is counted once, ranked by risk and tracked until it is repaired, and routed to the ward's officials from Nagrik's data.
+HackValley 2026 · Problem statement PS 02, *AI-Based Road Damage and Pothole Detection System*
 
-| Path | What it is |
+A phone or dashcam records the road. A YOLO model trained on Indian roads finds potholes and three kinds of
+cracks, tracking follows each defect across frames so it is counted once, GPS pins it on Bengaluru's ward map,
+a transparent score ranks it by danger, and Nagrik's public civic data names the ward officer responsible.
+Every later drive over the same road checks whether the repair actually happened.
+
+---
+
+## Results
+
+| | |
 |---|---|
-| `/` (this folder, Node) | Nagrik: home, cities, works, people, sources |
-| `/roads/` ([`roads/`](roads/README.md), Python/FastAPI) | Nagrik Roads: road desk, map, live scan, review, reports, repair routes, phone app |
+| **Detector** | YOLO26s, trained on a Kaggle T4 GPU for 148 epochs |
+| **Accuracy** | **mAP50 0.686** on 3,653 held-out road images (precision 0.72, recall 0.63) |
+| **Indian dashcam potholes** | **F1 0.68**, up from 0.03 with an off-the-shelf RDD2022 model |
+| **Counting** | ~1,230 per-frame detections in a 15 s demo video become **39 unique potholes** |
+| **Speed** | ~135 ms per frame on a laptop CPU, fast enough for live scanning |
 
-`backend/server.mjs` serves Nagrik and forwards `/roads/*`, the road app's `/api/*` endpoints (all except Nagrik's
-`/api/v1/*` and `/api/health`), `/media/*` and `/eval/*` to the Nagrik Roads server, so both run on one address.
-`nagrik-roads-link.js` adds the entry points inside Nagrik: a **Roads** link on the Bengaluru card and city nav,
-a **Nagrik Roads** header button, and a live road-damage strip on the Bengaluru page.
+Training curves, confusion matrix, example predictions and the full numbers:
+**[`roads/docs/results/`](roads/docs/results/RESULTS.md)**
 
-## Run the whole application
+## What it does
+
+| Step | How |
+|---|---|
+| **1. Capture** | Phone live scan (frames + GPS ~3×/s), dashcam video upload, or a citizen photo |
+| **2. Detect** | YOLO26s finds potholes and longitudinal, transverse and alligator cracks |
+| **3. Count once** | ByteTrack follows each defect across frames; flicker under 3 frames is dropped |
+| **4. Locate & de-duplicate** | GPS interpolation pins each defect; a 15 m radius + image fingerprint recognises potholes already reported |
+| **5. Prioritise** | Explainable 0–100 risk score: severity, road type and speed limit, nearby schools/hospitals/bus stops, repeat reports, rain forecast |
+| **6. Assign** | Ward, corporation, responsible officers and nearby road tenders from Nagrik's public API |
+| **7. Verify the repair** | Re-inspections mark defects worsening, improving or repaired; a pothole back within 90 days is flagged as a bad repair |
+
+Also included: Nagrik-style ward map (369 Bengaluru wards), review queue where officers confirm or correct the
+AI (corrections export as training data), printable complaints and ward digests, repair-crew route planner,
+installable phone app, official sign-in with roles, and face / number-plate blurring on every saved image.
+
+## Run it
+
+**Requirements:** Python 3.12, Node 20+.
 
 ```powershell
-# one-time set-up of Nagrik Roads (Python 3.12)
+# one-time set-up
 cd roads
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 cd ..
-# start both servers and open http://localhost:5501
+
+# start everything and open http://localhost:5501
 start.cmd
 ```
 
-`start.cmd` (or `node start.mjs`) starts Nagrik Roads on 127.0.0.1:8000 and Nagrik on http://localhost:5501 in one window,
-waits until both are ready and opens the browser; it stops with a clear message if an old server is still using a port. To scan from a phone on the
-same Wi-Fi, run `set HOST=0.0.0.0` before `start.cmd`. Node 20+ is needed for Nagrik.
+`start.cmd` starts the Nagrik Roads server (FastAPI, 127.0.0.1:8000) and the Nagrik web server
+(Node, http://localhost:5501) together. To scan from a phone on the same Wi-Fi, run `set HOST=0.0.0.0` first.
 
-Model weights are not in Git: put `roadsense_y26n.pt` in `roads/backend/models/` (or train it, see
-[`roads/README.md`](roads/README.md)); the training data is described in [`roads/dataset/`](roads/dataset/README.md).
+| Address | Page |
+|---|---|
+| `/roads/` | Nagrik Roads home |
+| `/roads/dashboard` | Officials' dashboard: ward map, defects, review, reports |
+| `/roads/app` | Phone app: report a pothole, scan while driving |
 
----
+The trained model `roads/backend/models/roadsense_y26s.pt` is included. Optional: add the RDD2022 crack model
+`rdd_yolov8s.pt` to the same folder to combine it with YOLO26s for better crack detection on uploads.
 
-# Nagrik website (local copy)
+## Repository layout
 
-A local recreation of [Nagrik (nagrik.in.net)](https://nagrik.in.net/).
+| Path | What it is |
+|---|---|
+| [`roads/`](roads/README.md) | **Nagrik Roads**: Python/FastAPI backend, web dashboard, phone app, training and evaluation scripts |
+| [`roads/docs/results/`](roads/docs/results/RESULTS.md) | Model results for the judges |
+| [`roads/dataset/`](roads/dataset/README.md) | Training data description and licences |
+| `backend/server.mjs`, `start.mjs` | Node server: serves the Nagrik pages and forwards `/roads`, `/api`, `/media`, `/eval` to Nagrik Roads |
+| repository root (`bengaluru/`, `assets/`, …) | The Nagrik civic-data pages that Nagrik Roads plugs into (see below) |
 
-## Features & Parity
-- **Exact Pages & Clean URLs**: Homepage (`/`), About (`/about`), Integrations (`/integrations`), plus all 5 cities (Bengaluru, Delhi, Gurugram, Mumbai, Pune) across their Overview, Works, People, and Sources routes. All routes resolve with or without trailing slashes.
-- **Assets & Styling**: Pristine Instrument Sans web fonts (`/fonts/`), city landmark silhouettes (`/landmarks/`), high-resolution brand logos, and original CSS styling.
-- **Indic Script Support**: Native Kannada (ಕನ್ನಡ), Hindi (हिन्दी), and Marathi (मराठी) text preserved with full UTF-8 fidelity.
-- **Theme**: Seamless Light / Dark theme switching persisted across reloads.
-- **Client Runtime**: Full React Router client-side hydration with all 53 bundle and route modules.
-- **Backend API & Data**: Local snapshot data for Bengaluru, coupled with live upstream Nagrik API proxies for Gurugram, Delhi, Mumbai, and Pune. Includes live weather/AQI telemetry and real-time civic news via Google News RSS.
+## About Nagrik
 
-## Quickstart
+[Nagrik (nagrik.in.net)](https://nagrik.in.net/) is an independent civic-data project that republishes public
+records on Bengaluru's wards, officials and public works. The Nagrik pages in this repository are a local
+rebuild of its public site, included to show Nagrik Roads running inside it as one application; ward, officer and
+tender data come from Nagrik's public API, with attribution.
 
-Run from `outputs/nagrik-clone`:
+## Data and credits
 
-```powershell
-npm run dev
-```
-
-Open [http://127.0.0.1:5501/](http://127.0.0.1:5501/) in your browser.
+- **Training data:** RDD2022 India and United States (CC BY-SA 4.0), BharatPotHole (CC BY 4.0), Kaggle Potholes
+- **Models:** Ultralytics YOLO (AGPL-3.0), RDD2022 YOLOv8s crack model (optional)
+- **Maps:** OpenFreeMap and OpenStreetMap contributors (ODbL); ward boundaries from Nagrik
+- **Context data:** OpenStreetMap Overpass (road class, nearby facilities), Open-Meteo (rain forecast), OSRM (repair routes)

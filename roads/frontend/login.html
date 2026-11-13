@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in | Nagrik Roads</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { justify-content: center; }
+    .login-wrap { width: 100%; max-width: 420px; margin: 0 auto; padding: 32px 16px 48px; }
+    .login-wrap .brand { margin-bottom: 26px; }
+    .login-wrap h1 { font-size: clamp(2rem, 7vw, 2.6rem); letter-spacing: -.055em; margin-bottom: .25em; }
+    .login-wrap > p { color: var(--ink-2); margin-bottom: 20px; }
+    .login-card { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); padding: 22px; box-shadow: var(--shadow); display: grid; gap: 14px; }
+    .login-card .btn-primary { min-height: 44px; font-size: .98rem; }
+    .err { display: none; background: var(--danger-soft); color: var(--danger); border: 1px solid #e2b6b8; border-radius: var(--r-sm); padding: 8px 12px; font-size: .9rem; }
+    .err.show { display: block; }
+    .who { margin-top: 18px; font-size: .86rem; color: var(--ink-2); }
+    .who ul { margin: 6px 0 0; padding-left: 18px; }
+    .back { display: inline-block; margin-top: 18px; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <main class="login-wrap" id="main">
+    <a class="brand" href="/" aria-label="Nagrik Roads home">
+      <img src="assets/logo.svg" alt="" width="36" height="36">
+      <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">For city officials</span></span>
+    </a>
+    <h1>Sign in</h1>
+    <p>Officials sign in to review detections, assign repairs and mark potholes fixed. Anyone can view the map and report a pothole without an account.</p>
+    <form class="login-card" id="form" novalidate>
+      <div class="err" id="err" role="alert"></div>
+      <div class="field"><label for="u">Username</label>
+        <input type="text" id="u" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
+      <div class="field"><label for="p">Password</label>
+        <input type="password" id="p" name="password" autocomplete="current-password" required
+          style="font: inherit; color: var(--ink); background: #fff; width: 100%; border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 8px 11px;"></div>
+      <button class="btn btn-primary" type="submit" id="go">Sign in</button>
+    </form>
+    <div class="who">
+      Roles:
+      <ul>
+        <li><b>Ward officer</b>: reviews detections, verifies and schedules repairs</li>
+        <li><b>Repair crew</b>: marks repairs done, plans the route</li>
+        <li><b>Administrator</b>: everything, plus managing accounts</li>
+      </ul>
+    </div>
+    <a class="back" href="/">← Back to Nagrik Roads</a>
+  </main>
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const next = new URLSearchParams(location.search).get('next') || '/dashboard#/map';
+    const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard#/map';
+    fetch('/api/auth/me').then((r) => r.json()).then((d) => { if (d.user) location.replace(safeNext); }).catch(() => {});
+    $('u').focus();
+    $('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = $('err');
+      err.classList.remove('show');
+      if (!$('u').value.trim() || !$('p').value) { err.textContent = 'Enter your username and password.'; err.classList.add('show'); return; }
+      $('go').disabled = true; $('go').textContent = 'Signing in…';
+      try {
+        const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: $('u').value.trim(), password: $('p').value }) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.detail || 'Sign-in failed.');
+        location.replace(safeNext);
+      } catch (ex) {
+        err.textContent = ex.message === 'Failed to fetch' ? 'Cannot reach the Nagrik Roads server.' : ex.message;
+        err.classList.add('show');
+        $('go').disabled = false; $('go').textContent = 'Sign in';
+        $('p').select();
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+{
+  "train": {
+    "BharatPotHole": {
+      "images": 5067,
+      "instances": {
+        "longitudinal_crack": 0,
+        "transverse_crack": 0,
+        "alligator_crack": 0,
+        "pothole": 8519
+      }
+    },
+    "RDD2022 India": {
+      "images": 6936,
+      "instances": {
+        "longitudinal_crack": 1381,
+        "transverse_crack": 61,
+        "alligator_crack": 1816,
+        "pothole": 2837
+      }
+    },
+    "Kaggle Potholes YOLOv8": {
+      "images": 1581,
+      "instances": {
+        "longitudinal_crack": 0,
+        "transverse_crack": 0,
+        "alligator_crack": 0,
+        "pothole": 5942
+      }
+    },
+    "RDD2022 United States": {
+      "images": 4325,
+      "instances": {
+        "longitudinal_crack": 6050,
+        "transverse_crack": 2966,
+        "alligator_crack": 763,
+        "pothole": 117
+      }
+    }
+  },
+  "val": {
+    "BharatPotHole": {
+      "images": 2007,
+      "instances": {
+        "longitudinal_crack": 0,
+        "transverse_crack": 0,
+        "alligator_crack": 0,
+        "pothole": 3331
+      }
+    },
+    "RDD2022 India": {
+      "images": 770,
+      "instances": {
+        "longitudinal_crack": 174,
+        "transverse_crack": 7,
+        "alligator_crack": 205,
+        "pothole": 350
+      }
+    },
+    "Kaggle Potholes YOLOv8": {
+      "images": 396,
+      "instances": {
+        "longitudinal_crack": 0,
+        "transverse_crack": 0,
+        "alligator_crack": 0,
+        "pothole": 1395
+      }
+    },
+    "RDD2022 United States": {
+      "images": 480,
+      "instances": {
+        "longitudinal_crack": 700,
+        "transverse_crack": 329,
+        "alligator_crack": 71,
+        "pothole": 18
+      }
+    }
+  }
+}

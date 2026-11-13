@@ -1,6 +1,29 @@
-# Nagrik Local Recreation
+# Nagrik · HackValley 2026
 
-An exact, 1:1 recreation of [Nagrik (nagrik.in.net)](https://nagrik.in.net/).
+This repository has two parts:
+
+| Folder | What it is |
+|---|---|
+| [`roads/`](roads/README.md) | **Nagrik Roads**, our HackValley 2026 (PS 02) project: AI road-damage detection for Bengaluru. A phone or dashcam finds potholes and cracks, each defect is counted once, ranked by risk and tracked until it is repaired. |
+| this folder | A local copy of the Nagrik website (nagrik.in.net), whose ward, official and tender data Nagrik Roads builds on. |
+
+## Nagrik Roads (quick start)
+
+```powershell
+cd roads
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+.venv\Scripts\python.exe -m uvicorn backend.app.main:app --port 8000
+```
+
+Open http://localhost:8000. Full documentation, results and the dashcam set-up are in [`roads/README.md`](roads/README.md);
+the training data is described in [`roads/dataset/`](roads/dataset/README.md). Model weights are not in Git (see the README for how to train or download them).
+
+---
+
+# Nagrik website (local copy)
+
+A local recreation of [Nagrik (nagrik.in.net)](https://nagrik.in.net/).
 
 ## Features & Parity
 - **Exact Pages & Clean URLs**: Homepage (`/`), About (`/about`), Integrations (`/integrations`), plus all 5 cities (Bengaluru, Delhi, Gurugram, Mumbai, Pune) across their Overview, Works, People, and Sources routes. All routes resolve with or without trailing slashes.

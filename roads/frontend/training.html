@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model training | Nagrik Roads</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .live-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
+    .pulse-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgba(47,125,85,.5); animation: live 1.6s ease-out infinite; }
+    .pulse-dot.off { background: var(--ink-2); animation: none; }
+    @keyframes live { to { box-shadow: 0 0 0 14px rgba(47,125,85,0); } }
+    .big-epoch { font-weight: 650; font-size: clamp(2.4rem, 6vw, 3.8rem); letter-spacing: -.06em; line-height: 1; color: var(--ink); }
+    .big-epoch small { font-size: .4em; color: var(--ink-3); letter-spacing: -.02em; }
+    .ep-progress { height: 12px; margin: 12px 0 6px; }
+    .chart { width: 100%; height: auto; display: block; }
+    .chart text { fill: var(--ink-2); font: 11px var(--font-ui); }
+    .chart .grid { stroke: var(--line); }
+    .legend-line { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+    .pipeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .step { border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px; background: #fff; }
+    .step h3 { color: var(--ink); font-family: var(--font-mono); font-size: .8rem; font-weight: 600; margin-bottom: .3em; }
+    .step p { margin: 0; color: var(--ink-2); font-size: .88rem; }
+    .classes { display: flex; flex-wrap: wrap; gap: 8px; }
+    .imgs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .imgs img { width: 100%; border-radius: var(--r-md); border: 1px solid var(--line); display: block; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Nagrik Roads home">
+        <img src="assets/logo.svg" alt="" width="36" height="36">
+        <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Bengaluru road condition desk</span></span>
+      </a>
+    </div>
+    <nav class="main-nav" aria-label="Sections">
+      <a href="/dashboard#/map">Map</a>
+      <a href="/dashboard#/defects">Defects</a>
+      <a href="/dashboard#/upload">Scan a road</a>
+      <a href="/dashboard#/review">Review</a>
+      <a href="/dashboard#/reports">Reports</a>
+      <details class="nav-more">
+        <summary>More</summary>
+        <div class="nav-menu">
+          <a href="/route.html">Repair route planner</a>
+          <a href="/roads.html">Road health by street</a>
+          <a href="/dashboard#/metrics">Model accuracy</a>
+          <a href="/training.html" aria-current="page">Model training</a>
+        </div>
+      </details>
+      <a href="/app" class="nav-app">Phone app</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="view-head">
+      <h1>Model training</h1>
+      <p>Two detectors, trained on the same 21,562 road images. This page refreshes every 5 seconds.</p>
+    </div>
+
+    <div class="grid-2">
+      <section class="panel" aria-live="polite">
+        <h2>Laptop run: YOLO26n</h2>
+        <div id="local-live" class="loading muted small">Reading training log</div>
+      </section>
+      <section class="panel">
+        <h2>Cloud run: YOLO26s on Kaggle</h2>
+        <div id="kaggle"><p class="muted">Checking Kaggle</p></div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>Accuracy after each epoch</h2>
+      <p class="muted small">Measured on 3,653 held-out validation images the model never trains on. mAP50 is the standard detection score: higher is better.</p>
+      <div id="chart"></div>
+      <div class="legend" id="chart-legend"></div>
+    </section>
+
+    <section class="panel">
+      <h2>What the model learns from</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Dataset</th><th>What it contains</th><th class="num">Training images</th><th class="num">Validation images</th></tr></thead>
+        <tbody id="ds-body"></tbody>
+      </table></div>
+      <h3 style="margin-top:18px">Four damage classes</h3>
+      <div class="classes">
+        <span class="badge">Longitudinal crack</span><span class="badge">Transverse crack</span>
+        <span class="badge">Alligator crack</span><span class="badge risk-Critical">Pothole</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>How training works</h2>
+      <div class="pipeline">
+        <div class="step"><h3>1. Collect</h3><p>Four public road-damage datasets from India and the US, all labelled with boxes around each defect.</p></div>
+        <div class="step"><h3>2. Unify</h3><p>Every dataset is converted to the same YOLO format and the same four classes, then split 83% train and 17% validation with a fixed seed.</p></div>
+        <div class="step"><h3>3. Train</h3><p>YOLO26n on the laptop and the larger YOLO26s on a Kaggle GPU, starting from weights pre-trained on COCO.</p></div>
+        <div class="step"><h3>4. Pick the winner</h3><p>Both are scored on the Indian validation images. The best one replaces the current model in the app.</p></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Sample training batches</h2>
+      <p class="muted small">Augmented images exactly as the model sees them, with the labelled boxes.</p>
+      <div class="imgs">
+        <img src="/api/training/img/train_batch0.jpg" alt="Training batch with labelled road damage" loading="lazy">
+        <img src="/api/training/img/labels.jpg" alt="Distribution of labels per class and box sizes" loading="lazy">
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+    const DESC = {
+      in: 'Indian city roads, phone camera. The closest match to Bengaluru.',
+      us: 'US roads, 4 damage types. Adds lots of crack examples.',
+      bp: 'Indian potholes, incl. rain and poor light.',
+      kg: 'Extra pothole images from many countries.',
+    };
+    const $ = (s) => document.querySelector(s);
+    const fmt = (n) => Number(n).toLocaleString('en-IN');
+    let dsDone = false;
+
+    function chart(eps) {
+      if (!eps.length) { $('#chart').innerHTML = '<p class="muted">No finished epochs yet.</p>'; return; }
+      const W = 760, H = 260, L = 40, R = 12, T = 12, B = 30;
+      const maxE = Math.max(eps[eps.length - 1].epoch, 10);
+      const x = (e) => L + (e - 1) / Math.max(maxE - 1, 1) * (W - L - R);
+      const y = (v) => T + (1 - v / 0.8) * (H - T - B);
+      const series = [['map50', '#b8860b', 'mAP50'], ['precision', '#2b6c9b', 'Precision'], ['recall', '#2f7d55', 'Recall']];
+      let g = '';
+      for (let v = 0; v <= 0.8001; v += 0.2) g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v.toFixed(1)}</text>`;
+      for (let e = 1; e <= maxE; e += Math.ceil(maxE / 10)) g += `<text x="${x(e)}" y="${H - 8}" text-anchor="middle">${e}</text>`;
+      const lines = series.map(([k, c]) => {
+        const pts = eps.map((p) => `${x(p.epoch).toFixed(1)},${y(p[k]).toFixed(1)}`).join(' ');
+        const last = eps[eps.length - 1];
+        return `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="${k === 'map50' ? 3 : 2}" stroke-linejoin="round" />` +
+          `<circle cx="${x(last.epoch)}" cy="${y(last[k])}" r="4" fill="${c}"/>`;
+      }).join('');
+      $('#chart').innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Validation accuracy by epoch">${g}${lines}<text x="${W - R}" y="${y(0) - 6}" text-anchor="end">epoch</text></svg>`;
+      const first = eps[0], last = eps[eps.length - 1];
+      $('#chart-legend').innerHTML = series.map(([k, c, n]) => `<span><i class="legend-line" style="background:${c}"></i>${n} <b class="num">${last[k].toFixed(3)}</b></span>`).join('') +
+        `<span class="muted">mAP50 went from ${first.map50.toFixed(2)} at epoch ${first.epoch} to ${last.map50.toFixed(2)} at epoch ${last.epoch}</span>`;
+    }
+
+    async function tick() {
+      let d;
+      try { d = await (await fetch('/api/training', { cache: 'no-store' })).json(); }
+      catch (e) { $('#local-live').className = 'state state-error'; $('#local-live').textContent = 'Server not reachable. Start the backend on port 8000.'; return; }
+      const lv = d.local.live, eps = d.local.epochs;
+      const best = eps.reduce((a, b) => (b.map50 > (a ? a.map50 : -1) ? b : a), null);
+      const el = $('#local-live');
+      el.className = '';
+      const finished = !lv.running && lv.epochs && eps.length >= lv.epochs - 1;
+      if (finished) {
+        const last = eps[eps.length - 1];
+        el.innerHTML = `
+          <div class="live-card"><span class="pulse-dot off" aria-hidden="true"></span>
+            <div><div class="big-epoch">Done<small> · ${eps.length} of ${lv.epochs} epochs</small></div>
+            <div class="muted small">${d.local.device} · the trained model now runs in the app</div></div></div>
+          <dl class="kv" style="margin-top:14px">
+            <dt>Final accuracy</dt><dd><b class="num">mAP50 ${last.map50.toFixed(3)}</b> · precision ${last.precision.toFixed(2)} · recall ${last.recall.toFixed(2)}</dd>
+            <dt>Started at</dt><dd class="num">mAP50 ${eps[0].map50.toFixed(3)} after epoch 1</dd>
+            <dt>Box loss</dt><dd class="num">${last.box_loss.toFixed(3)} (from ${eps[0].box_loss.toFixed(3)})</dd>
+          </dl>
+          <p class="muted small" style="margin-top:10px">The run stopped during the last epoch; the model saved after epoch ${last.epoch} is used.</p>`;
+      } else
+      el.innerHTML = lv.epoch ? `
+        <div class="live-card">
+          <span class="pulse-dot ${lv.running ? '' : 'off'}" aria-hidden="true"></span>
+          <div><div class="big-epoch">Epoch ${lv.epoch}<small> of ${lv.epochs}</small></div>
+          <div class="muted small">${lv.running ? 'Training now' : 'Paused, last update ' + Math.round(lv.updated_s_ago / 60) + ' min ago'} · ${d.local.device}</div></div>
+        </div>
+        <div class="progress ep-progress"><span style="width:${lv.pct}%"></span></div>
+        <div class="progress-label">${lv.phase === 'validating'
+          ? `<span>Epoch done. Now testing accuracy on 3,653 unseen images</span><span>a new point appears on the chart below</span>`
+          : `<span>Batch ${fmt(lv.batch)} of ${fmt(lv.batches)} (${lv.pct}%)</span><span>${lv.it_s} batches/s · about ${lv.eta} left in this epoch</span>`}</div>
+        <dl class="kv" style="margin-top:14px">
+          <dt>Box loss</dt><dd class="num">${lv.box_loss} <span class="muted small">(lower is better)</span></dd>
+          <dt>Class loss</dt><dd class="num">${lv.cls_loss}</dd>
+          ${best ? `<dt>Best so far</dt><dd><b class="num">mAP50 ${best.map50.toFixed(3)}</b> at epoch ${best.epoch}</dd>` : ''}
+        </dl>` : '<p class="muted">No training progress in the log yet.</p>';
+
+      const k = d.kaggle;
+      const st = { running: ['Running', 'risk-Low'], complete: ['Finished', 'risk-Low'], queued: ['Queued', 'risk-Medium'], error: ['Failed', 'risk-Critical'] }[k.status] || [k.status, ''];
+      $('#kaggle').innerHTML = `
+        <div class="live-card"><span class="pulse-dot ${k.status === 'running' ? '' : 'off'}" aria-hidden="true"></span>
+          <div><span class="badge ${st[1]}">${st[0]}</span> <span class="muted small">${k.device}</span></div></div>
+        <dl class="kv" style="margin-top:14px">
+          <dt>Model</dt><dd>${k.model}: a larger version of the laptop model, more accurate but too big to train well on a 4 GB GPU</dd>
+          <dt>Plan</dt><dd>Up to ${k.max_epochs} epochs, stops itself after 10.5 h</dd>
+          <dt>Notebook</dt><dd><a href="https://www.kaggle.com/code/${k.kernel}" target="_blank" rel="noopener">Open on Kaggle</a></dd>
+        </dl>
+        <p class="muted small" style="margin-top:10px">Kaggle publishes the logs and weights when the run finishes; then both models are compared on Indian roads.</p>`;
+
+      chart(eps);
+      if (!dsDone) {
+        const tot = d.dataset.reduce((a, s) => [a[0] + s.train, a[1] + s.val], [0, 0]);
+        $('#ds-body').innerHTML = d.dataset.map((s) => `<tr><td><b>${s.name}</b></td><td class="muted">${DESC[s.key] || ''}</td><td class="num">${fmt(s.train)}</td><td class="num">${fmt(s.val)}</td></tr>`).join('') +
+          `<tr><td><b>Total</b></td><td></td><td class="num"><b>${fmt(tot[0])}</b></td><td class="num"><b>${fmt(tot[1])}</b></td></tr>`;
+        dsDone = true;
+      }
+    }
+    tick(); setInterval(tick, 5000);
+  })();
+  </script>
+</body>
+</html>

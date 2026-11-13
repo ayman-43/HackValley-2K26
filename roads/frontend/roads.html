@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Road Health</title>
+  <meta name="description" content="Nagrik Roads: whole roads coloured green, yellow or red by condition, worst roads first.">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .rh-layout { display: grid; grid-template-columns: 360px 1fr; gap: var(--gutter); align-items: start; }
+    .rh-mapwrap { min-width: 0; }
+    .rh-map { height: 640px; border: 1px solid var(--line); border-radius: var(--r-md); }
+    .rh-panel { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .rh-panel h2 { margin: 0; }
+    .rh-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .rh-summary div { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-sm);
+      padding: 8px; border-top: 4px solid var(--line-strong); }
+    .rh-summary b { display: block; font-family: var(--font-mono); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+    .rh-summary span { color: var(--ink-2); font-size: .8rem; }
+    .rh-summary .Poor { border-top-color: #b4232a; }
+    .rh-summary .Fair { border-top-color: #c79300; }
+    .rh-summary .Good { border-top-color: #2a7d4f; }
+    .rh-note { font-size: .82rem; color: var(--ink-2); margin: 0; }
+    .rh-list { list-style: none; margin: 0; padding: 0; max-height: 430px; overflow: auto; }
+    .rh-list li { border-bottom: 1px solid var(--line); }
+    .rh-row { display: grid; grid-template-columns: 46px 1fr; gap: 10px; align-items: center; width: 100%;
+      padding: 9px 4px; background: none; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer;
+      border-radius: var(--r-sm); }
+    .rh-row:hover, .rh-row:focus-visible, .rh-row.active { background: var(--surface-2); }
+    .rh-score { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+      font: 700 .95rem var(--font-mono); }
+    .rh-name { font-weight: 600; overflow-wrap: anywhere; }
+    .rh-meta { display: block; font-size: .8rem; color: var(--ink-2); }
+    .rh-links { padding: 0 4px 8px 60px; font-size: .8rem; }
+    .rh-legend .swatch { width: 26px; height: 6px; border-radius: 3px; display: inline-block; }
+    .rh-legend .pin { width: 9px; height: 9px; border-radius: 50%; background: #7b838c; border: 1px solid #fff;
+      box-shadow: 0 0 0 1px rgba(32,38,45,.4); display: inline-block; }
+    .rh-popup { min-width: 200px; }
+    .rh-popup h3 { margin: 0 0 4px; font-size: 1rem; }
+    .rh-popup dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 8px 0; font-size: .86rem; }
+    .rh-popup dt { color: var(--ink-2); }
+    .rh-popup dd { margin: 0; font-variant-numeric: tabular-nums; }
+    .rh-chip { display: inline-block; padding: 0 8px; border-radius: 4px; color: #fff; font-weight: 600;
+      font-size: .78rem; line-height: 1.75; }
+    @media (max-width: 900px) {
+      .rh-layout { grid-template-columns: 1fr; }
+      .rh-mapwrap { order: -1; }
+      .rh-map { height: 56vh; min-height: 320px; }
+      .rh-list { max-height: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/#/map" aria-label="Nagrik Roads dashboard">
+        <img src="assets/logo.svg" alt="" width="36" height="36">
+        <span class="brand-text">
+          <span class="brand-name">Nagrik Roads</span>
+          <span class="brand-sub">Road health</span>
+        </span>
+      </a>
+      <a class="btn btn-small" href="/#/map">← Back to the map</a>
+    </div>
+    <div class="kerb" aria-hidden="true"></div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div class="view">
+      <div class="view-head">
+        <h1>Which roads are worst?</h1>
+        <p class="muted">Every road with open defects, scored 0 to 100 from defect density, risk and severity. Fix the red ones first.</p>
+      </div>
+
+      <div class="rh-layout">
+        <section class="rh-panel panel" aria-label="Road health summary and worst roads">
+          <div class="rh-summary" id="summary"></div>
+          <p class="rh-note" id="status" role="status" aria-live="polite">Loading road health…</p>
+          <h2 class="small">Worst roads</h2>
+          <ol class="rh-list" id="list"></ol>
+          <p class="rh-note">Health = 100 minus penalties for defects per km (up to 40), risk (up to 35) and worst
+            severity (up to 25). Good 70+, Fair 40 to 69, Poor under 40.</p>
+        </section>
+
+        <div class="rh-mapwrap">
+          <div id="map" class="rh-map" role="region" aria-label="Road health map"></div>
+          <div class="legend rh-legend" aria-label="Legend">
+            <span><i class="swatch" style="background:#2a7d4f"></i> Good (70+)</span>
+            <span><i class="swatch" style="background:#c79300"></i> Fair (40 to 69)</span>
+            <span><i class="swatch" style="background:#b4232a"></i> Poor (under 40)</span>
+            <span><i class="pin"></i> Open defect</span>
+            <span id="legend-approx" hidden><i class="swatch" style="background:repeating-linear-gradient(90deg,#5f6b77 0 6px,transparent 6px 10px)"></i> Dashed = approximate line</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <footer class="site-footer">
+    <p>Road geometry and map data &copy; OpenStreetMap contributors (ODbL), via the Overpass API.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin=""></script>
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js" crossorigin=""></script>
+  <script src="roads.js"></script>
+</body>
+</html>

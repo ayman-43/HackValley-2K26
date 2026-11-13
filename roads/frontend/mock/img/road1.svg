@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9c9d6"/><stop offset="1" stop-color="#e3e6e2"/></linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d7075"/><stop offset="1" stop-color="#3d4044"/></linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.18 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+  </defs>
+  <rect width="640" height="170" fill="url(#sky)"/>
+  <rect y="120" width="640" height="60" fill="#7e9b6a"/>
+  <path d="M250 160 L390 160 L640 480 L0 480 Z" fill="url(#road)"/>
+  <path d="M250 160 L390 160 L640 480 L0 480 Z" fill="#000" filter="url(#grain)"/>
+  <path d="M318 175 l4 0 l6 40 l-8 0 Z M314 245 l10 0 l10 70 l-18 0 Z" fill="#e8e3c8" opacity=".8"/>
+  <path d="M250 160 L0 420 L0 480 L30 480 L262 160 Z" fill="#c9c3b2"/>
+  <path d="M390 160 L640 420 L640 480 L612 480 L378 160 Z" fill="#c9c3b2"/>
+  <ellipse cx="420" cy="380" rx="88" ry="38" fill="#26282b"/><ellipse cx="424" cy="386" rx="70" ry="26" fill="#3e3a33"/><path d="M340 372 q20 -20 50 -22" stroke="#2a2c2f" stroke-width="3" fill="none"/>
+  <text x="16" y="466" font-family="Segoe UI, sans-serif" font-size="14" fill="#fff" opacity=".7">Sample frame: 100 Ft Rd, Indiranagar</text>
+</svg>

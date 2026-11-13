@@ -1,0 +1,10 @@
+reference/
+.venv/
+backend/data/
+*.pt
+*.onnx
+__pycache__/
+
+# never commit
+*.log
+*.avi

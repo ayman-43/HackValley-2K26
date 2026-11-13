@@ -1,0 +1,38 @@
+{
+  "total_defects": 18,
+  "open_defects": 16,
+  "inspections": 23,
+  "raw_detections": 3834,
+  "unique_defects": 94,
+  "pending_review": 7,
+  "by_class": {
+    "pothole": 9,
+    "longitudinal_crack": 3,
+    "transverse_crack": 3,
+    "alligator_crack": 3
+  },
+  "by_severity": {
+    "High": 9,
+    "Medium": 3,
+    "Low": 6
+  },
+  "by_risk": {
+    "Critical": 1,
+    "High": 10,
+    "Medium": 6,
+    "Low": 1
+  },
+  "by_workflow": {
+    "reported": 8,
+    "verified": 5,
+    "scheduled": 3,
+    "repaired": 2
+  },
+  "by_trend": {
+    "worsening": 5,
+    "stable": 5,
+    "new": 3,
+    "improving": 3,
+    "possibly_repaired": 2
+  }
+}

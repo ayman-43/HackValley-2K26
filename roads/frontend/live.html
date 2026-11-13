@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Live scan | Nagrik Roads</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#f1f3f5">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    main { max-width: 1080px; padding-top: 18px; }
+    .live-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+    @media (max-width: 860px) { .live-grid { grid-template-columns: minmax(0, 1fr); } }
+    .live-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .live-title h1 { margin: 0; }
+    .live-title p { margin: 0; color: var(--ink-2); max-width: 46ch; }
+    @media (max-width: 640px) { .live-title p { display: none; } }
+    .cam { position: relative; background: #14181d; border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 16 / 10; }
+    .cam video, .cam canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .cam .hud { position: absolute; left: 8px; right: 8px; top: 8px; display: flex; justify-content: space-between; gap: 6px; pointer-events: none; }
+    .pill { background: rgba(255, 255, 255, .9); color: var(--ink); border-radius: 999px; padding: 2px 9px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+    .pill.live { color: #fff; background: var(--danger); }
+    .pill.live::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #fff; margin-right: 5px; vertical-align: 1px; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: .2; } }
+    .scanline { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #fff, transparent); opacity: .7; top: 0; animation: sweep 2.2s linear infinite; pointer-events: none; }
+    @keyframes sweep { to { top: 100%; } }
+    .go-btn { width: 100%; min-height: 54px; font-size: 1.05rem; margin-top: 12px; border-radius: var(--r-md); }
+    .counter { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); }
+    .counter div { display: flex; flex-direction: column; min-width: 0; }
+    .counter b { font: 600 1.25rem var(--font-mono); color: var(--data); line-height: 1.1; }
+    .counter span { font-size: .72rem; color: var(--ink-2); }
+    .settings { margin-top: 12px; display: grid; gap: 10px; }
+    .setting { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .setting > span { font-weight: 600; font-size: .9rem; }
+    .seg button { white-space: nowrap; }
+    #msg { margin: 10px 0 0; }
+    .feed { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 60vh; overflow: auto; }
+    .feed li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px; border: 1px solid var(--line); border-radius: var(--r-md); background: #fff; animation: pop .4s ease-out; }
+    @keyframes pop { from { transform: translateY(-6px); opacity: 0; } }
+    .feed img { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; background: #14181d; }
+    .feed .code { font-family: var(--font-mono); font-weight: 600; color: var(--data); }
+    .feed .loc { font-size: .78rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+    @media (max-width: 520px) { main { padding: 12px 12px 40px; } .panel { padding: 12px; } .brand-sub { display: none; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/app" aria-label="Nagrik Roads app">
+        <img src="assets/logo.svg" alt="" width="34" height="34">
+        <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Live road scan</span></span>
+      </a>
+      <a class="btn btn-small" href="/dashboard#/map" target="_blank">See it on the map ↗</a>
+    </div>
+    <div class="kerb" aria-hidden="true"></div>
+  </header>
+
+  <main id="main">
+    <div class="live-title">
+      <h1>Live scan</h1>
+      <p>Point the camera at the road ahead. Each pothole is tracked, counted once and pinned where it was seen.</p>
+    </div>
+
+    <div class="live-grid">
+      <section class="panel">
+        <div class="cam">
+          <video id="vid" playsinline muted autoplay></video>
+          <canvas id="overlay"></canvas>
+          <div class="scanline" id="scanline" hidden></div>
+          <div class="hud"><span class="pill" id="state-pill">Ready</span><span class="pill" id="gps-pill">GPS: waiting</span></div>
+        </div>
+
+        <button class="btn btn-primary go-btn" id="btn-start">Start live scan</button>
+        <button class="btn btn-danger go-btn" id="btn-stop" hidden>Stop scan</button>
+
+        <div class="counter" aria-live="polite">
+          <div><b id="s-uniq">0</b><span>potholes found</span></div>
+          <div><b id="s-raw">0</b><span>detections</span></div>
+          <div><b id="s-frames">0</b><span>frames</span></div>
+          <div><b id="s-lat">–</b><span>reply time</span></div>
+        </div>
+
+        <div class="settings">
+          <div class="setting"><span>Camera</span>
+            <div class="seg" role="group" aria-label="Camera">
+              <button type="button" id="btn-cam" aria-pressed="true">Phone camera</button>
+              <button type="button" id="btn-file" aria-pressed="false">Road video</button>
+            </div>
+            <input type="file" id="file" accept="video/*" hidden>
+          </div>
+          <div class="setting"><span>Location</span>
+            <div class="seg" role="group" aria-label="Location">
+              <button type="button" id="btn-realgps" aria-pressed="true">Real GPS</button>
+              <button type="button" id="btn-simgps" aria-pressed="false">Demo route</button>
+            </div>
+          </div>
+        </div>
+        <p class="muted small" id="msg"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Found on this ride</h2>
+        <ul class="feed" id="feed"><li style="grid-template-columns:1fr" class="muted small">Potholes appear here, with the place where each one was seen.</li></ul>
+      </section>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const vid = $('vid'), ov = $('overlay'), ctx = ov.getContext('2d');
+    const grab = document.createElement('canvas');
+    const COLORS = { pothole: '#b83a3f', alligator_crack: '#c4581f', transverse_crack: '#b8860b', longitudinal_crack: '#2b6c9b' };
+    const NAMES = { pothole: 'Pothole', alligator_crack: 'Alligator crack', transverse_crack: 'Transverse crack', longitudinal_crack: 'Longitudinal crack' };
+    let sid = null, running = false, fix = null, sim = false, simT0 = 0, lastDets = [], lastW = 640, lastH = 360, seenCodes = new Set(), firstItem = true;
+
+    function msg(t, err) { $('msg').textContent = t; $('msg').style.color = err ? 'var(--danger)' : ''; }
+
+    // ---- GPS: real device location, updated continuously
+    if ('geolocation' in navigator) {
+      navigator.geolocation.watchPosition((p) => {
+        fix = p.coords;
+        if (!sim) $('gps-pill').textContent = `GPS ±${Math.round(fix.accuracy)} m`;
+        if ($('msg').dataset.gps) { msg(''); delete $('msg').dataset.gps; }
+      }, (e) => {
+        if (fix) return;  // a later timeout while we already have a position is harmless
+        $('gps-pill').textContent = 'GPS unavailable';
+        msg('Location is blocked or off. Allow location for this site (and turn on Windows Location), or choose "Simulated route (demo)". Without a location, detections are not pinned on the map.', true);
+        $('msg').dataset.gps = '1';
+      },
+      { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 });
+    } else { $('gps-pill').textContent = 'No GPS'; }
+
+    // ---- simulated demo route: 100 Feet Road, Indiranagar, north to south at 25 km/h (7 m/s), clearly labelled
+    const ROUTE = [[12.9784, 77.6408], [12.9634, 77.6411]];
+    function simFix() {
+      const t = (performance.now() - simT0) / 1000, len = 1670, d = (t * 7) % len, f = d / len;
+      return { latitude: ROUTE[0][0] + (ROUTE[1][0] - ROUTE[0][0]) * f, longitude: ROUTE[0][1] + (ROUTE[1][1] - ROUTE[0][1]) * f, accuracy: 5 };
+    }
+    function currentFix() {
+      if (!sim) return fix;
+      const f = simFix();
+      $('gps-pill').textContent = 'Demo route (simulated GPS)';
+      return f;
+    }
+    function setSim(on) {
+      sim = on; simT0 = performance.now();
+      $('btn-simgps').setAttribute('aria-pressed', String(on)); $('btn-realgps').setAttribute('aria-pressed', String(!on));
+      if (on) { currentFix(); if ($('msg').dataset.gps) { msg(''); delete $('msg').dataset.gps; } msg('Demo route: the position moves along 100 Feet Road, Indiranagar at 25 km/h. Switch to Real GPS on a real drive.'); }
+      else $('gps-pill').textContent = fix ? `GPS ±${Math.round(fix.accuracy)} m` : 'GPS: waiting';
+    }
+    $('btn-simgps').onclick = () => setSim(true);
+    $('btn-realgps').onclick = () => setSim(false);
+
+    // ---- camera or video file
+    async function useCamera() {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } }, audio: false });
+        vid.srcObject = s; vid.loop = false; await vid.play();
+        $('btn-cam').setAttribute('aria-pressed', 'true'); $('btn-file').setAttribute('aria-pressed', 'false');
+      } catch (e) { msg('No camera available here. Choose "Road video" to scan a recorded video instead.', true); }
+    }
+    $('btn-cam').onclick = useCamera;
+    $('btn-file').onclick = () => $('file').click();
+    $('file').onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      if (vid.srcObject) { vid.srcObject.getTracks().forEach((t) => t.stop()); vid.srcObject = null; }
+      vid.src = URL.createObjectURL(f); vid.loop = true; vid.play();
+      $('btn-cam').setAttribute('aria-pressed', 'false'); $('btn-file').setAttribute('aria-pressed', 'true');
+      msg(`Playing ${f.name} as the camera feed. Location comes from this device's GPS.`);
+    };
+    useCamera();
+
+    // ---- draw boxes on the overlay, scaled to the displayed video
+    function draw() {
+      const r = ov.getBoundingClientRect();
+      ov.width = r.width * devicePixelRatio; ov.height = r.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      ctx.clearRect(0, 0, r.width, r.height);
+      const s = Math.min(r.width / lastW, r.height / lastH), ox = (r.width - lastW * s) / 2, oy = (r.height - lastH * s) / 2;
+      for (const d of lastDets) {
+        const [x1, y1, x2, y2] = d.bbox, c = COLORS[d.damage_class] || '#fff';
+        ctx.strokeStyle = c; ctx.lineWidth = 2.5; 
+        ctx.strokeRect(ox + x1 * s, oy + y1 * s, (x2 - x1) * s, (y2 - y1) * s);
+        ctx.shadowBlur = 0; ctx.fillStyle = c; ctx.font = '600 12px "Instrument Sans", sans-serif';
+        const label = `${d.track_id != null ? '#' + d.track_id + ' ' : ''}${NAMES[d.damage_class] || d.damage_class} ${Math.round(d.confidence * 100)}%`;
+        const tw = ctx.measureText(label).width + 10;
+        const lx = Math.max(0, Math.min(ox + x1 * s, r.width - tw)), ly = Math.max(18, oy + y1 * s);
+        ctx.fillRect(lx, ly - 18, tw, 18);
+        ctx.fillStyle = '#fff'; ctx.fillText(label, lx + 5, ly - 5);
+      }
+    }
+    window.addEventListener('resize', draw);
+
+    function addFeed(item) {
+      if (firstItem) { $('feed').innerHTML = ''; firstItem = false; }
+      const li = document.createElement('li');
+      const loc = item.lat != null ? `${item.lat.toFixed(5)}, ${item.lon.toFixed(5)}` : 'no GPS fix';
+      li.innerHTML = `<img src="${item.crop_url || ''}" alt="">
+        <div><span class="code">${item.code}</span> <span class="badge">${NAMES[item.damage_class] || item.damage_class}</span>
+        <span class="badge ${item.new ? 'risk-Medium' : ''}">${item.new ? 'New' : 'Seen again'}</span>
+        <div class="loc">${new Date().toLocaleTimeString()} · ${loc}</div></div>`;
+      $('feed').prepend(li);
+    }
+
+    // ---- live loop: send a frame, wait for the reply, keep ~1 frame per second
+    async function loop() {
+      while (running) {
+        const t0 = performance.now();
+        if (vid.readyState >= 2 && vid.videoWidth) {
+          const sc = Math.min(1, 640 / vid.videoWidth);
+          grab.width = Math.round(vid.videoWidth * sc); grab.height = Math.round(vid.videoHeight * sc);
+          grab.getContext('2d').drawImage(vid, 0, 0, grab.width, grab.height);
+          const blob = await new Promise((r) => grab.toBlob(r, 'image/jpeg', 0.75));
+          const fd = new FormData();
+          fd.append('frame', blob, 'frame.jpg');
+          const cf = currentFix();
+          if (cf) { fd.append('lat', cf.latitude); fd.append('lon', cf.longitude); fd.append('accuracy', cf.accuracy); }
+          try {
+            const res = await fetch(`/api/live/${sid}/frame`, { method: 'POST', body: fd });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const d = await res.json();
+            lastDets = d.detections; lastW = d.frame_w; lastH = d.frame_h; draw();
+            $('s-frames').textContent = d.stats.frames; $('s-raw').textContent = d.stats.raw_detections;
+            $('s-uniq').textContent = d.stats.unique_defects;
+            $('s-lat').textContent = Math.round(performance.now() - t0) + ' ms';
+            for (const it of d.saved) {
+              if (it.new || !seenCodes.has(it.code)) addFeed(it);
+              seenCodes.add(it.code);
+            }
+          } catch (e) { msg('Frame failed: ' + e.message + '. Retrying.', true); }
+        }
+        const wait = 330 - (performance.now() - t0);  // ~3 frames per second (needed for tracking)
+        if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      }
+    }
+
+    $('btn-start').onclick = async () => {
+      const fd = new FormData();
+      if (sim) simT0 = performance.now();
+      const cf0 = currentFix();
+      if (cf0) { fd.append('lat', cf0.latitude); fd.append('lon', cf0.longitude); }
+      $('btn-start').disabled = true; msg('Starting: loading the detection model…');
+      try {
+        const r = await fetch('/api/live/start', { method: 'POST', body: fd });
+        sid = (await r.json()).session_id;
+      } catch (e) { $('btn-start').disabled = false; msg('Could not reach the Nagrik Roads server.', true); return; }
+      $('btn-start').disabled = false;
+      running = true; seenCodes = new Set();
+      $('btn-start').hidden = true; $('btn-stop').hidden = false; $('scanline').hidden = false;
+      $('state-pill').textContent = 'LIVE'; $('state-pill').classList.add('live');
+      msg(cf0 ? `Live session ${sid} started${sim ? ' with the simulated route' : ''}. Pins appear on the dashboard map within seconds.`
+              : `Live session ${sid} started WITHOUT a location: detections are found but not pinned. Allow location or choose Simulated route.`, !cf0);
+      try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch (e) { /* optional */ }
+      loop();
+    };
+    $('btn-stop').onclick = async () => {
+      running = false;
+      $('btn-start').hidden = false; $('btn-stop').hidden = true; $('scanline').hidden = true;
+      $('state-pill').textContent = 'Stopped'; $('state-pill').classList.remove('live');
+      try {
+        const s = await (await fetch(`/api/live/${sid}/stop`, { method: 'POST' })).json();
+        msg(`Ride finished: ${s.frames} frames, ${s.raw_detections} detections, ${s.unique_defects} unique defects (${s.new_defects} new).`);
+      } catch (e) { /* ignore */ }
+    };
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nagrik Roads Bengaluru</title>
+  <meta name="description" content="Nagrik Roads: AI road-damage detection, tracking and repair workflow for Bengaluru roads.">
+  <meta name="theme-color" content="#f1f3f5">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Nagrik Roads home">
+        <img src="assets/logo.svg" alt="" width="36" height="36">
+        <span class="brand-text">
+          <span class="brand-name">Nagrik Roads</span>
+          <span class="brand-sub">Bengaluru road condition desk</span>
+        </span>
+      </a>
+      <dl class="live-stats" id="live-stats" aria-label="Live statistics">
+        <div class="stat"><dt>Loading stats</dt><dd>…</dd></div>
+      </dl>
+      <div class="user-box" id="user-box"></div>
+    </div>
+    <div class="kerb" aria-hidden="true"></div>
+    <nav class="main-nav" aria-label="Sections">
+      <a href="#/map" data-route="map">Map</a>
+      <a href="#/defects" data-route="defects">Defects</a>
+      <a href="#/upload" data-route="upload">Scan a road</a>
+      <a href="#/review" data-route="review">Review <span class="nav-count" id="nav-review-count" hidden></span></a>
+      <a href="#/reports" data-route="reports">Reports</a>
+      <details class="nav-more">
+        <summary>More</summary>
+        <div class="nav-menu">
+          <a href="/route.html">Repair route planner</a>
+          <a href="/roads.html">Road health by street</a>
+          <a href="#/metrics" data-route="metrics">Model accuracy</a>
+          <a href="/training.html">Model training</a>
+        </div>
+      </details>
+      <a href="/app" class="nav-app">Phone app</a>
+    </nav>
+  </header>
+
+  <div class="mock-banner" id="mock-banner" hidden>
+    Demo data mode: the app is reading sample files from <code>mock/</code>, not the live API.
+    <a href="./">Switch to live API</a>
+  </div>
+
+  <main id="main" tabindex="-1">
+    <div id="view" class="view"></div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="site-footer">
+    <p>Base map &copy; OpenFreeMap and OpenStreetMap contributors (ODbL). Ward boundaries, officials and tenders from
+      <a href="https://nagrik.in.net" target="_blank" rel="noopener">Nagrik</a>, an independent civic-data project. Weather by Open-Meteo.
+      Detection models: Ultralytics YOLO (AGPL-3.0), RDD2022, BharatPotHole.</p>
+  </footer>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin=""></script>
+  <script src="rsmap.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // close the "More" menu after choosing an item or clicking elsewhere
+    document.addEventListener('click', (e) => {
+      const m = document.querySelector('.nav-more');
+      if (m && m.open && (!m.contains(e.target) || e.target.closest('.nav-menu a'))) m.open = false;
+    });
+  </script>
+</body>
+</html>

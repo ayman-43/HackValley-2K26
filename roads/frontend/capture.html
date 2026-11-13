@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f1f3f5">
+  <title>Record a ride | Nagrik Roads Bengaluru</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Page-only styles. Colours, fonts, header and buttons come from styles.css. */
+    .cap-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+    .cap-col { display: grid; gap: 14px; min-width: 0; }
+    /* Phone: camera, then Record and Result, then GPS stats and tips. */
+    @media (max-width: 860px) {
+      .cap-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+      .cap-col { display: contents; }
+      .cap-layout .stats, .cap-layout .tip { order: 2; }
+      .cap-layout .more { order: 3; }
+    }
+
+    .banner { border-radius: var(--r-md); padding: 12px 14px; font-size: .9rem; }
+    .banner.warn { background: #fbf3e8; border: 1px solid #ecd3b2; }
+    .banner code { font-size: .78rem; word-break: break-all; }
+
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; background: #fff; border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 3px; gap: 3px; }
+    .tabs button { font: inherit; font-weight: 600; font-size: .95rem; border: 0; border-radius: 4px; min-height: 42px; background: transparent; color: var(--ink-2); cursor: pointer; }
+    .tabs button[aria-selected="true"] { background: var(--ink); color: #fff; }
+
+    .viewer { position: relative; background: #11151a; border-radius: var(--r-md); overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid var(--line); }
+    .viewer video, .viewer img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .viewer .overlay { position: absolute; inset: 10px 10px auto; display: flex; justify-content: space-between; gap: 8px; pointer-events: none; }
+    .pill { background: rgba(255, 255, 255, .92); color: var(--ink); padding: 5px 10px; border-radius: 999px; font: 600 .8rem/1.2 var(--font-mono); }
+    .rec-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--danger); margin-right: 6px; animation: blink 1s steps(2) infinite; }
+    @keyframes blink { 50% { opacity: .2; } }
+    @media (prefers-reduced-motion: reduce) { .rec-dot { animation: none; } }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; padding: 14px; }
+    .stat b { display: block; font: 600 1.35rem/1.15 var(--font-mono); color: var(--data); font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .78rem; color: var(--ink-2); }
+    .gps-good { color: var(--ok) !important; } .gps-ok { color: var(--warn) !important; } .gps-bad { color: var(--danger) !important; }
+
+    .step { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
+    .step i { font: 600 .78rem/1 var(--font-mono); font-style: normal; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: #fff; flex: none; }
+    .step h2 { margin: 0; }
+    .actions { display: grid; gap: 10px; }
+    .big { font: inherit; font-weight: 600; font-size: 1rem; min-height: 50px; padding: 0 18px; border-radius: var(--r-sm); border: 1px solid var(--ink); background: var(--ink); color: #fff; cursor: pointer; }
+    .big:hover:not(:disabled) { background: #343c46; }
+    .big:disabled { opacity: .45; cursor: not-allowed; }
+    .big.stop { background: var(--danger); border-color: var(--danger); }
+    .big.secondary { background: #fff; color: var(--ink); border-color: var(--line-strong); }
+    label.row { display: flex; align-items: center; gap: 10px; font-weight: 500; min-height: 40px; }
+    label.row input[type="checkbox"] { width: 20px; height: 20px; }
+    .muted { color: var(--ink-2); font-size: .84rem; margin: 0; }
+    progress { width: 100%; height: 12px; accent-color: var(--ink); }
+    #status { font-weight: 500; }
+    #result { margin: 8px 0 0; }
+    details > summary { cursor: pointer; color: var(--ink-2); font-size: .88rem; padding: 4px 0; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Nagrik Roads home">
+        <img src="assets/logo.svg" alt="" width="36" height="36">
+        <span class="brand-text">
+          <span class="brand-name">Nagrik Roads</span>
+          <span class="brand-sub">Bengaluru road condition desk</span>
+        </span>
+      </a>
+    </div>
+    <nav class="main-nav" aria-label="Sections">
+      <a href="/dashboard#/map">Map</a>
+      <a href="/dashboard#/defects">Defects</a>
+      <a href="/dashboard#/upload" aria-current="page">Scan a road</a>
+      <a href="/dashboard#/review">Review</a>
+      <a href="/dashboard#/reports">Reports</a>
+      <details class="nav-more">
+        <summary>More</summary>
+        <div class="nav-menu">
+          <a href="/route.html">Repair route planner</a>
+          <a href="/roads.html">Road health by street</a>
+          <a href="/dashboard#/metrics">Model accuracy</a>
+          <a href="/training.html">Model training</a>
+        </div>
+      </details>
+      <a href="/app" class="nav-app">Phone app</a>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div class="view-head">
+      <h1>Record a ride</h1>
+      <p>Point the phone's back camera at the road and drive. When you press Stop, the video and GPS track are uploaded and every pothole and crack is pinned on the map.</p>
+    </div>
+
+    <div id="secure-banner" class="banner warn hidden" role="alert" style="margin-bottom:16px">
+      <strong>Camera and GPS are blocked on this connection.</strong>
+      Browsers only allow them on <b>HTTPS</b> or <b>localhost</b>. On a phone over Wi-Fi, open
+      <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>, add
+      <code id="origin-hint"></code> and relaunch Chrome, or use an HTTPS tunnel (see README).
+      You can still upload a photo or video from the camera app (step 3).
+    </div>
+
+    <div class="cap-layout">
+      <div class="cap-col">
+        <div class="tabs" role="tablist" aria-label="What to capture">
+          <button role="tab" id="tab-ride" aria-selected="true">Ride (video)</button>
+          <button role="tab" id="tab-photo" aria-selected="false">Single photo</button>
+        </div>
+
+        <div class="viewer">
+          <video id="preview" playsinline muted autoplay></video>
+          <img id="photo-preview" class="hidden" alt="Captured photo">
+          <div class="overlay">
+            <span class="pill" id="rec-pill"><span id="rec-dot" class="rec-dot hidden"></span><span id="timer">00:00</span></span>
+            <span class="pill" id="gps-pill">GPS –</span>
+          </div>
+        </div>
+
+        <section class="panel stats" aria-label="GPS status">
+          <div class="stat"><b id="acc">–</b><span>GPS accuracy (m)</span></div>
+          <div class="stat"><b id="pts">0</b><span>GPS points</span></div>
+          <div class="stat"><b id="spd">–</b><span>Speed (km/h)</span></div>
+        </section>
+
+        <p class="muted tip">Mount the phone on the dashboard or handlebar, rear camera facing the road ahead, and keep the
+          screen on. The video stays on the phone until you press Stop.</p>
+      </div>
+
+      <div class="cap-col">
+        <section class="panel">
+          <div class="step"><i>1</i><h2>Record</h2></div>
+          <div class="actions" id="ride-panel">
+            <button class="big" id="btn-start" disabled>Start ride</button>
+            <button class="big stop hidden" id="btn-stop">Stop and upload</button>
+            <label class="row"><input type="checkbox" id="bumps"> Also log bumps from the accelerometer</label>
+            <p class="muted" id="bump-info">Optional. Sharp jolts are saved with the GPS track as extra evidence. <span id="bump-count"></span></p>
+          </div>
+          <div class="actions hidden" id="photo-panel">
+            <button class="big" id="btn-snap" disabled>Take photo</button>
+            <button class="big secondary hidden" id="btn-send-photo">Upload photo</button>
+          </div>
+        </section>
+
+        <section class="panel" id="upload-card" aria-live="polite">
+          <div class="step"><i>2</i><h2>Result</h2></div>
+          <div id="status">Getting camera and GPS ready…</div>
+          <progress id="progress" max="1" value="0" class="hidden"></progress>
+          <p id="result" class="hidden"></p>
+        </section>
+
+        <section class="panel more">
+          <details>
+            <summary>Optional details and file upload</summary>
+            <div class="actions" style="margin-top:12px">
+              <div class="field">
+                <label for="road-type">Road type</label>
+                <select id="road-type">
+                  <option value="">Detect automatically (OpenStreetMap)</option>
+                  <option value="arterial">Arterial / main road</option>
+                  <option value="collector">Collector</option>
+                  <option value="residential">Residential street</option>
+                  <option value="highway">Highway</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="notes">Notes</label>
+                <input type="text" id="notes" maxlength="200" placeholder="e.g. near bus stop, water-logged">
+              </div>
+              <div class="field">
+                <label for="file-input">No camera access? Upload a photo or video from the camera app</label>
+                <input type="file" id="file-input" accept="image/*,video/*" capture="environment">
+              </div>
+              <button class="big secondary" id="btn-send-file">Upload file</button>
+            </div>
+          </details>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="capture.js"></script>
+</body>
+</html>

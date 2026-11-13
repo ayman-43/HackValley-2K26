@@ -1,0 +1,10 @@
+# Nagrik Roads training dataset (YOLO format, 4 classes).
+# Built by scripts/prepare_dataset.py. Set `path` to wherever the full dataset was built.
+path: ../roadsense-data/roadsense
+train: images/train   # 17,909 images (list: splits/train.txt)
+val: images/val       # 3,653 images  (list: splits/val.txt)
+names:
+  0: longitudinal_crack   # RDD2022 D00
+  1: transverse_crack     # RDD2022 D10
+  2: alligator_crack      # RDD2022 D20
+  3: pothole              # RDD2022 D40, BharatPotHole, Kaggle

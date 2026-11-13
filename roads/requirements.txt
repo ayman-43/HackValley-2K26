@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+ultralytics
+supervision
+opencv-python
+numpy
+pillow
+imagehash
+httpx
+onnxruntime
+transformers
+requests

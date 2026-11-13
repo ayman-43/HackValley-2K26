@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>if (location.hash.startsWith('#/')) location.replace('/dashboard' + location.hash);</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nagrik Roads Bengaluru</title>
+  <meta name="description" content="Nagrik Roads finds potholes and cracks on Bengaluru roads from a phone camera, counts each one once, ranks them by risk and tracks them until they are fixed.">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Landing page. Colours and fonts come from styles.css; layout below is page-only. */
+    main.home { max-width: none; padding: 0; }
+    .wrap { max-width: 1140px; margin: 0 auto; padding: 0 var(--gutter); }
+
+    /* header: one floating bar */
+    .h-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .h-links a { font-size: .9rem; font-weight: 500; text-decoration: none; padding: 6px 10px; border-radius: var(--r-sm); border: 1px solid transparent; }
+    .h-links a:hover { background: var(--surface-2); }
+    .h-links a.chip { border-color: var(--line-strong); background: #fff; }
+    .h-links a.go { font-weight: 600; }
+
+    /* hero over a faded ward map */
+    .hero-h { position: relative; overflow: hidden; margin-top: -64px; padding-top: 88px; }
+    .hero-map { position: absolute; inset: 0 0 0 38%; opacity: .55; pointer-events: none;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 35%, #000 70%, transparent), linear-gradient(transparent, #000 15%, #000 70%, transparent);
+      -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent, #000 35%, #000 70%, transparent), linear-gradient(transparent, #000 15%, #000 70%, transparent); mask-composite: intersect; }
+    .hero-map .maplibregl-ctrl { display: none; }
+    .hero-h .wrap { position: relative; padding-bottom: 56px; }
+    .hero-h h1 { font-size: clamp(2.6rem, 6.4vw, 4.6rem); font-weight: 650; letter-spacing: -.055em; line-height: .98; max-width: 13ch; margin: 18px 0 22px; }
+    .tagline { font-size: clamp(1.2rem, 2.2vw, 1.7rem); font-weight: 500; letter-spacing: -.03em; margin: 0 0 32px; }
+    .tagline span { color: #5f7d96; }
+
+    /* action cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .card { background: rgba(251, 252, 252, .94); border: 1px solid var(--line-strong); border-radius: var(--r-md); box-shadow: 0 10px 30px -18px rgba(32, 38, 45, .35); display: flex; flex-direction: column; }
+    .card-top { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 22px 22px 20px; color: inherit; text-decoration: none; flex: 1; }
+    .card-top:hover h2 { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+    .card-top svg { width: 48px; height: 48px; color: #4d7593; }
+    .card h2 { font-size: 1.55rem; font-weight: 650; letter-spacing: -.04em; margin: 0 0 2px; }
+    .card .sub { font-size: .86rem; color: var(--ink-2); line-height: 1.35; }
+    .card .arrow { color: var(--amber); font-size: 1.15rem; align-self: start; }
+    .card-stat { grid-column: 2 / 3; display: flex; gap: 22px; border-top: 1px dashed var(--line); padding-top: 12px; margin-top: 4px; }
+    .card-stat small { display: block; font: 600 .62rem/1.3 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+    .card-stat b { font: 600 1.15rem/1.3 var(--font-mono); color: var(--data); font-variant-numeric: tabular-nums; }
+    .card-links { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+    .card-links a { text-align: center; padding: 11px 6px; font-size: .86rem; font-weight: 600; text-decoration: none; color: var(--ink); }
+    .card-links a + a { border-left: 1px solid var(--line); }
+    .card-links a:hover { background: var(--surface-2); }
+
+    /* model strip */
+    .strip { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fbfcfc; }
+    .strip .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; padding-top: 20px; padding-bottom: 20px; }
+    .strip .lbl { font: 600 .78rem/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+    .strip .fact { font-size: .92rem; color: var(--ink-2); }
+    .strip .fact b { font-family: var(--font-mono); color: var(--ink); font-weight: 600; }
+    .strip a { margin-left: auto; font-weight: 600; font-size: .9rem; text-decoration: none; }
+
+    /* numbered sections */
+    .sec { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; padding: 56px 0; }
+    .sec.flip > :first-child { order: 2; }
+    .kicker { font: 600 .74rem/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--data); margin: 0 0 10px; }
+    .sec h2 { font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 450; letter-spacing: -.045em; line-height: 1.02; margin: 0 0 12px; }
+    .sec p { color: var(--ink-2); max-width: 46ch; }
+    .btn-out { display: inline-flex; gap: 8px; align-items: center; padding: 6px 11px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: #fff; text-decoration: none; font-size: .9rem; font-weight: 500; }
+    .btn-out:hover { border-color: var(--ink-3); }
+    .box { background: #fbfcfc; border: 1px solid var(--line-strong); border-radius: var(--r-md); padding: 36px; }
+    .ledger { border: 1px solid var(--ink-3); border-radius: 2px; background: #fff; }
+    .ledger > * { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 10px; align-items: center; padding: 12px 14px; color: inherit; text-decoration: none; }
+    .ledger > * + * { border-top: 1px solid var(--line-strong); }
+    .ledger a:hover { background: var(--surface-2); }
+    .ledger .name { font-weight: 650; font-size: 1.05rem; letter-spacing: -.02em; }
+    .ledger .name small { display: block; font: 500 .72rem var(--font-ui); color: var(--ink-3); letter-spacing: 0; }
+    .ledger .v b { display: block; font: 600 .95rem/1.2 var(--font-mono); color: var(--data); }
+    .ledger .v small { font: 500 .58rem/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+    .ledger .empty { display: block; color: var(--ink-2); font-size: .9rem; }
+    .rk-Critical b { color: var(--risk-critical) !important; } .rk-High b { color: var(--risk-high) !important; }
+    .rk-Medium b { color: var(--risk-medium) !important; } .rk-Low b { color: var(--risk-low) !important; }
+
+    /* dark statement */
+    .manifesto { background: var(--navy); color: var(--navy-ink); padding: 88px 0; }
+    .manifesto .kicker { color: var(--amber); }
+    .manifesto h2 { color: #fff; font-size: clamp(2.2rem, 5vw, 3.9rem); font-weight: 650; letter-spacing: -.05em; line-height: 1.02; max-width: 20ch; margin: 0 0 26px; }
+    .manifesto p { color: var(--navy-ink-2); font-size: 1.15rem; max-width: 52ch; }
+    .manifesto .amber { color: var(--amber); font-weight: 600; margin-top: 26px; }
+
+    /* footer */
+    .foot { padding: 52px 0 24px; }
+    .foot-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 32px; }
+    .foot .brand-name { font-size: 1.8rem; }
+    .foot h3 { font: 600 .74rem/1 var(--font-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); margin: 6px 0 14px; }
+    .foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .foot ul a { text-decoration: none; color: var(--ink-2); font-size: .92rem; }
+    .foot ul a:hover { color: var(--ink); }
+    .notice { border: 1px solid var(--line-strong); border-radius: var(--r-md); padding: 14px 16px; margin-top: 18px; max-width: 40ch; }
+    .notice b { font: 600 .7rem/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: 6px; }
+    .notice p { font-size: .8rem; color: var(--ink-2); margin: 0; }
+    .foot-base { border-top: 1px solid var(--line); margin-top: 40px; padding-top: 18px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: .76rem; color: var(--ink-2); }
+
+    @media (max-width: 820px) {
+      .hero-map { inset: 0; opacity: .35; }
+      .sec { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 40px 0; }
+      .sec.flip > :first-child { order: 0; }
+      .box { padding: 18px; }
+      .foot-grid { grid-template-columns: minmax(0, 1fr); }
+      .strip a { margin-left: 0; }
+      .h-links .hide-s { display: none; }
+    }
+    @media (max-width: 420px) {
+      .card-top { grid-template-columns: auto 1fr; padding: 18px 16px; }
+      .card .arrow { display: none; }
+      .card-stat { grid-column: 1 / -1; }
+      .ledger > * { grid-template-columns: 1.2fr 1fr; }
+      .ledger .v:last-child { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Nagrik Roads home">
+        <img src="assets/logo.svg" alt="" width="36" height="36">
+        <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Bengaluru road condition desk</span></span>
+      </a>
+      <nav class="h-links" aria-label="Main">
+        <a href="#how" class="hide-s">How it works</a>
+        <a href="/app" class="chip">Phone app</a>
+        <a href="/dashboard#/map" class="go">Open dashboard ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="home" tabindex="-1">
+    <section class="hero-h">
+      <div class="hero-map" id="hero-map" aria-hidden="true"></div>
+      <div class="wrap">
+        <h1>Every pothole, seen once. Fixed first.</h1>
+        <p class="tagline">Find the damage. <span>Fix what's most dangerous.</span></p>
+
+        <div class="cards">
+          <article class="card">
+            <a class="card-top" href="/dashboard#/upload">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="13" width="38" height="27" rx="3"/><path d="M16 13l3-5h10l3 5"/><circle cx="24" cy="26.5" r="8"/><circle cx="24" cy="26.5" r="3.5"/><path d="M36 19h3"/></svg>
+              <div><h2>Scan a road</h2><div class="sub">Phone camera, dashcam video or a photo</div></div>
+              <span class="arrow" aria-hidden="true">↗</span>
+              <div class="card-stat"><div><small>Scans so far</small><b id="s-insp">–</b></div><div><small>Detections → defects</small><b id="s-tally">–</b></div></div>
+            </a>
+            <div class="card-links"><a href="/live.html">Live camera</a><a href="/dashboard#/upload">Upload video</a><a href="/app">Phone app</a></div>
+          </article>
+
+          <article class="card">
+            <a class="card-top" href="/dashboard#/map">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M5 11l12-4 14 4 12-4v30l-12 4-14-4-12 4z"/><path d="M17 7v30M31 11v30"/><path d="M24 17c-3 0-5 2.2-5 5 0 4 5 9 5 9s5-5 5-9c0-2.8-2-5-5-5z" fill="#fbfcfc"/><circle cx="24" cy="22" r="1.6"/></svg>
+              <div><h2>See the map</h2><div class="sub">Every defect pinned on Bengaluru's wards</div></div>
+              <span class="arrow" aria-hidden="true">↗</span>
+              <div class="card-stat"><div><small>Open defects</small><b id="s-open">–</b></div><div><small>High risk</small><b id="s-high">–</b></div></div>
+            </a>
+            <div class="card-links"><a href="/dashboard#/map">Defect map</a><a href="/livemap.html">Live map</a><a href="/roads.html">Road health</a></div>
+          </article>
+
+          <article class="card">
+            <a class="card-top" href="/dashboard#/defects">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M8 40l16-16"/><path d="M29 7a8 8 0 0 0-6 11L8 33l7 7 15-15a8 8 0 0 0 11-6l-5 2-4-4 2-5z"/><path d="M6 44h36"/></svg>
+              <div><h2>Get it fixed</h2><div class="sub">Check detections, plan the crew's route, report</div></div>
+              <span class="arrow" aria-hidden="true">↗</span>
+              <div class="card-stat"><div><small>Awaiting review</small><b id="s-review">–</b></div><div><small>Repaired</small><b id="s-fixed">–</b></div></div>
+            </a>
+            <div class="card-links"><a href="/dashboard#/review">Review</a><a href="/route.html">Repair route</a><a href="/dashboard#/reports">Reports</a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="strip" aria-label="Detection model">
+      <div class="wrap">
+        <span class="lbl">The detector</span>
+        <span class="fact"><b>YOLO26n</b> object detector</span>
+        <span class="fact">trained on <b>21,562</b> road images</span>
+        <span class="fact"><b>4</b> damage types: potholes and three kinds of crack</span>
+        <a href="/dashboard#/metrics">Model accuracy ↗</a>
+      </div>
+    </section>
+
+    <div class="wrap" id="how">
+      <section class="sec">
+        <div>
+          <p class="kicker">01 / Detect</p>
+          <h2>One pothole, counted once.</h2>
+          <p>A video sees the same pothole in dozens of frames. Nagrik Roads tracks each one across frames and pins it once, at the GPS point where it was seen. Drive the same road again and it updates the old record instead of adding a new one.</p>
+          <a class="btn-out" href="/dashboard#/upload">Scan a road ↗</a>
+        </div>
+        <div class="box">
+          <div class="ledger" id="ledger-tally"><span class="empty">Loading…</span></div>
+        </div>
+      </section>
+
+      <section class="sec flip">
+        <div>
+          <p class="kicker">02 / Prioritise</p>
+          <h2>Fix the dangerous ones first.</h2>
+          <p>Each defect gets a risk score from its size and depth, the type of road, traffic speed and nearby schools and hospitals. The list below is live: these are the defects to send a crew to next.</p>
+          <a class="btn-out" href="/dashboard#/defects">See all defects ↗</a>
+        </div>
+        <div class="box">
+          <div class="ledger" id="ledger-top"><span class="empty">Loading…</span></div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div>
+          <p class="kicker">03 / Act</p>
+          <h2>Send the crew. Check the fix.</h2>
+          <p>Plan the fastest repair round on real Bengaluru roads, move each defect from reported to repaired, and scan the road again to confirm the repair held.</p>
+          <a class="btn-out" href="/route.html">Plan a repair round ↗</a>
+        </div>
+        <div class="box">
+          <div class="ledger" id="ledger-flow"><span class="empty">Loading…</span></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="manifesto">
+      <div class="wrap">
+        <p class="kicker">Why Nagrik Roads</p>
+        <h2>See the damage. Count it once. Fix the worst first. Prove it was fixed.</h2>
+        <p>Potholes get reported over and over, then forgotten. Nagrik Roads turns a phone camera into a road survey: every defect gets one record, a location, a risk score and a history, so the city can see what is broken and whether it was repaired.</p>
+        <p class="amber">Roads are public. Their condition should be too.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <span class="brand-name">Nagrik Roads</span>
+          <div class="notice"><b>Hackathon prototype</b>
+            <p>Nagrik Roads is a student project built for HackValley 2026. It is not an official BBMP or GBA system. Ward boundaries are from Nagrik; detections are made by an AI model and can be wrong.</p></div>
+        </div>
+        <div>
+          <h3>Sections</h3>
+          <ul>
+            <li><a href="/dashboard#/upload">Scan a road</a></li>
+            <li><a href="/dashboard#/map">Map</a></li>
+            <li><a href="/dashboard#/defects">Defects</a></li>
+            <li><a href="/dashboard#/review">Review</a></li>
+            <li><a href="/route.html">Repair route</a></li>
+            <li><a href="/dashboard#/reports">Reports</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Model and data</h3>
+          <ul>
+            <li><a href="/dashboard#/metrics">Model accuracy</a></li>
+            <li><a href="/training.html">Model training</a></li>
+            <li><a href="/roads.html">Road health by street</a></li>
+            <li><a href="/app">Install the phone app</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-base">
+        <span>Nagrik Roads · HackValley 2026</span>
+        <span>Base map © OpenFreeMap and OpenStreetMap contributors (ODbL). Ward boundaries: Nagrik.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin=""></script>
+  <script src="rsmap.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const n = (v) => (typeof v === 'number' && isFinite(v) ? Math.round(v).toLocaleString('en-IN') : '–');
+    const CLS = { pothole: 'Pothole', alligator_crack: 'Alligator crack', longitudinal_crack: 'Longitudinal crack', transverse_crack: 'Transverse crack' };
+    const get = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+
+    // faded ward map behind the headline (decorative; skipped if MapLibre is unavailable)
+    try {
+      if (window.maplibregl && window.RSMap) {
+        const map = RSMap.create($('hero-map'), { zoom: 11.3, center: [77.62, 12.965] });
+        ['scrollZoom', 'dragPan', 'doubleClickZoom', 'touchZoomRotate', 'keyboard', 'boxZoom', 'dragRotate'].forEach((k) => map[k] && map[k].disable());
+        RSMap.ready(map).then(() => RSMap.addWards(map, { labels: false, fillOpacity: 0.28 })).catch(() => {});
+      }
+    } catch (e) { /* decorative only */ }
+
+    get('/api/stats').then((s) => {
+      const risk = s.by_risk || {}, wf = s.by_workflow || {};
+      $('s-insp').textContent = n(s.inspections);
+      $('s-tally').textContent = n(s.raw_detections) + ' → ' + n(s.unique_defects);
+      $('s-open').textContent = n(s.open_defects);
+      $('s-high').textContent = n((risk.High || 0) + (risk.Critical || 0));
+      $('s-review').textContent = n(s.pending_review);
+      $('s-fixed').textContent = n((wf.repaired || 0) + (wf.closed || 0));
+
+      $('ledger-tally').innerHTML = [
+        ['Raw detections', 'every box in every frame', s.raw_detections, 'detections', s.inspections, 'scans'],
+        ['Unique defects', 'after tracking and de-duplication', s.unique_defects, 'defects', s.duplicate_defects, 'repeat sightings'],
+        ['On the map', 'one record per physical defect', s.total_defects, 'tracked', s.open_defects, 'still open'],
+      ].map(([t, sub, a, al, b, bl]) => `<div><span class="name">${t}<small>${sub}</small></span>
+        <span class="v"><b>${n(a)}</b><small>${al}</small></span><span class="v"><b>${n(b)}</b><small>${bl}</small></span></div>`).join('');
+
+      const steps = [['Reported', 'reported'], ['Verified', 'verified'], ['Scheduled', 'scheduled'], ['Repaired', 'repaired']];
+      $('ledger-flow').innerHTML = steps.map(([label, key], i) => `<a href="/dashboard#/defects"><span class="name">${label}<small>step ${i + 1} of 4</small></span>
+        <span class="v"><b>${n(wf[key] || 0)}</b><small>defects</small></span><span class="v"><small>${['found by a scan', 'checked by an officer', 'crew assigned', 'fix confirmed'][i]}</small></span></a>`).join('');
+    }).catch(() => {
+      ['ledger-tally', 'ledger-flow'].forEach((id) => { $(id).innerHTML = '<span class="empty">Start the Nagrik Roads server to see live numbers.</span>'; });
+    });
+
+    get('/api/defects').then((d) => {
+      const list = (Array.isArray(d) ? d : d.defects || d.items || []).filter((x) => x.status !== 'closed')
+        .sort((a, b) => (b.risk_score || 0) - (a.risk_score || 0)).slice(0, 4);
+      $('ledger-top').innerHTML = list.length ? list.map((x) => `<a href="/dashboard#/defect/${encodeURIComponent(x.id)}">
+        <span class="name">${esc(x.code || '#' + x.id)}<small>${esc(CLS[x.damage_class] || x.damage_class || '')}${x.ward_name ? ' · ' + esc(x.ward_name) : ''}</small></span>
+        <span class="v rk-${esc(x.risk_label)}"><b>${esc(x.risk_label || '–')} ${n(x.risk_score)}</b><small>risk</small></span>
+        <span class="v"><b>${n(x.severity_score)}</b><small>severity</small></span></a>`).join('')
+        : '<span class="empty">No defects yet. Scan a road to add some.</span>';
+    }).catch(() => { $('ledger-top').innerHTML = '<span class="empty">Could not load defects.</span>'; });
+  })();
+  </script>
+</body>
+</html>

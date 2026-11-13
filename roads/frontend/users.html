@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accounts | Nagrik Roads</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    main { max-width: 980px; }
+    .acc-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+    @media (max-width: 820px) { .acc-grid { grid-template-columns: minmax(0, 1fr); } }
+    .new-user { display: grid; gap: 12px; }
+    .new-user input[type="password"] { font: inherit; width: 100%; border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 8px 11px; }
+    td .btn { min-height: 28px; }
+    .off td { color: var(--ink-3); }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Nagrik Roads home">
+        <img src="assets/logo.svg" alt="" width="36" height="36">
+        <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Official accounts</span></span>
+      </a>
+      <a class="btn btn-small" href="/dashboard#/map">← Back to the dashboard</a>
+    </div>
+  </header>
+  <main id="main">
+    <div class="view-head"><h1>Official accounts</h1>
+      <p>Who can review detections, schedule work and mark repairs. The public needs no account to view the map or report a pothole.</p></div>
+    <div id="body"><div class="state loading">Loading accounts</div></div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const ROLES = { officer: 'Ward officer', crew: 'Repair crew', admin: 'Administrator' };
+    const when = (s) => (s ? new Date(s).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Never');
+    function toast(m, err) { const t = $('toast'); t.textContent = m; t.className = 'toast show' + (err ? ' error' : ''); setTimeout(() => { t.className = 'toast'; }, 3000); }
+    async function call(path, method, body) {
+      const r = await fetch(path, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.detail || 'Request failed (' + r.status + ')');
+      return j;
+    }
+
+    async function load() {
+      const me = (await (await fetch('/api/auth/me')).json()).user;
+      if (!me) { location.replace('/login.html?next=' + encodeURIComponent('/users.html')); return; }
+      if (me.role !== 'admin') {
+        $('body').innerHTML = `<div class="state"><h2>Administrators only</h2><p>You are signed in as ${esc(me.role_label)}. Ask an administrator to change accounts.</p></div>`;
+        return;
+      }
+      const users = await call('/api/auth/users', 'GET');
+      $('body').innerHTML = `<div class="acc-grid">
+        <section class="table-wrap"><table>
+          <thead><tr><th>Name</th><th>Role</th><th>Last sign-in</th><th></th></tr></thead>
+          <tbody>${users.map((u) => `<tr class="${u.active ? '' : 'off'}">
+            <td><b>${esc(u.name)}</b><br><span class="muted small">${esc(u.username)}${u.active ? '' : ' · disabled'}</span></td>
+            <td><select data-role="${u.id}" ${u.id === me.id ? 'disabled' : ''}>${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === u.role ? 'selected' : ''}>${v}</option>`).join('')}</select></td>
+            <td class="small">${esc(when(u.last_login))}</td>
+            <td>${u.id === me.id ? '<span class="muted small">You</span>' : `<button class="btn btn-small" data-toggle="${u.id}" data-active="${u.active ? 1 : 0}">${u.active ? 'Disable' : 'Enable'}</button>`}</td>
+          </tr>`).join('')}</tbody></table></section>
+        <form class="panel new-user" id="nu" novalidate>
+          <h2>Add an official</h2>
+          <div class="field"><label for="nu-name">Full name</label><input type="text" id="nu-name" placeholder="e.g. Shankarappa K"></div>
+          <div class="field"><label for="nu-user">Username</label><input type="text" id="nu-user" autocomplete="off" autocapitalize="none" placeholder="e.g. shankarappa"></div>
+          <div class="field"><label for="nu-role">Role</label><select id="nu-role">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
+          <div class="field"><label for="nu-pw">Starting password <span class="hint">at least 8 characters</span></label><input type="password" id="nu-pw" autocomplete="new-password"></div>
+          <button class="btn btn-primary" type="submit">Add account</button>
+        </form></div>`;
+      document.querySelectorAll('[data-role]').forEach((sel) => sel.addEventListener('change', async () => {
+        try { await call('/api/auth/users/' + sel.dataset.role, 'PATCH', { role: sel.value }); toast('Role changed.'); } catch (e) { toast(e.message, true); load(); }
+      }));
+      document.querySelectorAll('[data-toggle]').forEach((b) => b.addEventListener('click', async () => {
+        try { await call('/api/auth/users/' + b.dataset.toggle, 'PATCH', { active: b.dataset.active !== '1' }); load(); } catch (e) { toast(e.message, true); }
+      }));
+      $('nu').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await call('/api/auth/users', 'POST', { name: $('nu-name').value, username: $('nu-user').value, role: $('nu-role').value, password: $('nu-pw').value });
+          toast('Account added.'); load();
+        } catch (ex) { toast(ex.message, true); }
+      });
+    }
+    load().catch((e) => { $('body').innerHTML = `<div class="state state-error"><h2>Could not load accounts</h2><p>${esc(e.message)}</p></div>`; });
+  })();
+  </script>
+</body>
+</html>

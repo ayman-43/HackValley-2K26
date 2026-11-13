@@ -1,0 +1,3589 @@
+{
+  "1": {
+    "id": 1,
+    "code": "PH-0001",
+    "damage_class": "pothole",
+    "lat": 12.939787,
+    "lon": 77.625154,
+    "first_seen": "2026-10-18T00:00:00",
+    "last_seen": "2026-11-11T00:00:00",
+    "status": "open",
+    "severity_score": 20,
+    "severity_label": "Low",
+    "risk_score": 39,
+    "risk_label": "Medium",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Low severity (20/100) pothole",
+        "points": 7
+      },
+      {
+        "factor": "Road class",
+        "detail": "secondary road, 80 Feet Road, Koramangala",
+        "points": 9
+      },
+      {
+        "factor": "Speed",
+        "detail": "40 km/h limit",
+        "points": 7
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "6 independent sightings",
+        "points": 10
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "12 mm expected in next 72 h",
+        "points": 2
+      },
+      {
+        "factor": "Trend",
+        "detail": "stable",
+        "points": 0
+      }
+    ],
+    "trend": "stable",
+    "report_count": 6,
+    "road_type": "secondary",
+    "road_name": "80 Feet Road, Koramangala",
+    "speed_limit": 40,
+    "workflow": "verified",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Koramangala",
+    "ward_id": 151,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 151,
+      "ward_name": "Koramangala",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Koramangala",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Koramangala",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 80 Feet Road, Koramangala",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/551",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 151",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1051",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 10,
+        "defect_id": 1,
+        "inspection_id": 100,
+        "observed_at": "2026-10-18T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.61,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 17,
+        "severity_label": "Low",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.939787,
+        "lon": 77.625154,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 11,
+        "defect_id": 1,
+        "inspection_id": 101,
+        "observed_at": "2026-10-26T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.83,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 18,
+        "severity_label": "Low",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.939787,
+        "lon": 77.625154,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 8,
+          "similarity": 0.88,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 12,
+        "defect_id": 1,
+        "inspection_id": 102,
+        "observed_at": "2026-11-03T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.79,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 19,
+        "severity_label": "Low",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.939787,
+        "lon": 77.625154,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 7.1,
+          "similarity": 0.92,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 13,
+        "defect_id": 1,
+        "inspection_id": 103,
+        "observed_at": "2026-11-11T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.57,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 20,
+        "severity_label": "Low",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.939787,
+        "lon": 77.625154,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 5,
+          "similarity": 0.91,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "2": {
+    "id": 2,
+    "code": "CR-0002",
+    "damage_class": "alligator_crack",
+    "lat": 12.985148,
+    "lon": 77.577448,
+    "first_seen": "2026-11-10T00:00:00",
+    "last_seen": "2026-11-10T00:00:00",
+    "status": "open",
+    "severity_score": 69,
+    "severity_label": "High",
+    "risk_score": 53,
+    "risk_label": "Medium",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (69/100) alligator crack",
+        "points": 24
+      },
+      {
+        "factor": "Road class",
+        "detail": "primary road, Kempegowda Bus Station Rd",
+        "points": 12
+      },
+      {
+        "factor": "Speed",
+        "detail": "40 km/h limit",
+        "points": 7
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "1 independent sightings",
+        "points": 2
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "27 mm expected in next 72 h",
+        "points": 4
+      },
+      {
+        "factor": "Trend",
+        "detail": "new",
+        "points": 0
+      }
+    ],
+    "trend": "new",
+    "report_count": 1,
+    "road_type": "primary",
+    "road_name": "Kempegowda Bus Station Rd",
+    "speed_limit": 40,
+    "workflow": "scheduled",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Gandhinagar",
+    "ward_id": 94,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 94,
+      "ward_name": "Gandhinagar",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Gandhinagar",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Gandhinagar",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, Kempegowda Bus Station Rd",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/494",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 94",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/994",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road3.svg",
+    "observations": [
+      {
+        "id": 20,
+        "defect_id": 2,
+        "inspection_id": 100,
+        "observed_at": "2026-11-10T00:00:00",
+        "damage_class": "alligator_crack",
+        "confidence": 0.51,
+        "bbox": [
+          190,
+          290,
+          330,
+          465
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.08,
+        "severity_score": 69,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road3.svg",
+        "crop_url": "mock/img/road3.svg",
+        "lat": 12.985148,
+        "lon": 77.577448,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "3": {
+    "id": 3,
+    "code": "CR-0003",
+    "damage_class": "longitudinal_crack",
+    "lat": 12.926549,
+    "lon": 77.59204,
+    "first_seen": "2026-10-16T00:00:00",
+    "last_seen": "2026-11-09T00:00:00",
+    "status": "open",
+    "severity_score": 56,
+    "severity_label": "Medium",
+    "risk_score": 63,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Medium severity (56/100) longitudinal crack",
+        "points": 20
+      },
+      {
+        "factor": "Road class",
+        "detail": "tertiary road, 11th Main Road, Jayanagar",
+        "points": 6
+      },
+      {
+        "factor": "Speed",
+        "detail": "30 km/h limit",
+        "points": 5
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "School 120 m, bus stop 40 m",
+        "points": 9
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "6 independent sightings",
+        "points": 10
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "28 mm expected in next 72 h",
+        "points": 5
+      },
+      {
+        "factor": "Trend",
+        "detail": "worsening",
+        "points": 8
+      }
+    ],
+    "trend": "worsening",
+    "report_count": 6,
+    "road_type": "tertiary",
+    "road_name": "11th Main Road, Jayanagar",
+    "speed_limit": 30,
+    "workflow": "reported",
+    "forecast": {
+      "days_to_high": 9,
+      "growth_per_week": 7.5,
+      "text": "Growing about 4.2 severity points a week; with rain expected it will likely reach High within 9 days."
+    },
+    "ward_name": "Jayanagar",
+    "ward_id": 169,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 169,
+      "ward_name": "Jayanagar",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Jayanagar",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Jayanagar",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 11th Main Road, Jayanagar",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/569",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 169",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1069",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road4.svg",
+    "observations": [
+      {
+        "id": 30,
+        "defect_id": 3,
+        "inspection_id": 100,
+        "observed_at": "2026-10-16T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.62,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 29,
+        "severity_label": "Medium",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.926549,
+        "lon": 77.59204,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 31,
+        "defect_id": 3,
+        "inspection_id": 101,
+        "observed_at": "2026-10-24T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.87,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 38,
+        "severity_label": "Medium",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.926549,
+        "lon": 77.59204,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 4.7,
+          "similarity": 0.82,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 32,
+        "defect_id": 3,
+        "inspection_id": 102,
+        "observed_at": "2026-11-01T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.6,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 47,
+        "severity_label": "Medium",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.926549,
+        "lon": 77.59204,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 5.4,
+          "similarity": 0.84,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 33,
+        "defect_id": 3,
+        "inspection_id": 103,
+        "observed_at": "2026-11-09T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.92,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 56,
+        "severity_label": "Medium",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.926549,
+        "lon": 77.59204,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 6.5,
+          "similarity": 0.91,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "4": {
+    "id": 4,
+    "code": "CR-0004",
+    "damage_class": "transverse_crack",
+    "lat": 12.969976,
+    "lon": 77.748429,
+    "first_seen": "2026-11-08T00:00:00",
+    "last_seen": "2026-11-08T00:00:00",
+    "status": "open",
+    "severity_score": 81,
+    "severity_label": "High",
+    "risk_score": 63,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (81/100) transverse crack",
+        "points": 28
+      },
+      {
+        "factor": "Road class",
+        "detail": "trunk road, ITPL Main Road",
+        "points": 15
+      },
+      {
+        "factor": "Speed",
+        "detail": "60 km/h limit",
+        "points": 10
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "1 independent sightings",
+        "points": 2
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "11 mm expected in next 72 h",
+        "points": 4
+      },
+      {
+        "factor": "Trend",
+        "detail": "improving",
+        "points": 0
+      }
+    ],
+    "trend": "improving",
+    "report_count": 1,
+    "road_type": "trunk",
+    "road_name": "ITPL Main Road",
+    "speed_limit": 60,
+    "workflow": "reported",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": -1.2,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Whitefield",
+    "ward_id": 84,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 84,
+      "ward_name": "Whitefield",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Whitefield",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Whitefield",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": []
+    },
+    "bad_repair": 1,
+    "repaired_at": "2026-10-14T00:00:00",
+    "thumb_url": "mock/img/road4.svg",
+    "observations": [
+      {
+        "id": 40,
+        "defect_id": 4,
+        "inspection_id": 100,
+        "observed_at": "2026-11-08T00:00:00",
+        "damage_class": "transverse_crack",
+        "confidence": 0.55,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 81,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.969976,
+        "lon": 77.748429,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "5": {
+    "id": 5,
+    "code": "PH-0005",
+    "damage_class": "pothole",
+    "lat": 12.975188,
+    "lon": 77.649687,
+    "first_seen": "2026-11-12T00:00:00",
+    "last_seen": "2026-11-12T00:00:00",
+    "status": "open",
+    "severity_score": 84,
+    "severity_label": "High",
+    "risk_score": 58,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (84/100) pothole",
+        "points": 29
+      },
+      {
+        "factor": "Road class",
+        "detail": "primary road, 100 Feet Road, Indiranagar",
+        "points": 12
+      },
+      {
+        "factor": "Speed",
+        "detail": "50 km/h limit",
+        "points": 8
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "1 independent sightings",
+        "points": 2
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "15 mm expected in next 72 h",
+        "points": 3
+      },
+      {
+        "factor": "Trend",
+        "detail": "stable",
+        "points": 0
+      }
+    ],
+    "trend": "stable",
+    "report_count": 1,
+    "road_type": "primary",
+    "road_name": "100 Feet Road, Indiranagar",
+    "speed_limit": 50,
+    "workflow": "verified",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "HAL Airport",
+    "ward_id": 113,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 113,
+      "ward_name": "HAL Airport",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, HAL Airport",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, HAL Airport",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 100 Feet Road, Indiranagar",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/513",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 113",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1013",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 50,
+        "defect_id": 5,
+        "inspection_id": 100,
+        "observed_at": "2026-11-12T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.71,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 84,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.975188,
+        "lon": 77.649687,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "6": {
+    "id": 6,
+    "code": "PH-0006",
+    "damage_class": "pothole",
+    "lat": 12.933679,
+    "lon": 77.621151,
+    "first_seen": "2026-10-26T00:00:00",
+    "last_seen": "2026-11-12T00:00:00",
+    "status": "repaired",
+    "severity_score": 32,
+    "severity_label": "Low",
+    "risk_score": 45,
+    "risk_label": "Medium",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Low severity (32/100) pothole",
+        "points": 11
+      },
+      {
+        "factor": "Road class",
+        "detail": "secondary road, 80 Feet Road, Koramangala",
+        "points": 9
+      },
+      {
+        "factor": "Speed",
+        "detail": "40 km/h limit",
+        "points": 7
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "School 120 m, bus stop 40 m",
+        "points": 9
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "3 independent sightings",
+        "points": 6
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "11 mm expected in next 72 h",
+        "points": 3
+      },
+      {
+        "factor": "Trend",
+        "detail": "possibly_repaired",
+        "points": 0
+      }
+    ],
+    "trend": "possibly_repaired",
+    "report_count": 3,
+    "road_type": "secondary",
+    "road_name": "80 Feet Road, Koramangala",
+    "speed_limit": 40,
+    "workflow": "repaired",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Koramangala",
+    "ward_id": 151,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 151,
+      "ward_name": "Koramangala",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Koramangala",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Koramangala",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 80 Feet Road, Koramangala",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/551",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 151",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1051",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 60,
+        "defect_id": 6,
+        "inspection_id": 100,
+        "observed_at": "2026-10-26T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.72,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 30,
+        "severity_label": "Low",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.933679,
+        "lon": 77.621151,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 61,
+        "defect_id": 6,
+        "inspection_id": 101,
+        "observed_at": "2026-11-03T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.76,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 31,
+        "severity_label": "Low",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.933679,
+        "lon": 77.621151,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 3.9,
+          "similarity": 0.94,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 62,
+        "defect_id": 6,
+        "inspection_id": 102,
+        "observed_at": "2026-11-11T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.68,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 32,
+        "severity_label": "Low",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.933679,
+        "lon": 77.621151,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 8.9,
+          "similarity": 0.9,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      },
+      {
+        "id": 69,
+        "defect_id": 6,
+        "inspection_id": 102,
+        "observed_at": "2026-11-12T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.68,
+        "bbox": null,
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": null,
+        "severity_label": "Low",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road5.svg",
+        "crop_url": "mock/img/road5.svg",
+        "lat": 12.933679,
+        "lon": 77.621151,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 8.9,
+          "similarity": 0.9,
+          "candidates": 2
+        },
+        "absent": 1,
+        "review_status": "confirmed"
+      }
+    ]
+  },
+  "7": {
+    "id": 7,
+    "code": "PH-0007",
+    "damage_class": "pothole",
+    "lat": 12.985491,
+    "lon": 77.569234,
+    "first_seen": "2026-10-17T00:00:00",
+    "last_seen": "2026-11-10T00:00:00",
+    "status": "open",
+    "severity_score": 64,
+    "severity_label": "High",
+    "risk_score": 67,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (64/100) pothole",
+        "points": 22
+      },
+      {
+        "factor": "Road class",
+        "detail": "primary road, Kempegowda Bus Station Rd",
+        "points": 12
+      },
+      {
+        "factor": "Speed",
+        "detail": "40 km/h limit",
+        "points": 7
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "4 independent sightings",
+        "points": 8
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "20 mm expected in next 72 h",
+        "points": 6
+      },
+      {
+        "factor": "Trend",
+        "detail": "worsening",
+        "points": 8
+      }
+    ],
+    "trend": "worsening",
+    "report_count": 4,
+    "road_type": "primary",
+    "road_name": "Kempegowda Bus Station Rd",
+    "speed_limit": 40,
+    "workflow": "reported",
+    "forecast": {
+      "days_to_high": 13,
+      "growth_per_week": 6.2,
+      "text": "Growing about 3.5 severity points a week; with rain expected it will likely reach High within 13 days."
+    },
+    "ward_name": "Gandhinagar",
+    "ward_id": 94,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 94,
+      "ward_name": "Gandhinagar",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Gandhinagar",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Gandhinagar",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, Kempegowda Bus Station Rd",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/494",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 94",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/994",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 70,
+        "defect_id": 7,
+        "inspection_id": 100,
+        "observed_at": "2026-10-17T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.74,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 37,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.985491,
+        "lon": 77.569234,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 71,
+        "defect_id": 7,
+        "inspection_id": 101,
+        "observed_at": "2026-10-25T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.63,
+        "bbox": [
+          318,
+          331,
+          522,
+          429
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.065,
+        "severity_score": 46,
+        "severity_label": "High",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.985491,
+        "lon": 77.569234,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 4.6,
+          "similarity": 0.86,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 72,
+        "defect_id": 7,
+        "inspection_id": 102,
+        "observed_at": "2026-11-02T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.85,
+        "bbox": [
+          306,
+          327,
+          534,
+          433
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.079,
+        "severity_score": 55,
+        "severity_label": "High",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.985491,
+        "lon": 77.569234,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 9,
+          "similarity": 0.82,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 73,
+        "defect_id": 7,
+        "inspection_id": 103,
+        "observed_at": "2026-11-10T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.86,
+        "bbox": [
+          294,
+          323,
+          546,
+          437
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.094,
+        "severity_score": 64,
+        "severity_label": "High",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.985491,
+        "lon": 77.569234,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 2.6,
+          "similarity": 0.86,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "8": {
+    "id": 8,
+    "code": "CR-0008",
+    "damage_class": "alligator_crack",
+    "lat": 12.927647,
+    "lon": 77.576685,
+    "first_seen": "2026-11-09T00:00:00",
+    "last_seen": "2026-11-09T00:00:00",
+    "status": "open",
+    "severity_score": 31,
+    "severity_label": "Low",
+    "risk_score": 30,
+    "risk_label": "Low",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Low severity (31/100) alligator crack",
+        "points": 11
+      },
+      {
+        "factor": "Road class",
+        "detail": "tertiary road, 11th Main Road, Jayanagar",
+        "points": 6
+      },
+      {
+        "factor": "Speed",
+        "detail": "30 km/h limit",
+        "points": 5
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "1 independent sightings",
+        "points": 2
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "40 mm expected in next 72 h",
+        "points": 2
+      },
+      {
+        "factor": "Trend",
+        "detail": "stable",
+        "points": 0
+      }
+    ],
+    "trend": "stable",
+    "report_count": 1,
+    "road_type": "tertiary",
+    "road_name": "11th Main Road, Jayanagar",
+    "speed_limit": 30,
+    "workflow": "verified",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Jayanagar",
+    "ward_id": 169,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 169,
+      "ward_name": "Jayanagar",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Jayanagar",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Jayanagar",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": []
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road3.svg",
+    "observations": [
+      {
+        "id": 80,
+        "defect_id": 8,
+        "inspection_id": 100,
+        "observed_at": "2026-11-09T00:00:00",
+        "damage_class": "alligator_crack",
+        "confidence": 0.68,
+        "bbox": [
+          190,
+          290,
+          330,
+          465
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.08,
+        "severity_score": 31,
+        "severity_label": "Low",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road3.svg",
+        "crop_url": "mock/img/road3.svg",
+        "lat": 12.927647,
+        "lon": 77.576685,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "9": {
+    "id": 9,
+    "code": "CR-0009",
+    "damage_class": "longitudinal_crack",
+    "lat": 12.977611,
+    "lon": 77.757704,
+    "first_seen": "2026-11-08T00:00:00",
+    "last_seen": "2026-11-08T00:00:00",
+    "status": "open",
+    "severity_score": 62,
+    "severity_label": "High",
+    "risk_score": 65,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (62/100) longitudinal crack",
+        "points": 22
+      },
+      {
+        "factor": "Road class",
+        "detail": "trunk road, ITPL Main Road",
+        "points": 15
+      },
+      {
+        "factor": "Speed",
+        "detail": "60 km/h limit",
+        "points": 10
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "School 120 m, bus stop 40 m",
+        "points": 9
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "1 independent sightings",
+        "points": 2
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "37 mm expected in next 72 h",
+        "points": 7
+      },
+      {
+        "factor": "Trend",
+        "detail": "new",
+        "points": 0
+      }
+    ],
+    "trend": "new",
+    "report_count": 1,
+    "road_type": "trunk",
+    "road_name": "ITPL Main Road",
+    "speed_limit": 60,
+    "workflow": "scheduled",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Whitefield",
+    "ward_id": 84,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 84,
+      "ward_name": "Whitefield",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Whitefield",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Whitefield",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, ITPL Main Road",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/484",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 84",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/984",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road4.svg",
+    "observations": [
+      {
+        "id": 90,
+        "defect_id": 9,
+        "inspection_id": 100,
+        "observed_at": "2026-11-08T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.9,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 62,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.977611,
+        "lon": 77.757704,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "10": {
+    "id": 10,
+    "code": "CR-0010",
+    "damage_class": "transverse_crack",
+    "lat": 12.963421,
+    "lon": 77.631232,
+    "first_seen": "2026-11-04T00:00:00",
+    "last_seen": "2026-11-12T00:00:00",
+    "status": "open",
+    "severity_score": 73,
+    "severity_label": "High",
+    "risk_score": 64,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (73/100) transverse crack",
+        "points": 26
+      },
+      {
+        "factor": "Road class",
+        "detail": "primary road, 100 Feet Road, Indiranagar",
+        "points": 12
+      },
+      {
+        "factor": "Speed",
+        "detail": "50 km/h limit",
+        "points": 8
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "2 independent sightings",
+        "points": 4
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "0 mm expected in next 72 h",
+        "points": 2
+      },
+      {
+        "factor": "Trend",
+        "detail": "worsening",
+        "points": 8
+      }
+    ],
+    "trend": "worsening",
+    "report_count": 2,
+    "road_type": "primary",
+    "road_name": "100 Feet Road, Indiranagar",
+    "speed_limit": 50,
+    "workflow": "reported",
+    "forecast": {
+      "days_to_high": 7,
+      "growth_per_week": 5.7,
+      "text": "Growing about 3.4 severity points a week; with rain expected it will likely reach High within 7 days."
+    },
+    "ward_name": "HAL Airport",
+    "ward_id": 113,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 113,
+      "ward_name": "HAL Airport",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, HAL Airport",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, HAL Airport",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 100 Feet Road, Indiranagar",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/513",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 113",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1013",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road4.svg",
+    "observations": [
+      {
+        "id": 100,
+        "defect_id": 10,
+        "inspection_id": 100,
+        "observed_at": "2026-11-04T00:00:00",
+        "damage_class": "transverse_crack",
+        "confidence": 0.82,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 64,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.963421,
+        "lon": 77.631232,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 101,
+        "defect_id": 10,
+        "inspection_id": 101,
+        "observed_at": "2026-11-12T00:00:00",
+        "damage_class": "transverse_crack",
+        "confidence": 0.69,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 73,
+        "severity_label": "High",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.963421,
+        "lon": 77.631232,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 7.5,
+          "similarity": 0.84,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "11": {
+    "id": 11,
+    "code": "PH-0011",
+    "damage_class": "pothole",
+    "lat": 12.927567,
+    "lon": 77.624285,
+    "first_seen": "2026-11-03T00:00:00",
+    "last_seen": "2026-11-11T00:00:00",
+    "status": "open",
+    "severity_score": 82,
+    "severity_label": "High",
+    "risk_score": 60,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (82/100) pothole",
+        "points": 29
+      },
+      {
+        "factor": "Road class",
+        "detail": "secondary road, 80 Feet Road, Koramangala",
+        "points": 9
+      },
+      {
+        "factor": "Speed",
+        "detail": "40 km/h limit",
+        "points": 7
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "2 independent sightings",
+        "points": 4
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "15 mm expected in next 72 h",
+        "points": 7
+      },
+      {
+        "factor": "Trend",
+        "detail": "improving",
+        "points": 0
+      }
+    ],
+    "trend": "improving",
+    "report_count": 2,
+    "road_type": "secondary",
+    "road_name": "80 Feet Road, Koramangala",
+    "speed_limit": 40,
+    "workflow": "reported",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": -1.2,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Koramangala",
+    "ward_id": 151,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 151,
+      "ward_name": "Koramangala",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Koramangala",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Koramangala",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 80 Feet Road, Koramangala",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/551",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 151",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1051",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 110,
+        "defect_id": 11,
+        "inspection_id": 100,
+        "observed_at": "2026-11-03T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.45,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 81,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.927567,
+        "lon": 77.624285,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 111,
+        "defect_id": 11,
+        "inspection_id": 101,
+        "observed_at": "2026-11-11T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.91,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 82,
+        "severity_label": "High",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.927567,
+        "lon": 77.624285,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 7.1,
+          "similarity": 0.94,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "12": {
+    "id": 12,
+    "code": "PH-0012",
+    "damage_class": "pothole",
+    "lat": 12.978006,
+    "lon": 77.574888,
+    "first_seen": "2026-10-17T00:00:00",
+    "last_seen": "2026-11-10T00:00:00",
+    "status": "open",
+    "severity_score": 21,
+    "severity_label": "Low",
+    "risk_score": 53,
+    "risk_label": "Medium",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Low severity (21/100) pothole",
+        "points": 7
+      },
+      {
+        "factor": "Road class",
+        "detail": "primary road, Kempegowda Bus Station Rd",
+        "points": 12
+      },
+      {
+        "factor": "Speed",
+        "detail": "40 km/h limit",
+        "points": 7
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "School 120 m, bus stop 40 m",
+        "points": 9
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "6 independent sightings",
+        "points": 10
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "8 mm expected in next 72 h",
+        "points": 8
+      },
+      {
+        "factor": "Trend",
+        "detail": "stable",
+        "points": 0
+      }
+    ],
+    "trend": "stable",
+    "report_count": 6,
+    "road_type": "primary",
+    "road_name": "Kempegowda Bus Station Rd",
+    "speed_limit": 40,
+    "workflow": "verified",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Gandhinagar",
+    "ward_id": 94,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 94,
+      "ward_name": "Gandhinagar",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Gandhinagar",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Gandhinagar",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": []
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 120,
+        "defect_id": 12,
+        "inspection_id": 100,
+        "observed_at": "2026-10-17T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.58,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 18,
+        "severity_label": "Low",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.978006,
+        "lon": 77.574888,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 121,
+        "defect_id": 12,
+        "inspection_id": 101,
+        "observed_at": "2026-10-25T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.56,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 19,
+        "severity_label": "Low",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.978006,
+        "lon": 77.574888,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 3.7,
+          "similarity": 0.88,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 122,
+        "defect_id": 12,
+        "inspection_id": 102,
+        "observed_at": "2026-11-02T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.48,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 20,
+        "severity_label": "Low",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.978006,
+        "lon": 77.574888,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 8.2,
+          "similarity": 0.91,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 123,
+        "defect_id": 12,
+        "inspection_id": 103,
+        "observed_at": "2026-11-10T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.81,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 21,
+        "severity_label": "Low",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.978006,
+        "lon": 77.574888,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 6,
+          "similarity": 0.8,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "13": {
+    "id": 13,
+    "code": "PH-0013",
+    "damage_class": "pothole",
+    "lat": 12.93286,
+    "lon": 77.574541,
+    "first_seen": "2026-10-16T00:00:00",
+    "last_seen": "2026-11-12T00:00:00",
+    "status": "repaired",
+    "severity_score": 28,
+    "severity_label": "Low",
+    "risk_score": 41,
+    "risk_label": "Medium",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Low severity (28/100) pothole",
+        "points": 10
+      },
+      {
+        "factor": "Road class",
+        "detail": "tertiary road, 11th Main Road, Jayanagar",
+        "points": 6
+      },
+      {
+        "factor": "Speed",
+        "detail": "30 km/h limit",
+        "points": 5
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "6 independent sightings",
+        "points": 10
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "5 mm expected in next 72 h",
+        "points": 6
+      },
+      {
+        "factor": "Trend",
+        "detail": "possibly_repaired",
+        "points": 0
+      }
+    ],
+    "trend": "possibly_repaired",
+    "report_count": 6,
+    "road_type": "tertiary",
+    "road_name": "11th Main Road, Jayanagar",
+    "speed_limit": 30,
+    "workflow": "repaired",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Jayanagar",
+    "ward_id": 169,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 169,
+      "ward_name": "Jayanagar",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Jayanagar",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Jayanagar",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 11th Main Road, Jayanagar",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/569",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 169",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1069",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 130,
+        "defect_id": 13,
+        "inspection_id": 100,
+        "observed_at": "2026-10-16T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.89,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 25,
+        "severity_label": "Low",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.93286,
+        "lon": 77.574541,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 131,
+        "defect_id": 13,
+        "inspection_id": 101,
+        "observed_at": "2026-10-24T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.88,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 26,
+        "severity_label": "Low",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.93286,
+        "lon": 77.574541,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 9.9,
+          "similarity": 0.94,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 132,
+        "defect_id": 13,
+        "inspection_id": 102,
+        "observed_at": "2026-11-01T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.83,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 27,
+        "severity_label": "Low",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.93286,
+        "lon": 77.574541,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 5.4,
+          "similarity": 0.84,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 133,
+        "defect_id": 13,
+        "inspection_id": 103,
+        "observed_at": "2026-11-09T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.81,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 28,
+        "severity_label": "Low",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.93286,
+        "lon": 77.574541,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 9.1,
+          "similarity": 0.86,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      },
+      {
+        "id": 139,
+        "defect_id": 13,
+        "inspection_id": 103,
+        "observed_at": "2026-11-12T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.81,
+        "bbox": null,
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": null,
+        "severity_label": "Low",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road5.svg",
+        "crop_url": "mock/img/road5.svg",
+        "lat": 12.93286,
+        "lon": 77.574541,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 9.1,
+          "similarity": 0.86,
+          "candidates": 2
+        },
+        "absent": 1,
+        "review_status": "confirmed"
+      }
+    ]
+  },
+  "14": {
+    "id": 14,
+    "code": "CR-0014",
+    "damage_class": "alligator_crack",
+    "lat": 12.966829,
+    "lon": 77.75243,
+    "first_seen": "2026-10-23T00:00:00",
+    "last_seen": "2026-11-08T00:00:00",
+    "status": "open",
+    "severity_score": 36,
+    "severity_label": "Medium",
+    "risk_score": 60,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Medium severity (36/100) alligator crack",
+        "points": 13
+      },
+      {
+        "factor": "Road class",
+        "detail": "trunk road, ITPL Main Road",
+        "points": 15
+      },
+      {
+        "factor": "Speed",
+        "detail": "60 km/h limit",
+        "points": 10
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "3 independent sightings",
+        "points": 6
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "35 mm expected in next 72 h",
+        "points": 4
+      },
+      {
+        "factor": "Trend",
+        "detail": "worsening",
+        "points": 8
+      }
+    ],
+    "trend": "worsening",
+    "report_count": 3,
+    "road_type": "trunk",
+    "road_name": "ITPL Main Road",
+    "speed_limit": 60,
+    "workflow": "reported",
+    "forecast": {
+      "days_to_high": 11,
+      "growth_per_week": 6.4,
+      "text": "Growing about 4.0 severity points a week; with rain expected it will likely reach High within 11 days."
+    },
+    "ward_name": "Whitefield",
+    "ward_id": 84,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 84,
+      "ward_name": "Whitefield",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Whitefield",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Whitefield",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, ITPL Main Road",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/484",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 84",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/984",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road3.svg",
+    "observations": [
+      {
+        "id": 140,
+        "defect_id": 14,
+        "inspection_id": 100,
+        "observed_at": "2026-10-23T00:00:00",
+        "damage_class": "alligator_crack",
+        "confidence": 0.81,
+        "bbox": [
+          190,
+          290,
+          330,
+          465
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.08,
+        "severity_score": 18,
+        "severity_label": "Medium",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road3.svg",
+        "crop_url": "mock/img/road3.svg",
+        "lat": 12.966829,
+        "lon": 77.75243,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 141,
+        "defect_id": 14,
+        "inspection_id": 101,
+        "observed_at": "2026-10-31T00:00:00",
+        "damage_class": "alligator_crack",
+        "confidence": 0.66,
+        "bbox": [
+          190,
+          290,
+          330,
+          465
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.08,
+        "severity_score": 27,
+        "severity_label": "Medium",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road3.svg",
+        "crop_url": "mock/img/road3.svg",
+        "lat": 12.966829,
+        "lon": 77.75243,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 3.6,
+          "similarity": 0.85,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 142,
+        "defect_id": 14,
+        "inspection_id": 102,
+        "observed_at": "2026-11-08T00:00:00",
+        "damage_class": "alligator_crack",
+        "confidence": 0.94,
+        "bbox": [
+          190,
+          290,
+          330,
+          465
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.08,
+        "severity_score": 36,
+        "severity_label": "Medium",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road3.svg",
+        "crop_url": "mock/img/road3.svg",
+        "lat": 12.966829,
+        "lon": 77.75243,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 10,
+          "similarity": 0.89,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "15": {
+    "id": 15,
+    "code": "CR-0015",
+    "damage_class": "longitudinal_crack",
+    "lat": 12.964608,
+    "lon": 77.641149,
+    "first_seen": "2026-10-19T00:00:00",
+    "last_seen": "2026-11-12T00:00:00",
+    "status": "open",
+    "severity_score": 81,
+    "severity_label": "High",
+    "risk_score": 72,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (81/100) longitudinal crack",
+        "points": 28
+      },
+      {
+        "factor": "Road class",
+        "detail": "primary road, 100 Feet Road, Indiranagar",
+        "points": 12
+      },
+      {
+        "factor": "Speed",
+        "detail": "50 km/h limit",
+        "points": 8
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "School 120 m, bus stop 40 m",
+        "points": 9
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "6 independent sightings",
+        "points": 10
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "8 mm expected in next 72 h",
+        "points": 5
+      },
+      {
+        "factor": "Trend",
+        "detail": "stable",
+        "points": 0
+      }
+    ],
+    "trend": "stable",
+    "report_count": 6,
+    "road_type": "primary",
+    "road_name": "100 Feet Road, Indiranagar",
+    "speed_limit": 50,
+    "workflow": "verified",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "HAL Airport",
+    "ward_id": 113,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 113,
+      "ward_name": "HAL Airport",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, HAL Airport",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, HAL Airport",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 100 Feet Road, Indiranagar",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/513",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 113",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1013",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road4.svg",
+    "observations": [
+      {
+        "id": 150,
+        "defect_id": 15,
+        "inspection_id": 100,
+        "observed_at": "2026-10-19T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.73,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 78,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.964608,
+        "lon": 77.641149,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 151,
+        "defect_id": 15,
+        "inspection_id": 101,
+        "observed_at": "2026-10-27T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.84,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 79,
+        "severity_label": "High",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.964608,
+        "lon": 77.641149,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 9.6,
+          "similarity": 0.87,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 152,
+        "defect_id": 15,
+        "inspection_id": 102,
+        "observed_at": "2026-11-04T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.54,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 80,
+        "severity_label": "High",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.964608,
+        "lon": 77.641149,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 5.6,
+          "similarity": 0.82,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 153,
+        "defect_id": 15,
+        "inspection_id": 103,
+        "observed_at": "2026-11-12T00:00:00",
+        "damage_class": "longitudinal_crack",
+        "confidence": 0.78,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 81,
+        "severity_label": "High",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.964608,
+        "lon": 77.641149,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 6.2,
+          "similarity": 0.88,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "16": {
+    "id": 16,
+    "code": "CR-0016",
+    "damage_class": "transverse_crack",
+    "lat": 12.92572,
+    "lon": 77.620477,
+    "first_seen": "2026-10-18T00:00:00",
+    "last_seen": "2026-11-11T00:00:00",
+    "status": "open",
+    "severity_score": 55,
+    "severity_label": "Medium",
+    "risk_score": 55,
+    "risk_label": "High",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Medium severity (55/100) transverse crack",
+        "points": 19
+      },
+      {
+        "factor": "Road class",
+        "detail": "secondary road, 80 Feet Road, Koramangala",
+        "points": 9
+      },
+      {
+        "factor": "Speed",
+        "detail": "40 km/h limit",
+        "points": 7
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "5 independent sightings",
+        "points": 10
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "14 mm expected in next 72 h",
+        "points": 6
+      },
+      {
+        "factor": "Trend",
+        "detail": "new",
+        "points": 0
+      }
+    ],
+    "trend": "new",
+    "report_count": 5,
+    "road_type": "secondary",
+    "road_name": "80 Feet Road, Koramangala",
+    "speed_limit": 40,
+    "workflow": "scheduled",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": 0.3,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Koramangala",
+    "ward_id": 151,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 151,
+      "ward_name": "Koramangala",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Koramangala",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Koramangala",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": []
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road4.svg",
+    "observations": [
+      {
+        "id": 160,
+        "defect_id": 16,
+        "inspection_id": 100,
+        "observed_at": "2026-10-18T00:00:00",
+        "damage_class": "transverse_crack",
+        "confidence": 0.72,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 52,
+        "severity_label": "Medium",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.92572,
+        "lon": 77.620477,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 161,
+        "defect_id": 16,
+        "inspection_id": 101,
+        "observed_at": "2026-10-26T00:00:00",
+        "damage_class": "transverse_crack",
+        "confidence": 0.55,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 53,
+        "severity_label": "Medium",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.92572,
+        "lon": 77.620477,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 7.8,
+          "similarity": 0.84,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 162,
+        "defect_id": 16,
+        "inspection_id": 102,
+        "observed_at": "2026-11-03T00:00:00",
+        "damage_class": "transverse_crack",
+        "confidence": 0.57,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 54,
+        "severity_label": "Medium",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.92572,
+        "lon": 77.620477,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 7.3,
+          "similarity": 0.86,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 163,
+        "defect_id": 16,
+        "inspection_id": 103,
+        "observed_at": "2026-11-11T00:00:00",
+        "damage_class": "transverse_crack",
+        "confidence": 0.49,
+        "bbox": [
+          130,
+          320,
+          510,
+          370
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.062,
+        "severity_score": 55,
+        "severity_label": "Medium",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road4.svg",
+        "crop_url": "mock/img/road4.svg",
+        "lat": 12.92572,
+        "lon": 77.620477,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 8.2,
+          "similarity": 0.92,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "17": {
+    "id": 17,
+    "code": "PH-0017",
+    "damage_class": "pothole",
+    "lat": 12.967204,
+    "lon": 77.57654,
+    "first_seen": "2026-10-17T00:00:00",
+    "last_seen": "2026-11-10T00:00:00",
+    "status": "open",
+    "severity_score": 84,
+    "severity_label": "High",
+    "risk_score": 78,
+    "risk_label": "Critical",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "High severity (84/100) pothole",
+        "points": 29
+      },
+      {
+        "factor": "Road class",
+        "detail": "primary road, Kempegowda Bus Station Rd",
+        "points": 12
+      },
+      {
+        "factor": "Speed",
+        "detail": "40 km/h limit",
+        "points": 7
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "Bus stop 40 m away",
+        "points": 4
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "6 independent sightings",
+        "points": 10
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "27 mm expected in next 72 h",
+        "points": 8
+      },
+      {
+        "factor": "Trend",
+        "detail": "worsening",
+        "points": 8
+      }
+    ],
+    "trend": "worsening",
+    "report_count": 6,
+    "road_type": "primary",
+    "road_name": "Kempegowda Bus Station Rd",
+    "speed_limit": 40,
+    "workflow": "reported",
+    "forecast": {
+      "days_to_high": 14,
+      "growth_per_week": 5.6,
+      "text": "Growing about 6.3 severity points a week; with rain expected it will likely reach High within 14 days."
+    },
+    "ward_name": "Gandhinagar",
+    "ward_id": 94,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 94,
+      "ward_name": "Gandhinagar",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Gandhinagar",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Gandhinagar",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, Kempegowda Bus Station Rd",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/494",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 94",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/994",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 170,
+        "defect_id": 17,
+        "inspection_id": 100,
+        "observed_at": "2026-10-17T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.9,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 57,
+        "severity_label": "High",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.967204,
+        "lon": 77.57654,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 171,
+        "defect_id": 17,
+        "inspection_id": 101,
+        "observed_at": "2026-10-25T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.47,
+        "bbox": [
+          318,
+          331,
+          522,
+          429
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.065,
+        "severity_score": 66,
+        "severity_label": "High",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.967204,
+        "lon": 77.57654,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 3.1,
+          "similarity": 0.81,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 172,
+        "defect_id": 17,
+        "inspection_id": 102,
+        "observed_at": "2026-11-02T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.5,
+        "bbox": [
+          306,
+          327,
+          534,
+          433
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.079,
+        "severity_score": 75,
+        "severity_label": "High",
+        "track_id": 5,
+        "frames_seen": 10,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.967204,
+        "lon": 77.57654,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 2.7,
+          "similarity": 0.8,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 173,
+        "defect_id": 17,
+        "inspection_id": 103,
+        "observed_at": "2026-11-10T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.75,
+        "bbox": [
+          294,
+          323,
+          546,
+          437
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.094,
+        "severity_score": 84,
+        "severity_label": "High",
+        "track_id": 6,
+        "frames_seen": 13,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.967204,
+        "lon": 77.57654,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 9.6,
+          "similarity": 0.83,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  },
+  "18": {
+    "id": 18,
+    "code": "PH-0018",
+    "damage_class": "pothole",
+    "lat": 12.924127,
+    "lon": 77.593679,
+    "first_seen": "2026-11-01T00:00:00",
+    "last_seen": "2026-11-09T00:00:00",
+    "status": "open",
+    "severity_score": 29,
+    "severity_label": "Low",
+    "risk_score": 36,
+    "risk_label": "Medium",
+    "risk_factors": [
+      {
+        "factor": "Severity",
+        "detail": "Low severity (29/100) pothole",
+        "points": 10
+      },
+      {
+        "factor": "Road class",
+        "detail": "tertiary road, 11th Main Road, Jayanagar",
+        "points": 6
+      },
+      {
+        "factor": "Speed",
+        "detail": "30 km/h limit",
+        "points": 5
+      },
+      {
+        "factor": "Sensitive places",
+        "detail": "School 120 m, bus stop 40 m",
+        "points": 9
+      },
+      {
+        "factor": "Citizen reports",
+        "detail": "2 independent sightings",
+        "points": 4
+      },
+      {
+        "factor": "Rain forecast",
+        "detail": "27 mm expected in next 72 h",
+        "points": 2
+      },
+      {
+        "factor": "Trend",
+        "detail": "improving",
+        "points": 0
+      }
+    ],
+    "trend": "improving",
+    "report_count": 2,
+    "road_type": "tertiary",
+    "road_name": "11th Main Road, Jayanagar",
+    "speed_limit": 30,
+    "workflow": "reported",
+    "forecast": {
+      "days_to_high": null,
+      "growth_per_week": -1.2,
+      "text": "No significant growth between the last two sightings. Re-inspect in 14 days."
+    },
+    "ward_name": "Jayanagar",
+    "ward_id": 169,
+    "corporation": "Bruhat Bengaluru Mahanagara Palike",
+    "city": "BLR",
+    "nagrik": {
+      "city": "BLR",
+      "ward_id": 169,
+      "ward_name": "Jayanagar",
+      "corporation": "Bruhat Bengaluru Mahanagara Palike",
+      "officials": [
+        {
+          "department": "BBMP Road Infrastructure",
+          "name": "Asst. Executive Engineer, Jayanagar",
+          "phone": "080-2266-0000"
+        },
+        {
+          "department": "BBMP Ward Office",
+          "name": "Ward Officer, Jayanagar",
+          "phone": "080-2297-5555"
+        }
+      ],
+      "works": [
+        {
+          "title": "Pothole filling and road restoration, 11th Main Road, Jayanagar",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/569",
+          "status": "Awarded",
+          "tender_date": "2026-08-21",
+          "budget": 4850000,
+          "contractor_name": "Sri Lakshmi Constructions",
+          "source_url": "https://nagrik.in.net/"
+        },
+        {
+          "title": "Resurfacing of internal roads, ward 169",
+          "agency": "BBMP",
+          "tender_ref": "BBMP/RI/2026/1069",
+          "status": "Open",
+          "tender_date": "2026-10-02",
+          "budget": 12000000,
+          "contractor_name": null,
+          "source_url": "https://nagrik.in.net/"
+        }
+      ]
+    },
+    "bad_repair": 0,
+    "repaired_at": null,
+    "thumb_url": "mock/img/road2.svg",
+    "observations": [
+      {
+        "id": 180,
+        "defect_id": 18,
+        "inspection_id": 100,
+        "observed_at": "2026-11-01T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.66,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 28,
+        "severity_label": "Low",
+        "track_id": 3,
+        "frames_seen": 4,
+        "frame_url": "mock/img/road1.svg",
+        "crop_url": "mock/img/road1.svg",
+        "lat": 12.924127,
+        "lon": 77.593679,
+        "match_info": {
+          "reason": "new defect",
+          "distance_m": null,
+          "similarity": 0,
+          "candidates": 0
+        },
+        "absent": 0,
+        "review_status": "confirmed"
+      },
+      {
+        "id": 181,
+        "defect_id": 18,
+        "inspection_id": 101,
+        "observed_at": "2026-11-09T00:00:00",
+        "damage_class": "pothole",
+        "confidence": 0.79,
+        "bbox": [
+          330,
+          335,
+          510,
+          425
+        ],
+        "frame_w": 640,
+        "frame_h": 480,
+        "area_ratio": 0.053,
+        "severity_score": 29,
+        "severity_label": "Low",
+        "track_id": 4,
+        "frames_seen": 7,
+        "frame_url": "mock/img/road2.svg",
+        "crop_url": "mock/img/road2.svg",
+        "lat": 12.924127,
+        "lon": 77.593679,
+        "match_info": {
+          "reason": "GPS within 15 m + image match",
+          "distance_m": 8.2,
+          "similarity": 0.86,
+          "candidates": 2
+        },
+        "absent": 0,
+        "review_status": "pending"
+      }
+    ]
+  }
+}

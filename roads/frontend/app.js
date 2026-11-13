@@ -115,7 +115,7 @@
   // ---------------------------------------------------------------- signed-in official
   let ME = null;  // { username, name, role, role_label } or null for the public
   const can = (...roles) => !!ME && roles.includes(ME.role);
-  const loginUrl = () => '/login.html?next=' + encodeURIComponent(location.pathname + location.hash);
+  const loginUrl = () => '/roads/login.html?next=' + encodeURIComponent(location.pathname + location.hash);
   async function loadMe() {
     if (MOCK) { ME = { username: 'demo', name: 'Demo officer', role: 'officer', role_label: 'Ward officer' }; return; }
     try { const r = await fetch('/api/auth/me', { cache: 'no-store' }); ME = (await r.json()).user || null; } catch (e) { ME = null; }
@@ -127,7 +127,7 @@
     box.innerHTML = `<details class="user-menu"><summary><span class="avatar" aria-hidden="true">${esc((ME.name || ME.username).trim()[0] || '?')}</span>
         <span class="user-txt"><b>${esc(ME.name)}</b><span>${esc(ME.role_label || ME.role)}</span></span></summary>
       <div class="nav-menu user-pop">
-        ${ME.role === 'admin' ? '<a href="/users.html">Manage accounts</a>' : ''}
+        ${ME.role === 'admin' ? '<a href="/roads/users.html">Manage accounts</a>' : ''}
         <button type="button" id="signout">Sign out</button></div></details>`;
     document.getElementById('signout').addEventListener('click', async () => {
       try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) { /* ignore */ }
@@ -396,7 +396,7 @@
         and pins it on the ward map.</p>
       </section>
       <div class="scan-choices">
-        <a class="choice" href="/live.html">
+        <a class="choice" href="/roads/live.html">
           <span class="choice-k">While driving · real time</span>
           <b>Live scan</b>
           <span class="muted">Use a phone or camera. Damage shows up on the map within seconds of being seen.</span>
@@ -451,7 +451,7 @@
           </div>
           <div class="row">
             <button type="submit" class="btn btn-primary" id="btn-submit">Start inspection</button>
-            <a href="/capture" class="small">Record from a phone instead</a>
+            <a href="/roads/capture" class="small">Record from a phone instead</a>
           </div>
           <p class="small" id="form-error" role="alert" style="color:var(--danger);margin:10px 0 0"></p>
         </form>

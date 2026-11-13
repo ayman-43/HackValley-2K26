@@ -56,7 +56,7 @@
         <dt>Length</dt><dd>${fmtLen(s.length_m)}${s.highway ? ` · ${esc(String(s.highway).replace(/_/g, ' '))}` : ''}</dd>
       </dl>
       ${s.geometry === 'approx' ? '<p class="rh-note">Approximate line through the defects (road shape not available).</p>' : ''}
-      <a href="/#/defects">Open the defect list →</a>
+      <a href="/roads/dashboard#/defects">Open the defect list →</a>
     </div>`;
   }
 
@@ -85,7 +85,7 @@
       L.circleMarker([d.lat, d.lon], { radius: 3.5, color: '#fff', weight: 1, fillColor: '#7b838c', fillOpacity: 0.95 })
         .bindTooltip(`${esc(d.code || '#' + d.id)} · ${esc(CLASS[d.damage_class] || d.damage_class)}`
           + `${d.risk_label ? ` · ${esc(d.risk_label)} risk` : ''}`)
-        .on('click', () => { location.href = `/#/defect/${d.id}`; })
+        .on('click', () => { location.href = `/roads/dashboard#/defect/${d.id}`; })
         .addTo(pinLayer);
     });
   }
@@ -112,7 +112,7 @@
             <span class="rh-meta">max risk ${Math.round(s.max_risk)}${s.worst_severity_label ? ` · worst severity ${esc(s.worst_severity_label)}` : ''}${s.geometry === 'approx' ? ' · approx. line' : ''}</span>
           </span>
         </button>
-        <div class="rh-links"><a href="/#/defects">View defects →</a></div>
+        <div class="rh-links"><a href="/roads/dashboard#/defects">View defects →</a></div>
       </li>`).join('');
     document.querySelectorAll('.rh-row').forEach((b) => b.addEventListener('click', () => focusSegment(b.dataset.id)));
   }

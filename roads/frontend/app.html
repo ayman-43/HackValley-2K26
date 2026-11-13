@@ -54,7 +54,7 @@
 <body>
   <main class="app" id="main">
     <div class="app-top">
-      <a class="brand" href="/app" aria-label="Nagrik Roads app home">
+      <a class="brand" href="/roads/app" aria-label="Nagrik Roads app home">
         <img src="assets/logo.svg" alt="" width="34" height="34">
         <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Bengaluru</span></span>
       </a>
@@ -72,7 +72,7 @@
         <span><b>Report a pothole</b><span class="d">Take a photo. Your location is added automatically.</span></span>
         <span class="go" aria-hidden="true">›</span>
       </button>
-      <a class="action" href="/live.html">
+      <a class="action" href="/roads/live.html">
         <span class="ic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/><circle cx="7" cy="9.5" r="1" fill="currentColor"/></svg></span>
         <span><b>Scan while driving</b><span class="d">Mount the phone facing the road. Damage is found and mapped live.</span></span>
         <span class="go" aria-hidden="true">›</span>
@@ -94,7 +94,7 @@
       <ul class="near" id="near"><li class="muted small">Finding your location…</li></ul>
     </section>
 
-    <p class="foot">Are you a city official? <a href="/dashboard#/map">Open the Nagrik Roads dashboard</a></p>
+    <p class="foot">Are you a city official? <a href="/roads/dashboard#/map">Open the Nagrik Roads dashboard</a></p>
   </main>
 
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin=""></script>
@@ -110,7 +110,7 @@
     let deferred = null;
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; $('install').classList.add('show'); });
     $('install').onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $('install').classList.remove('show'); };
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/roads/sw.js').catch(() => {});
 
     // ---- location
     function locate() {
@@ -161,7 +161,7 @@
 
     function done(r, located) {
       const n = r.unique_defects || 0;
-      const items = (r.defects || []).slice(0, 4).map((d) => `<li><a href="/dashboard#/defect/${esc(d.defect_id)}"><span class="code">${esc(d.code)}</span>${esc(NAMES[d.damage_class] || d.damage_class)} <span class="badge">${d.new ? 'New' : 'Already known'}</span></a></li>`).join('');
+      const items = (r.defects || []).slice(0, 4).map((d) => `<li><a href="/roads/dashboard#/defect/${esc(d.defect_id)}"><span class="code">${esc(d.code)}</span>${esc(NAMES[d.damage_class] || d.damage_class)} <span class="badge">${d.new ? 'New' : 'Already known'}</span></a></li>`).join('');
       show(n
         ? `<h2>Thank you</h2><div class="result-big">${n} defect${n > 1 ? 's' : ''} found</div>
            <p class="muted small">${r.new_defects || 0} new, ${(n - (r.new_defects || 0))} already known${located ? ' and pinned at your location' : ''}. ${located ? '' : 'No location was shared, so it is not on the map.'}</p>
@@ -206,7 +206,7 @@
         const b = new maplibregl.LngLatBounds(); near.forEach(({ d }) => b.extend([d.lon, d.lat])); if (origin) b.extend(origin);
         map.fitBounds(b, { padding: 40, maxZoom: 15, duration: 0 });
       } else if (origin) map.jumpTo({ center: origin, zoom: 14 });
-      $('near').innerHTML = near.length ? near.map(({ d, k }) => `<li><a href="/dashboard#/defect/${esc(d.id)}"><i class="dot" style="background:${RSMap.RISK[d.risk_label] || RSMap.RISK.Low}"></i>
+      $('near').innerHTML = near.length ? near.map(({ d, k }) => `<li><a href="/roads/dashboard#/defect/${esc(d.id)}"><i class="dot" style="background:${RSMap.RISK[d.risk_label] || RSMap.RISK.Low}"></i>
           <span><span class="code">${esc(d.code)}</span> ${esc(NAMES[d.damage_class] || d.damage_class)}<br><span class="muted small">${esc(d.road_name || d.ward_name || '')}</span></span>
           <span class="dist">${k < 1 ? Math.round(k * 1000) + ' m' : k.toFixed(1) + ' km'}</span></a></li>`).join('')
         + (origin ? '' : '<li class="muted small">Allow location to see what is closest to you.</li>')

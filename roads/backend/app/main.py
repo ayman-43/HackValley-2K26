@@ -14,7 +14,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import db, detector, pipeline
@@ -448,32 +448,32 @@ def _frontend_file(rel: str):
     raise HTTPException(404, f"{rel} not found (frontend not built yet?)")
 
 
-@app.get("/capture", include_in_schema=False)
-def capture_page():
-    return _frontend_file("capture.html")
-
-
-@app.get("/app", include_in_schema=False)
-def phone_app_page():
-    return _frontend_file("app.html")
+# ---------------------------------------------------------------- web pages
+# Every page lives under /roads/ so the app can sit behind the Nagrik website on one address
+# (Nagrik's server forwards /roads, /api, /media and /eval here). Old top-level URLs redirect.
+ROADS = "/roads"
+_PAGES = {"": "home.html", "dashboard": "index.html", "app": "app.html", "capture": "capture.html"}
 
 
 @app.get("/", include_in_schema=False)
-def index_page():
-    # Landing page; it forwards old "/#/..." links to the dashboard.
-    for name in ("home.html", "index.html"):
-        if (FRONTEND / name).is_file():
-            return FileResponse(FRONTEND / name)
-    return JSONResponse({"name": "Nagrik Roads API", "docs": "/docs", "note": "frontend/home.html not found"})
+def root_page():
+    return RedirectResponse(ROADS + "/")
 
 
-@app.get("/dashboard", include_in_schema=False)
-def dashboard_page():
-    return _frontend_file("index.html")
+@app.get(ROADS, include_in_schema=False)
+def roads_root():
+    return RedirectResponse(ROADS + "/")
+
+
+@app.get(ROADS + "/{path:path}", include_in_schema=False)
+def roads_page(path: str):
+    path = path.strip("/")
+    return _frontend_file(_PAGES.get(path, path))
 
 
 @app.get("/{path:path}", include_in_schema=False)
-def frontend_static(path: str):
+def legacy_page(path: str):
+    # pre-/roads links (bookmarks, an installed phone app): send them to the same page under /roads/
     if path.startswith("api/"):
         raise HTTPException(404, "unknown API endpoint")
-    return _frontend_file(path)
+    return RedirectResponse(f"{ROADS}/{path}")

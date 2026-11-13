@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script>if (location.hash.startsWith('#/')) location.replace('/dashboard' + location.hash);</script>
+  <script>if (location.hash.startsWith('#/')) location.replace('/roads/dashboard' + location.hash);</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nagrik Roads Bengaluru</title>
   <meta name="description" content="Nagrik Roads finds potholes and cracks on Bengaluru roads from a phone camera, counts each one once, ranks them by risk and tracks them until they are fixed.">
@@ -120,14 +120,15 @@
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="/" aria-label="Nagrik Roads home">
+      <a class="brand" href="/roads/" aria-label="Nagrik Roads home">
         <img src="assets/logo.svg" alt="" width="36" height="36">
         <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Bengaluru road condition desk</span></span>
       </a>
       <nav class="h-links" aria-label="Main">
+        <a href="/" class="hide-s">← Nagrik</a>
         <a href="#how" class="hide-s">How it works</a>
-        <a href="/app" class="chip">Phone app</a>
-        <a href="/dashboard#/map" class="go">Open dashboard ↗</a>
+        <a href="/roads/app" class="chip">Phone app</a>
+        <a href="/roads/dashboard#/map" class="go">Open dashboard ↗</a>
       </nav>
     </div>
   </header>
@@ -141,33 +142,33 @@
 
         <div class="cards">
           <article class="card">
-            <a class="card-top" href="/dashboard#/upload">
+            <a class="card-top" href="/roads/dashboard#/upload">
               <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="13" width="38" height="27" rx="3"/><path d="M16 13l3-5h10l3 5"/><circle cx="24" cy="26.5" r="8"/><circle cx="24" cy="26.5" r="3.5"/><path d="M36 19h3"/></svg>
               <div><h2>Scan a road</h2><div class="sub">Phone camera, dashcam video or a photo</div></div>
               <span class="arrow" aria-hidden="true">↗</span>
               <div class="card-stat"><div><small>Scans so far</small><b id="s-insp">–</b></div><div><small>Detections → defects</small><b id="s-tally">–</b></div></div>
             </a>
-            <div class="card-links"><a href="/live.html">Live camera</a><a href="/dashboard#/upload">Upload video</a><a href="/app">Phone app</a></div>
+            <div class="card-links"><a href="/roads/live.html">Live camera</a><a href="/roads/dashboard#/upload">Upload video</a><a href="/roads/app">Phone app</a></div>
           </article>
 
           <article class="card">
-            <a class="card-top" href="/dashboard#/map">
+            <a class="card-top" href="/roads/dashboard#/map">
               <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M5 11l12-4 14 4 12-4v30l-12 4-14-4-12 4z"/><path d="M17 7v30M31 11v30"/><path d="M24 17c-3 0-5 2.2-5 5 0 4 5 9 5 9s5-5 5-9c0-2.8-2-5-5-5z" fill="#fbfcfc"/><circle cx="24" cy="22" r="1.6"/></svg>
               <div><h2>See the map</h2><div class="sub">Every defect pinned on Bengaluru's wards</div></div>
               <span class="arrow" aria-hidden="true">↗</span>
               <div class="card-stat"><div><small>Open defects</small><b id="s-open">–</b></div><div><small>High risk</small><b id="s-high">–</b></div></div>
             </a>
-            <div class="card-links"><a href="/dashboard#/map">Defect map</a><a href="/livemap.html">Live map</a><a href="/roads.html">Road health</a></div>
+            <div class="card-links"><a href="/roads/dashboard#/map">Defect map</a><a href="/roads/livemap.html">Live map</a><a href="/roads/roads.html">Road health</a></div>
           </article>
 
           <article class="card">
-            <a class="card-top" href="/dashboard#/defects">
+            <a class="card-top" href="/roads/dashboard#/defects">
               <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M8 40l16-16"/><path d="M29 7a8 8 0 0 0-6 11L8 33l7 7 15-15a8 8 0 0 0 11-6l-5 2-4-4 2-5z"/><path d="M6 44h36"/></svg>
               <div><h2>Get it fixed</h2><div class="sub">Check detections, plan the crew's route, report</div></div>
               <span class="arrow" aria-hidden="true">↗</span>
               <div class="card-stat"><div><small>Awaiting review</small><b id="s-review">–</b></div><div><small>Repaired</small><b id="s-fixed">–</b></div></div>
             </a>
-            <div class="card-links"><a href="/dashboard#/review">Review</a><a href="/route.html">Repair route</a><a href="/dashboard#/reports">Reports</a></div>
+            <div class="card-links"><a href="/roads/dashboard#/review">Review</a><a href="/roads/route.html">Repair route</a><a href="/roads/dashboard#/reports">Reports</a></div>
           </article>
         </div>
       </div>
@@ -179,7 +180,7 @@
         <span class="fact"><b>YOLO26n</b> object detector</span>
         <span class="fact">trained on <b>21,562</b> road images</span>
         <span class="fact"><b>4</b> damage types: potholes and three kinds of crack</span>
-        <a href="/dashboard#/metrics">Model accuracy ↗</a>
+        <a href="/roads/dashboard#/metrics">Model accuracy ↗</a>
       </div>
     </section>
 
@@ -189,7 +190,7 @@
           <p class="kicker">01 / Detect</p>
           <h2>One pothole, counted once.</h2>
           <p>A video sees the same pothole in dozens of frames. Nagrik Roads tracks each one across frames and pins it once, at the GPS point where it was seen. Drive the same road again and it updates the old record instead of adding a new one.</p>
-          <a class="btn-out" href="/dashboard#/upload">Scan a road ↗</a>
+          <a class="btn-out" href="/roads/dashboard#/upload">Scan a road ↗</a>
         </div>
         <div class="box">
           <div class="ledger" id="ledger-tally"><span class="empty">Loading…</span></div>
@@ -201,7 +202,7 @@
           <p class="kicker">02 / Prioritise</p>
           <h2>Fix the dangerous ones first.</h2>
           <p>Each defect gets a risk score from its size and depth, the type of road, traffic speed and nearby schools and hospitals. The list below is live: these are the defects to send a crew to next.</p>
-          <a class="btn-out" href="/dashboard#/defects">See all defects ↗</a>
+          <a class="btn-out" href="/roads/dashboard#/defects">See all defects ↗</a>
         </div>
         <div class="box">
           <div class="ledger" id="ledger-top"><span class="empty">Loading…</span></div>
@@ -213,7 +214,7 @@
           <p class="kicker">03 / Act</p>
           <h2>Send the crew. Check the fix.</h2>
           <p>Plan the fastest repair round on real Bengaluru roads, move each defect from reported to repaired, and scan the road again to confirm the repair held.</p>
-          <a class="btn-out" href="/route.html">Plan a repair round ↗</a>
+          <a class="btn-out" href="/roads/route.html">Plan a repair round ↗</a>
         </div>
         <div class="box">
           <div class="ledger" id="ledger-flow"><span class="empty">Loading…</span></div>
@@ -242,21 +243,21 @@
         <div>
           <h3>Sections</h3>
           <ul>
-            <li><a href="/dashboard#/upload">Scan a road</a></li>
-            <li><a href="/dashboard#/map">Map</a></li>
-            <li><a href="/dashboard#/defects">Defects</a></li>
-            <li><a href="/dashboard#/review">Review</a></li>
-            <li><a href="/route.html">Repair route</a></li>
-            <li><a href="/dashboard#/reports">Reports</a></li>
+            <li><a href="/roads/dashboard#/upload">Scan a road</a></li>
+            <li><a href="/roads/dashboard#/map">Map</a></li>
+            <li><a href="/roads/dashboard#/defects">Defects</a></li>
+            <li><a href="/roads/dashboard#/review">Review</a></li>
+            <li><a href="/roads/route.html">Repair route</a></li>
+            <li><a href="/roads/dashboard#/reports">Reports</a></li>
           </ul>
         </div>
         <div>
           <h3>Model and data</h3>
           <ul>
-            <li><a href="/dashboard#/metrics">Model accuracy</a></li>
-            <li><a href="/training.html">Model training</a></li>
-            <li><a href="/roads.html">Road health by street</a></li>
-            <li><a href="/app">Install the phone app</a></li>
+            <li><a href="/roads/dashboard#/metrics">Model accuracy</a></li>
+            <li><a href="/roads/training.html">Model training</a></li>
+            <li><a href="/roads/roads.html">Road health by street</a></li>
+            <li><a href="/roads/app">Install the phone app</a></li>
           </ul>
         </div>
       </div>
@@ -304,7 +305,7 @@
         <span class="v"><b>${n(a)}</b><small>${al}</small></span><span class="v"><b>${n(b)}</b><small>${bl}</small></span></div>`).join('');
 
       const steps = [['Reported', 'reported'], ['Verified', 'verified'], ['Scheduled', 'scheduled'], ['Repaired', 'repaired']];
-      $('ledger-flow').innerHTML = steps.map(([label, key], i) => `<a href="/dashboard#/defects"><span class="name">${label}<small>step ${i + 1} of 4</small></span>
+      $('ledger-flow').innerHTML = steps.map(([label, key], i) => `<a href="/roads/dashboard#/defects"><span class="name">${label}<small>step ${i + 1} of 4</small></span>
         <span class="v"><b>${n(wf[key] || 0)}</b><small>defects</small></span><span class="v"><small>${['found by a scan', 'checked by an officer', 'crew assigned', 'fix confirmed'][i]}</small></span></a>`).join('');
     }).catch(() => {
       ['ledger-tally', 'ledger-flow'].forEach((id) => { $(id).innerHTML = '<span class="empty">Start the Nagrik Roads server to see live numbers.</span>'; });
@@ -313,7 +314,7 @@
     get('/api/defects').then((d) => {
       const list = (Array.isArray(d) ? d : d.defects || d.items || []).filter((x) => x.status !== 'closed')
         .sort((a, b) => (b.risk_score || 0) - (a.risk_score || 0)).slice(0, 4);
-      $('ledger-top').innerHTML = list.length ? list.map((x) => `<a href="/dashboard#/defect/${encodeURIComponent(x.id)}">
+      $('ledger-top').innerHTML = list.length ? list.map((x) => `<a href="/roads/dashboard#/defect/${encodeURIComponent(x.id)}">
         <span class="name">${esc(x.code || '#' + x.id)}<small>${esc(CLS[x.damage_class] || x.damage_class || '')}${x.ward_name ? ' · ' + esc(x.ward_name) : ''}</small></span>
         <span class="v rk-${esc(x.risk_label)}"><b>${esc(x.risk_label || '–')} ${n(x.risk_score)}</b><small>risk</small></span>
         <span class="v"><b>${n(x.severity_score)}</b><small>severity</small></span></a>`).join('')

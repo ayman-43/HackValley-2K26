@@ -23,7 +23,7 @@
 </head>
 <body>
   <main class="login-wrap" id="main">
-    <a class="brand" href="/" aria-label="Nagrik Roads home">
+    <a class="brand" href="/roads/" aria-label="Nagrik Roads home">
       <img src="assets/logo.svg" alt="" width="36" height="36">
       <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">For city officials</span></span>
     </a>
@@ -46,13 +46,13 @@
         <li><b>Administrator</b>: everything, plus managing accounts</li>
       </ul>
     </div>
-    <a class="back" href="/">← Back to Nagrik Roads</a>
+    <a class="back" href="/roads/">← Back to Nagrik Roads</a>
   </main>
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
-    const next = new URLSearchParams(location.search).get('next') || '/dashboard#/map';
-    const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard#/map';
+    const next = new URLSearchParams(location.search).get('next') || '/roads/dashboard#/map';
+    const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/roads/dashboard#/map';
     fetch('/api/auth/me').then((r) => r.json()).then((d) => { if (d.user) location.replace(safeNext); }).catch(() => {});
     $('u').focus();
     $('form').addEventListener('submit', async (e) => {

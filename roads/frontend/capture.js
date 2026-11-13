@@ -333,7 +333,7 @@
 
   function pollJob(jobId, inspectionId) {
     const bar = $("progress");
-    const link = '<a class="btn primary" href="/#/inspection/' + encodeURIComponent(inspectionId) + '">Open inspection #' + inspectionId + "</a>";
+    const link = '<a class="btn primary" href="/roads/dashboard#/inspection/' + encodeURIComponent(inspectionId) + '">Open inspection #' + inspectionId + "</a>";
     if (jobId == null) { showResult(link, "Uploaded."); return; }
     let failures = 0;
     const tick = async () => {

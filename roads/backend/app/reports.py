@@ -254,7 +254,7 @@ def render_digest(defects: list[dict], period: str, ward: Optional[str], now: Op
             f"<tr><td><a href='/api/defects/{d['id']}/complaint'>{e(d.get('code'))}</a></td>"
             f"<td>{e(nice_class(d.get('damage_class')))}</td><td>{_num(d.get('risk_score'))} {_badge(d.get('risk_label'))}</td>"
             f"<td>{e(d.get('road_name'))}</td><td>{e((d.get('trend') or '').replace('_', ' '))}</td>"
-            f"<td>{e(d.get('workflow'))}</td><td><a href='/#defect/{d['id']}'>details</a></td></tr>" for d in top)
+            f"<td>{e(d.get('workflow'))}</td><td><a href='/roads/dashboard#/defect/{d['id']}'>details</a></td></tr>" for d in top)
         top_html = (f"<table><tr><th style='width:auto'>Code</th><th style='width:auto'>Type</th><th style='width:auto'>Risk</th>"
                     f"<th style='width:auto'>Road</th><th style='width:auto'>Trend</th><th style='width:auto'>Status</th><th style='width:auto'></th></tr>{rows}</table>"
                     if rows else "<p class='muted'>No open defects.</p>")

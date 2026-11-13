@@ -141,7 +141,7 @@
       const risk = s.risk_label || riskOf(s);
       return `<li>
         <span class="rp-num">${s.seq}</span>
-        <span><a href="/#/defect/${s.id}">${esc(s.code || '#' + s.id)}</a> · ${esc(CLASS[s.damage_class] || s.damage_class)}
+        <span><a href="/roads/dashboard#/defect/${s.id}">${esc(s.code || '#' + s.id)}</a> · ${esc(CLASS[s.damage_class] || s.damage_class)}
           <br><span class="rp-note">${esc(s.road_name || s.ward_name || `${s.lat.toFixed(5)}, ${s.lon.toFixed(5)}`)}
           · arrive +${fmtMin(s.arrive_min)} · fix ~${s.repair_min} min · ${esc(s.workflow)}</span>
           ${s.officer ? `<br><span class="rp-note">Ward engineer: ${esc(s.officer.name || s.officer.department)}

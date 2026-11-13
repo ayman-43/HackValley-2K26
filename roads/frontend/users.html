@@ -19,11 +19,11 @@
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="/" aria-label="Nagrik Roads home">
+      <a class="brand" href="/roads/" aria-label="Nagrik Roads home">
         <img src="assets/logo.svg" alt="" width="36" height="36">
         <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Official accounts</span></span>
       </a>
-      <a class="btn btn-small" href="/dashboard#/map">← Back to the dashboard</a>
+      <a class="btn btn-small" href="/roads/dashboard#/map">← Back to the dashboard</a>
     </div>
   </header>
   <main id="main">
@@ -48,7 +48,7 @@
 
     async function load() {
       const me = (await (await fetch('/api/auth/me')).json()).user;
-      if (!me) { location.replace('/login.html?next=' + encodeURIComponent('/users.html')); return; }
+      if (!me) { location.replace('/roads/login.html?next=' + encodeURIComponent('/roads/users.html')); return; }
       if (me.role !== 'admin') {
         $('body').innerHTML = `<div class="state"><h2>Administrators only</h2><p>You are signed in as ${esc(me.role_label)}. Ask an administrator to change accounts.</p></div>`;
         return;

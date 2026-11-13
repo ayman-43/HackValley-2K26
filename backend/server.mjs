@@ -1,4 +1,4 @@
-import { createServer } from 'node:http';
+import { createServer, request as httpRequest } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, resolve, sep, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -375,9 +375,40 @@ async function resolveStaticFile(pathname) {
   return null;
 }
 
+// ---------------------------------------------------------------- Nagrik Roads
+// The road-damage app (roads/, Python/FastAPI) runs behind this server so both share one address:
+// /roads/* pages, its /api/* endpoints (everything except Nagrik's /api/v1/* and /api/health),
+// and its /media/* and /eval/* files are forwarded to it. Start it with start.cmd or set ROADS_URL.
+const roadsTarget = new URL(process.env.ROADS_URL || 'http://127.0.0.1:8000');
+
+function isRoadsPath(p) {
+  return p === '/roads' || p.startsWith('/roads/') || p.startsWith('/media/') || p.startsWith('/eval/')
+    || (p.startsWith('/api/') && !p.startsWith('/api/v1/') && p !== '/api/health');
+}
+
+function proxyToRoads(req, res) {
+  const headers = { ...req.headers, 'x-forwarded-for': req.socket.remoteAddress || '', 'x-forwarded-proto': 'http' };
+  const upstreamReq = httpRequest({
+    hostname: roadsTarget.hostname, port: roadsTarget.port || 80, method: req.method, path: req.url, headers
+  }, (upstreamRes) => {
+    res.writeHead(upstreamRes.statusCode || 502, upstreamRes.headers);
+    upstreamRes.pipe(res);
+  });
+  upstreamReq.on('error', () => {
+    if (!res.headersSent) {
+      json(res, 502, { error: { code: 'ROADS_OFFLINE', message: `Nagrik Roads is not running at ${roadsTarget.origin}. Start it with start.cmd.` } });
+    } else res.end();
+  });
+  req.pipe(upstreamReq);
+}
+
+// adds the "Roads" entry points to Nagrik's own pages (see nagrik-roads-link.js)
+const ROADS_LINK_TAG = '<script src="/nagrik-roads-link.js" defer></script>';
+
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    if (isRoadsPath(url.pathname)) return proxyToRoads(req, res);
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       return json(res, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: 'This read-only server accepts GET/HEAD only.' } });
     }
@@ -438,6 +469,20 @@ const server = createServer(async (req, res) => {
     const type = mime[extname(file).toLowerCase()] || 'application/octet-stream';
     const isHtml = type.startsWith('text/html');
 
+    if (isHtml) {
+      let html = await readFile(file, 'utf8');
+      if (!html.includes(ROADS_LINK_TAG)) {
+        html = html.includes('</body>') ? html.replace('</body>', `${ROADS_LINK_TAG}</body>`) : html + ROADS_LINK_TAG;
+      }
+      res.writeHead(200, {
+        'Content-Type': type,
+        'Content-Length': Buffer.byteLength(html),
+        'X-Content-Type-Options': 'nosniff',
+        'Cache-Control': 'no-cache'
+      });
+      return res.end(req.method === 'HEAD' ? undefined : html);
+    }
+
     res.writeHead(200, {
       'Content-Type': type,
       'Content-Length': size,
@@ -459,4 +504,6 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(port, '127.0.0.1', () => console.log(`Nagrik local app and API listening at http://127.0.0.1:${port}`));
+// HOST=0.0.0.0 lets phones on the same Wi-Fi open the app (needed for live scanning from a phone)
+const host = process.env.HOST || '127.0.0.1';
+server.listen(port, host, () => console.log(`Nagrik (with Nagrik Roads at /roads/) listening at http://${host === '0.0.0.0' ? 'localhost' : host}:${port}`));

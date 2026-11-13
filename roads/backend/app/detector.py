@@ -1,4 +1,4 @@
-"""Road-damage detection (YOLO) + ByteTrack video tracking.
+"""Road-damage detection (YOLO) + video tracking (FrameLinker: counts each defect once).
 
 Model selection (first that exists): env ROADSENSE_MODEL -> backend/models/roadsense_y26s.pt
 -> roadsense_y26n.pt -> backend/models/rdd_yolov8s.pt -> reference/pothole-pilot/ai_model/weights.onnx
@@ -195,16 +195,77 @@ def _writer(path_base: Path, fps, size):
     raise RuntimeError("No usable video codec")
 
 
-def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: int = 3,
+class FrameLinker:
+    """Links per-frame detections of the same physical defect into one track.
+
+    Why not ByteTrack: it keeps a new track only if the object is detected again in the very next
+    frame with overlapping boxes. From a moving bike or car, small potholes jump between frames and
+    detections flicker, so ByteTrack confirmed almost nothing (a 9 s ride over ~10 potholes counted 1).
+    This linker matches by distance instead, tolerates up to `max_gap` missed frames, and expects a
+    defect to move down the frame (towards the vehicle), never clearly up.
+    """
+
+    def __init__(self, max_gap: int = 6, id_offset: int = 0, reach: float = 1.0):
+        self.max_gap = max_gap
+        self.reach = reach  # allowed jump in box sizes; raise it for low frame rates (live scan, ~3 fps)
+        self.next_id = 1 + id_offset
+        self.live: list[dict] = []  # {id, box, last, group}
+
+    @staticmethod
+    def _group(cls: str) -> str:
+        return "crack" if cls in CRACK_CLASSES else "pothole"
+
+    def update(self, step: int, dets: list[dict]) -> list[dict]:
+        """Assigns d["track_id"] to every detection of processed frame number `step`."""
+        self.live = [t for t in self.live if step - t["last"] <= self.max_gap]
+        pairs = []
+        for di, d in enumerate(dets):
+            x1, y1, x2, y2 = d["bbox"]
+            cx, cy, s = (x1 + x2) / 2, (y1 + y2) / 2, max(x2 - x1, y2 - y1, 24)
+            g = self._group(d["damage_class"])
+            for ti, t in enumerate(self.live):
+                if t["group"] != g:
+                    continue
+                bx1, by1, bx2, by2 = t["box"]
+                tcx, tcy, ts = (bx1 + bx2) / 2, (by1 + by2) / 2, max(bx2 - bx1, by2 - by1, 24)
+                size = max(s, ts)
+                if cy - tcy < -0.5 * size:  # clearly moved up the frame: a different defect
+                    continue
+                limit = (self.reach + 0.6 * (step - t["last"])) * size  # more room after missed frames
+                dist = float(np.hypot(cx - tcx, cy - tcy))
+                if dist <= limit:
+                    pairs.append((dist / limit, di, ti))
+        used_d, used_t = set(), set()
+        for _, di, ti in sorted(pairs):
+            if di in used_d or ti in used_t:
+                continue
+            used_d.add(di)
+            used_t.add(ti)
+            t = self.live[ti]
+            t["box"], t["last"] = dets[di]["bbox"], step
+            dets[di]["track_id"] = t["id"]
+        for di, d in enumerate(dets):
+            if di not in used_d:
+                d["track_id"] = self.next_id
+                self.live.append({"id": self.next_id, "box": d["bbox"], "last": step, "group": self._group(d["damage_class"])})
+                self.next_id += 1
+        return dets
+
+
+# a track counts as a real defect when it was seen in >= min_frames analysed frames,
+# or once with high confidence (a pothole passed quickly is often detected in only one frame)
+SOLO_CONF = float(os.environ.get("ROADSENSE_SOLO_CONF", 0.5))
+
+
+def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: int = 2,
                 line_frac: float = 0.55, progress_cb=None) -> dict:
-    """Track every defect across frames with ByteTrack.
+    """Track every defect across frames (FrameLinker) and count each one once.
 
     Each physical defect keeps one track ID, so it is counted once no matter how
-    many frames it appears in. Tracks seen in fewer than `min_frames` processed
-    frames are discarded as flicker. A counting line at `line_frac` of frame
+    many frames it appears in. Tracks seen in fewer than `min_frames` analysed frames
+    and never above SOLO_CONF are discarded as flicker. A counting line at `line_frac` of frame
     height gives the "counted once when it crosses the line" view; every unique
     track carries `crossed_line`. Returns the best (confident + large) frame per track.
-    A fresh model instance is used per video so ByteTrack IDs/state never leak between videos.
     """
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
@@ -218,12 +279,15 @@ def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: in
     writer, out_path = _writer(out_base, max(1, fps / stride), size)
 
     tracks = defaultdict(lambda: {"frames": 0, "best": None, "best_score": -1, "classes": defaultdict(float),
-                                  "first_t": None, "last_t": None})
+                                  "first_t": None, "last_t": None, "max_conf": 0.0})
     raw = 0
-    counted = set()
+    counted = set()  # confirmed and crossed the line (kept for the stats)
+    confirmed = set()  # confirmed tracks so far: the number shown on the video
     line_y = int(size[1] * line_frac)
-    m = _load()  # fresh tracker state for this video
-    mc = _load_crack() if combine_enabled() else None  # own ByteTrack state for cracks
+    m = model()
+    mc = crack_model() if combine_enabled() else None
+    linker = FrameLinker()  # fresh IDs/state for every video
+    crack_linker = FrameLinker(id_offset=CRACK_TRACK_OFFSET)
     crack_dets: list[dict] = []
     idx = 0
     processed = 0
@@ -238,25 +302,26 @@ def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: in
             if scale != 1.0:
                 frame = cv2.resize(frame, size)
             t = idx / fps
-            r = m.track(frame, persist=True, tracker="bytetrack.yaml", conf=CONF, device=DEVICE, verbose=False)[0]
-            if _privacy is not None:  # tracked on the original; stored best frames + video are redacted
+            with _lock:  # shared models (also used by photo uploads and live scan)
+                r = m.predict(frame, conf=CONF, device=DEVICE, verbose=False)[0]
+                rc = (mc.predict(frame, conf=min(CONF, CRACK_CONF), device=DEVICE, verbose=False)[0]
+                      if mc is not None and processed % 2 == 0 else None)  # cracks barely move: every other frame
+            if _privacy is not None:  # detected on the original; stored best frames + video are redacted
                 frame = _privacy.redact(frame)
             dets = _boxes(r)
-            if mc is not None:
-                if processed % 2 == 0:  # cracks do not move: every other analysed frame is enough
-                    rc = mc.track(frame, persist=True, tracker="bytetrack.yaml", conf=min(CONF, CRACK_CONF),
-                                  device=DEVICE, verbose=False)[0]
-                    crack_dets = [{**d, "track_id": None if d["track_id"] is None else d["track_id"] + CRACK_TRACK_OFFSET}
-                                  for d in _boxes(rc)]
-                    dets = _merge(dets, crack_dets)
-                else:
-                    dets = [d for d in dets if d["damage_class"] not in CRACK_CLASSES]
+            if mc is not None:  # potholes from the main model, cracks from the crack model
+                dets = [d for d in dets if d["damage_class"] not in CRACK_CLASSES]
+            dets = linker.update(processed, dets)
+            if rc is not None:
+                crack_dets = [d for d in _boxes(rc) if d["damage_class"] in CRACK_CLASSES and d["confidence"] >= CRACK_CONF]
+                dets += crack_linker.update(processed // 2, crack_dets)
             raw += len(dets)
             for d in dets:
                 if d["track_id"] is None:
                     continue
                 tr = tracks[d["track_id"]]
                 tr["frames"] += 1
+                tr["max_conf"] = max(tr["max_conf"], d["confidence"])
                 tr["classes"][d["damage_class"]] += d["confidence"]
                 tr["first_t"] = t if tr["first_t"] is None else tr["first_t"]
                 tr["last_t"] = t
@@ -266,14 +331,17 @@ def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: in
                 if score > tr["best_score"]:
                     tr["best_score"] = score
                     tr["best"] = {**d, "frame": frame.copy(), "t": t}
-                if tr["frames"] >= min_frames and (y1 + y2) / 2 >= line_y:
-                    counted.add(d["track_id"])
+                if tr["frames"] >= min_frames or tr["max_conf"] >= SOLO_CONF:
+                    confirmed.add(d["track_id"])
+                    if (y1 + y2) / 2 >= line_y:
+                        counted.add(d["track_id"])
 
             vis = draw(frame, [d for d in dets if d["track_id"] is not None],
                        lambda d: f'#{d["track_id"]} {CLASS_LABELS.get(d["damage_class"], "")} {d["confidence"]:.2f}')
-            cv2.line(vis, (0, line_y), (size[0], line_y), (0, 255, 255), 2)
+            # running total of confirmed defects (a crossing line is misleading on bike videos, where the
+            # handlebars hide the lower half of the frame)
             cv2.rectangle(vis, (8, 8), (330, 44), (20, 20, 20), -1)
-            cv2.putText(vis, f"Unique defects counted: {len(counted)}", (16, 33), cv2.FONT_HERSHEY_SIMPLEX, 0.65,
+            cv2.putText(vis, f"Unique defects counted: {len(confirmed)}", (16, 33), cv2.FONT_HERSHEY_SIMPLEX, 0.65,
                         (255, 255, 255), 2, cv2.LINE_AA)
             writer.write(vis)
             processed += 1
@@ -283,16 +351,10 @@ def track_video(video_path: str, out_base: Path, stride: int = 2, min_frames: in
     finally:
         cap.release()
         writer.release()
-        for mm in (m, mc):
-            try:
-                for trk in getattr(getattr(mm, "predictor", None), "trackers", []) or []:
-                    trk.reset()
-            except Exception:
-                pass
 
     uniques = []
     for tid, tr in tracks.items():
-        if tr["frames"] < min_frames or tr["best"] is None:
+        if (tr["frames"] < min_frames and tr["max_conf"] < SOLO_CONF) or tr["best"] is None:
             continue
         cls = max(tr["classes"], key=tr["classes"].get)  # confidence-weighted majority vote
         b = tr["best"]

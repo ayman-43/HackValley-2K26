@@ -37,7 +37,8 @@ MIN_TRACK_FRAMES = 2      # at ~3 frames/s, a defect must be tracked in >=2 fram
 
 def _new_session() -> dict:
     return {"frames": 0, "raw": 0, "seen": set(), "new": set(), "n": 0, "enriched": {},
-            "tracks": {}, "model": None, "lock": threading.Lock()}
+            "tracks": {}, "model": None, "lock": threading.Lock(),
+            "linker": detector.FrameLinker(max_gap=3, reach=2.0), "step": 0}  # ~3 fps: ~1 s gap, bigger jumps
 
 
 def _session(sid: int) -> dict:
@@ -51,7 +52,7 @@ def _session(sid: int) -> dict:
             raise HTTPException(404, "live session not found")
         s = _sessions.setdefault(sid, _new_session())
     if s["model"] is None:
-        s["model"] = detector._load()  # own ByteTrack state per session (IDs never leak between rides)
+        s["model"] = detector.model()  # shared model; each session has its own FrameLinker (IDs never leak)
     return s
 
 
@@ -64,7 +65,7 @@ def start(lat: float | None = Form(None), lon: float | None = Form(None)):
         sid = cur.lastrowid
     (db.MEDIA_DIR / str(sid)).mkdir(parents=True, exist_ok=True)
     s = _sessions[sid] = _new_session()
-    s["model"] = detector._load()
+    s["model"] = detector.model()
     _warmup(s["model"])
     return {"session_id": sid}
 
@@ -99,9 +100,10 @@ async def frame(sid: int, frame: UploadFile = File(...), lat: float | None = For
         raise HTTPException(400, "could not decode frame")
     H, W = img.shape[:2]
     with s["lock"]:
-        r = s["model"].track(img, persist=True, tracker="bytetrack.yaml", conf=detector.CONF,
-                             device=detector.DEVICE, verbose=False)[0]
-        dets = detector._boxes(r)
+        with detector._lock:  # the shared model (ByteTrack dropped flickering potholes; see detector.FrameLinker)
+            r = s["model"].predict(img, conf=detector.CONF, device=detector.DEVICE, verbose=False)[0]
+        s["step"] += 1
+        dets = s["linker"].update(s["step"], detector._boxes(r))
         # a track is saved once, when it reaches MIN_TRACK_FRAMES, at the GPS of its best (confident + close) view
         ready = []
         for d in dets:
@@ -116,7 +118,8 @@ async def frame(sid: int, frame: UploadFile = File(...), lat: float | None = For
             score = d["confidence"] * float(np.sqrt(max((x2 - x1) * (y2 - y1), 0)))
             if score > tr["best_score"] and tr["defect_id"] is None:
                 tr["best_score"], tr["best"] = score, {"det": dict(d), "img": img, "lat": lat, "lon": lon}
-            if (tr["defect_id"] is None and tr["best"] is not None and tr["frames"] >= MIN_TRACK_FRAMES
+            if (tr["defect_id"] is None and tr["best"] is not None
+                    and (tr["frames"] >= MIN_TRACK_FRAMES or d["confidence"] >= detector.SOLO_CONF)
                     and tr["best"]["det"]["confidence"] >= SAVE_CONF):
                 ready.append((tid, tr))
     reply = [{"bbox": [round(v, 1) for v in d["bbox"]], "damage_class": d["damage_class"],

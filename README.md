@@ -27,7 +27,8 @@ cd ..
 start.cmd
 ```
 
-`start.cmd` starts Nagrik Roads on 127.0.0.1:8000 and Nagrik on http://localhost:5501. To scan from a phone on the
+`start.cmd` (or `node start.mjs`) starts Nagrik Roads on 127.0.0.1:8000 and Nagrik on http://localhost:5501 in one window,
+waits until both are ready and opens the browser; it stops with a clear message if an old server is still using a port. To scan from a phone on the
 same Wi-Fi, run `set HOST=0.0.0.0` before `start.cmd`. Node 20+ is needed for Nagrik.
 
 Model weights are not in Git: put `roadsense_y26n.pt` in `roads/backend/models/` (or train it, see

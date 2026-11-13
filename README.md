@@ -6,7 +6,7 @@
 
 ### Every pothole, seen once. Fixed first.
 
-AI road-damage detection for Bengaluru. A phone or dashcam records the road, the AI finds every pothole and crack,
+AI road-damage detection for Indian cities. A phone or dashcam records the road, the AI finds every pothole and crack,
 counts each one once, ranks it by danger and sends it to the ward officer responsible, then checks that the repair
 really happened.
 
@@ -45,7 +45,7 @@ really happened.
 ## Why we built this
 
 In 2022, potholes caused **4,446 road accidents in India, killing 1,856 people and injuring 3,734**, up from 1,481
-deaths in 2021 (Ministry of Road Transport and Highways, *Road Accidents in India 2022*). Bengaluru riders know the
+deaths in 2021 (Ministry of Road Transport and Highways, *Road Accidents in India 2022*). Every rider in India knows the
 problem first-hand, and four things keep it from being fixed:
 
 - **Potholes are found late.** Cities rely on complaints, so damage on quiet roads goes unreported until it is dangerous.
@@ -63,7 +63,7 @@ office one clean, ranked list of what to fix.
 | 📷 **See** | Any phone or dashcam becomes a road scanner: live from a moving vehicle, from a recorded video, or a single photo |
 | 🔍 **Detect** | A YOLO26s model trained on Indian roads finds potholes and three kinds of crack |
 | 1️⃣ **Count once** | Each defect is followed across frames: **1,768 per-frame detections become 49 unique potholes** |
-| 📍 **Pin and de-duplicate** | GPS puts every defect on Bengaluru's 369-ward map; a repeat report updates the existing pothole instead of creating a new one |
+| 📍 **Pin and de-duplicate** | GPS puts every defect on the city's ward map (Bengaluru's 369 wards are live today); a repeat report updates the existing pothole instead of creating a new one |
 | ⚠️ **Rank by danger** | An explainable 0–100 score: severity, road type, speed limit, nearby schools and hospitals, repeat reports, rain forecast |
 | 🏛️ **Send to the right person** | Each defect is linked to its ward, the responsible officer and recent road tenders |
 | ✅ **Prove the fix** | Every later drive checks the spot again: worsening, improving or repaired, and a pothole back within 90 days is flagged as a **bad repair** |
@@ -143,7 +143,7 @@ office one clean, ranked list of what to fix.
 
 <table>
 <tr>
-<td width="50%"><img src="roads/docs/screenshots/map.jpg" alt="Map of every defect on Bengaluru's wards"><br><b>Defect map</b>: every pothole on Bengaluru's 369 wards, "fix first" list on the right</td>
+<td width="50%"><img src="roads/docs/screenshots/map.jpg" alt="Map of every defect on the city's wards"><br><b>Defect map</b>: every pothole on the city's wards (Bengaluru shown), "fix first" list on the right</td>
 <td width="50%"><img src="roads/docs/screenshots/defect.jpg" alt="Defect detail with before/after and risk breakdown"><br><b>Defect detail</b>: before/after slider and the risk score explained factor by factor</td>
 </tr>
 <tr>
@@ -238,17 +238,42 @@ detector. Detection runs on the original frame, so blurring never hides a pothol
 
 ## Nagrik and Nagrik Roads: how the two fit together
 
-**[Nagrik](https://nagrik.in.net/)** is our civic-data platform: for each city it publishes wards, corporations,
-officials and public works (tenders, budgets, contractors). **Nagrik Roads** is its road-damage module. Together
-they answer not only *where* a pothole is, but *who must fix it* and *what has already been paid for*.
+### What Nagrik is
+
+**[Nagrik](https://nagrik.in.net/)** ("citizen") is an independent civic-data platform created by **Vyom Bhatnagar**.
+Its idea: *know who is responsible, know what was promised, check the public record, raise the question.* It
+gathers civic records that governments already publish but scatter across many portals, and puts them in one
+place, city by city. It covers much more than roads:
+
+| Nagrik feature | What it gives a citizen |
+|---|---|
+| **5 cities** | Bengaluru, Delhi, Gurugram, Mumbai and Pune, each with its own overview, works, people and sources pages |
+| **Find your ward** | Type a locality and get its ward, ward number and city corporation, on a ward map |
+| **Who runs the city** | Elected councillors (or the administrator where there is no sitting council), every civic body, and a directory of officials with department and contact, plus helplines |
+| **Money and public works** | Every public works tender and awarded contract: value, agency, status and contractor, with charts by agency and by status ("follow the money") |
+| **News and elections** | Civic news for the city, and what voters need to know before civic elections |
+| **Sources** | Every record links to its official source (for example the Karnataka Public Procurement Portal) and shows when it was read |
+| **AI assistants** | A read-only MCP server, so ChatGPT, Claude or Grok can answer questions like *"Which ward governs this locality?"* or *"Who do I contact about drainage in my ward?"*, with no account or API key |
+| **Public API** | `/api/v1`: cities, wards and ward boundaries, people, projects and "resolve this point to a ward" |
+
+For Bengaluru alone (snapshot of 13 Nov 2026): **369 wards** in 5 new city corporations (Central, East, North, South,
+West), **926 officials** across **15 agencies**, and **4,974 public works** worth **₹6,156 crore tendered**
+(₹1,448 crore awarded). Nagrik is not an official government website; it republishes public records with their sources.
+
+### What Nagrik Roads adds
+
+Nagrik shows **what was paid for**. Nagrik Roads shows **what the road actually looks like**. Put together, they
+answer not only *where* a pothole is, but *who must fix it* and *whether money was already spent on that road*.
 
 | Nagrik provides | Nagrik Roads uses it for |
 |---|---|
-| Ward boundaries (GeoJSON, 369 Bengaluru wards) | The map layer on every page, and "You're in Ward 25 · Ashokanagar" in the app |
-| Ward, corporation and officials for a point | The officer shown on each defect and in its complaint |
-| Road works and tenders per ward | "Recent road tenders in this ward" on each defect: a pothole next to a recently paid road job stands out |
+| Ward boundaries (GeoJSON) | The ward map on every page, and "You're in Ward 25 · Ashokanagar" in the app |
+| Ward, corporation and officials for a point | The officer shown on each defect, in its complaint and in the ward digest |
+| Road works and tenders per ward | "Recent road tenders in this ward" on each defect: a pothole beside a recently paid road job stands out |
 
-How they run as one application:
+And Nagrik gains a layer it did not have: live road condition, rated defect by defect, with a repair history.
+
+### How they run as one application
 
 - **Locally** (`start.cmd`): Nagrik's Node server (`nagrik/backend/server.mjs`, port 5501) serves the Nagrik site and
   forwards `/roads`, `/api`, `/media` and `/eval` to the Nagrik Roads backend (FastAPI, port 8000). One address,
@@ -505,10 +530,12 @@ is included.
 
 ## What's next
 
-- **Learn from officers:** retrain on the corrections exported from the review queue and on Bengaluru rides collected through the app.
+- **Learn from officers:** retrain on the corrections exported from the review queue and on rides collected through the app.
 - **Offline live scan:** run the detector in the browser, so live scan works with no connection.
 - **Contractor accountability:** link bad repairs to the tender and contractor that did the work, using Nagrik's tender data.
-- **More cities:** Nagrik already covers Delhi, Mumbai, Pune and Gurugram wards; the pipeline is city-agnostic.
+- **Belagavi and more cities:** the detector and pipeline already work on any Indian road; a new city needs only its
+  ward map and officials, which is exactly what Nagrik collects. Delhi, Mumbai, Pune and Gurugram are already in Nagrik,
+  and Belagavi, where we built this, is the next city we want to add.
 - **Into the city's workflow:** send verified defects straight into the municipal complaint system.
 
 ---
@@ -537,5 +564,5 @@ perceptual hashing (Zauner, 2010) · Depth Anything V2 (Yang et al., NeurIPS 202
 
 <div align="center">
 <br>
-<b>Nagrik Roads</b> · built for <b>HackValley 2K26</b> · Bengaluru
+<b>Nagrik Roads</b> · built for <b>HackValley 2K26</b> · Belagavi
 </div>

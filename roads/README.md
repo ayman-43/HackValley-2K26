@@ -1,6 +1,6 @@
 # Nagrik Roads
 
-**AI road-damage and pothole detection for Bengaluru.** Hackathon problem statement PS 02, "AI-Based Road Damage and Pothole Detection System".
+**AI road-damage and pothole detection for Indian cities, live on Bengaluru's wards.** Hackathon problem statement PS 02, "AI-Based Road Damage and Pothole Detection System".
 
 Nagrik Roads turns any phone into a road-survey dashcam. You record a ride (or upload photos or videos), and a lightweight YOLO26n detector trained on Indian roads finds potholes and three kinds of cracks. A frame-linking tracker follows each defect across frames so it is counted **once**. GPS, image similarity and class checks recognise a pothole that was already reported, so it updates the existing record instead of creating a duplicate. Every defect gets a severity rating and an explainable risk score, built from road class, speed limit, nearby schools and hospitals, repeat reports and the rain forecast. The system also forecasts when a defect is likely to become dangerous. An admin can confirm, reject or redraw each AI detection. Re-inspections of the same street show whether a defect is worsening, improving or repaired, and Nagrik Roads flags repairs that failed within 90 days. Each defect is linked to its BBMP ward, the responsible officer and recent road tenders through the public Nagrik API. Officers get one daily digest, not a flood of alerts. Everything runs on free, open tools with no paid API.
 

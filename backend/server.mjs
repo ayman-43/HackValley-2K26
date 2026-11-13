@@ -391,14 +391,19 @@ function proxyToRoads(req, res) {
   const upstreamReq = httpRequest({
     hostname: roadsTarget.hostname, port: roadsTarget.port || 80, method: req.method, path: req.url, headers
   }, (upstreamRes) => {
+    // a dropped connection must never crash the server (an unhandled stream 'error' would)
+    upstreamRes.on('error', () => res.destroy());
     res.writeHead(upstreamRes.statusCode || 502, upstreamRes.headers);
     upstreamRes.pipe(res);
   });
   upstreamReq.on('error', () => {
     if (!res.headersSent) {
       json(res, 502, { error: { code: 'ROADS_OFFLINE', message: `Nagrik Roads is not running at ${roadsTarget.origin}. Start it with start.cmd.` } });
-    } else res.end();
+    } else res.destroy();
   });
+  // the browser closed the tab or cancelled a request: stop the forwarded request too
+  req.on('error', () => upstreamReq.destroy());
+  res.on('close', () => { if (!res.writableFinished) upstreamReq.destroy(); });
   req.pipe(upstreamReq);
 }
 
@@ -503,6 +508,9 @@ const server = createServer(async (req, res) => {
     json(res, 500, { error: { code: 'INTERNAL_ERROR', message: 'The local data service failed to complete the request.' } });
   }
 });
+
+// last line of defence during a live demo: log unexpected errors instead of exiting
+process.on('uncaughtException', (err) => console.error('[nagrik] unexpected error (server keeps running):', err?.message || err));
 
 // HOST=0.0.0.0 lets phones on the same Wi-Fi open the app (needed for live scanning from a phone)
 const host = process.env.HOST || '127.0.0.1';

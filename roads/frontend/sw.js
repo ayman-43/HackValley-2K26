@@ -1,7 +1,7 @@
 /* Nagrik Roads app service worker: makes the phone app installable and lets its screens open offline.
    API calls and uploads always go to the network (never cached). */
-const CACHE = 'nagrik-roads-shell-v2';
-const SHELL = ['/roads/app', '/roads/live.html', '/roads/styles.css', '/roads/rsmap.js', '/roads/assets/logo.svg', '/roads/assets/icon-192.png', '/roads/manifest.webmanifest'];
+const CACHE = 'nagrik-roads-shell-v3';
+const SHELL = ['/roads/app', '/roads/live.html', '/roads/styles.css', '/roads/rsmap.js', '/roads/assets/logo.png', '/roads/assets/icon-192.png', '/roads/manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

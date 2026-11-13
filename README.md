@@ -297,12 +297,32 @@ for Bengaluru's wards, officials and public works. The Nagrik site in `nagrik/` 
 application, and each pothole is linked to its ward, the responsible officers and recent road tenders through
 Nagrik's API.
 
+**What was built for HackValley 2K26:** everything in `roads/` (detector training, counting, dedup, risk, the
+website and phone app, live scan, review and repair workflow) plus the deployment (`api/`, `deploy/`, `vercel.json`).
+**What existed before:** the Nagrik site in `nagrik/` is a production build of our existing platform, included so
+both run as one application. The hackathon work on it is the Roads links (`nagrik/nagrik-roads-link.js`) and the
+forwarding of Roads requests in its local server (`nagrik/backend/server.mjs`).
+
+## Research
+
+The design follows published work on smartphone road-damage detection, tracking-by-detection and perceptual
+hashing. **[`roads/docs/REFERENCES.md`](roads/docs/REFERENCES.md)** lists 19 papers and tools and where each is
+used in the code, including why we replaced ByteTrack with our own frame linker. Similar projects we studied:
+[`roads/docs/RESEARCH.md`](roads/docs/RESEARCH.md). Architecture: [`roads/docs/ARCHITECTURE.md`](roads/docs/ARCHITECTURE.md).
+
+Key papers: YOLO (Redmon et al., CVPR 2016) · RDD2022 (Arya et al., 2022) · smartphone road damage detection
+(Maeda et al., 2018) · cross-country transfer (Arya et al., 2021) · SORT (Bewley et al., 2016) and ByteTrack
+(Zhang et al., ECCV 2022) · Pothole Patrol (Eriksson et al., MobiSys 2008) and Nericell (Mohan et al., SenSys 2008) ·
+perceptual hashing (Zauner, 2010) · Depth Anything V2 (Yang et al., NeurIPS 2024).
+
 ## Data and credits
 
-- **Training data:** RDD2022 India and United States (CC BY-SA 4.0), BharatPotHole (CC BY 4.0), Kaggle Potholes
-- **Models:** Ultralytics YOLO (AGPL-3.0); RDD2022 YOLOv8s crack model (optional)
+- **Training data:** RDD2022 India and United States (CC BY-SA 4.0), BharatPotHole (CC BY 4.0), Kaggle Potholes (CC0)
+- **Models:** Ultralytics YOLO (AGPL-3.0), our YOLO26s trained on the data above; RDD2022 YOLOv8s crack model (optional)
 - **Maps:** OpenFreeMap and OpenStreetMap contributors (ODbL); ward boundaries from Nagrik
 - **Context data:** OpenStreetMap Overpass, Open-Meteo, OSRM
+- **Ideas from other projects (our own code):** road-health colouring (iWatchRoad), repair route planner and training
+  recipe starting point (Pothole Pilot, used only as a baseline). Details in [`roads/README.md`](roads/README.md#credits-and-licences).
 
 <div align="center">
 <br>

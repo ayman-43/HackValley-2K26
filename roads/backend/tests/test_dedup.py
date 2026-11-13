@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT))
 
 from backend.app import db, dedup  # noqa: E402
 
-VIDEO = ROOT / "reference" / "pothole-pilot" / "ai_model" / "sample_video.mp4"
+VIDEO = ROOT / "dataset" / "sample" / "sample_video.mp4"  # Kaggle Potholes dataset clip (CC0)
 # hand-picked pothole regions in frame 30 (1280x720): (x1, y1, x2, y2)
 BOXES = {
     "big": (20, 330, 480, 440),

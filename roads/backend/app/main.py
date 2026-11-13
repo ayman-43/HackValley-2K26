@@ -93,7 +93,7 @@ for _name in ("review", "reports", "crew", "live", "roads"):
     try:
         _mod = __import__(f"{__package__}.{_name}", fromlist=["router"])
         app.include_router(_mod.router)
-    except Exception as _e:  # other agent's module missing/broken: keep the core API up
+    except Exception as _e:  # optional module missing/broken: keep the core API up
         log.warning("router %s not loaded: %s", _name, _e)
 
 

@@ -3,7 +3,7 @@
 Usage (from repo root):
     .venv\\Scripts\\python.exe scripts/compare_models.py \
         --images C:\\Users\\ayman\\roadsense-data\\roadsense\\val_in.txt C:\\...\\val_bp.txt \
-        --models reference/pothole-pilot/ai_model/weights.onnx backend/models/rdd_yolov8s.pt \
+        --models backend/models/roadsense_y26s.pt backend/models/rdd_yolov8s.pt \
         --limit 50
 
 Each --images entry is a .txt list of image paths, a directory of images, or a single image.

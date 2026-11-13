@@ -1,8 +1,7 @@
 """Road-damage detection (YOLO) + video tracking (FrameLinker: counts each defect once).
 
 Model selection (first that exists): env ROADSENSE_MODEL -> backend/models/roadsense_y26s.pt
--> roadsense_y26n.pt -> backend/models/rdd_yolov8s.pt -> reference/pothole-pilot/ai_model/weights.onnx
-(RDD YOLOv8s is preferred over the Pothole Pilot ONNX: F1 0.66 vs 0.02 on RDD India).
+-> roadsense_y26n.pt -> backend/models/rdd_yolov8s.pt.
 Device comes from env ROADSENSE_DEVICE (default "cpu").
 """
 import logging
@@ -27,7 +26,6 @@ CANDIDATES = [
     MODELS_DIR / "roadsense_y26s.pt",  # Kaggle T4, 148 epochs: BharatPotHole F1 0.68 (y26n: 0.49)
     MODELS_DIR / "roadsense_y26n.pt",
     MODELS_DIR / "rdd_yolov8s.pt",
-    ROOT / "reference" / "pothole-pilot" / "ai_model" / "weights.onnx",
 ]
 DEVICE = os.environ.get("ROADSENSE_DEVICE", "cpu")
 # 0.20 maximises F1 on the Indian validation sets for roadsense_y26s at imgsz 640

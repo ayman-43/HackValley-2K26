@@ -1,5 +1,5 @@
 """Inspection processing: detect/track -> severity -> media -> dedup -> defect/observation ->
-risk + civic enrichment -> progress/absence. Other agents' modules are imported defensively:
+risk + civic enrichment -> progress/absence. Optional modules are imported defensively:
 if one is missing or raises, a simple fallback is used and a warning is logged.
 """
 import json
@@ -26,7 +26,7 @@ log =logging.getLogger("roadsense.pipeline")
 
 try:
     from . import dedup
-except Exception as e:  # pragma: no cover - depends on other agents
+except Exception as e:  # pragma: no cover - optional module
     dedup = None
     log.warning("dedup module unavailable (%s): every detection becomes a new defect", e)
 try:

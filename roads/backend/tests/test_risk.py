@@ -1,10 +1,18 @@
-"""Tests for risk scoring, forecast, offline fallbacks and (live, skippable) external APIs."""
+"""Tests for risk scoring, forecast, offline fallbacks and (live, skippable) external APIs.
+
+Run with pytest, or directly: python backend/tests/test_risk.py"""
+import sys
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import httpx
 import pytest
 
-from backend.app import nagrik, risk
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from backend.app import nagrik, risk  # noqa: E402
 
 PRIMARY_NEAR_SCHOOL = {
     "road_type": "primary", "road_name": "100 Feet Road", "speed_limit": 60, "speed_source": "default",
@@ -216,3 +224,7 @@ def test_live_overpass(tmp_cache):
     if c["source"] == "default":
         pytest.skip("Overpass busy/timed out")
     assert c["road_type"] != "unknown"
+
+
+if __name__ == "__main__":
+    sys.exit(pytest.main([__file__, "-q"]))

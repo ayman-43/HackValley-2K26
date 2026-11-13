@@ -24,7 +24,7 @@ except ImportError:  # run directly via __main__
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-SAMPLE = ROOT / "reference" / "pothole-pilot" / "ai_model" / "sample_video.mp4"
+SAMPLE = ROOT / "dataset" / "sample" / "sample_video.mp4"  # 15 s road clip from the Kaggle Potholes dataset (CC0)
 LAT, LON = 12.9719, 77.6412  # Indiranagar 100 Ft Rd (demo point)
 
 

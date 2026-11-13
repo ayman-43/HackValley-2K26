@@ -35,7 +35,7 @@ _Compiled 2026-11-13. GitHub star counts were taken live from the GitHub API on 
 A phone works as a dashcam. AI finds every defect, gives each one an ID that stays the same over time, estimates its depth, forecasts when it will worsen, and produces a repair plan.
 
 ### Mandatory features, done properly
-1. **Unique tracking:** YOLOv8 (RDD2022) + ByteTrack. Tracks shorter than 3 frames are dropped as flicker. Each class is decided by a confidence-weighted vote across frames, and each defect is counted once when it crosses a line in the frame.
+1. **Unique tracking:** YOLOv8 (RDD2022) + ByteTrack (the initial plan; replaced by our own `FrameLinker` after ByteTrack missed most potholes on real rides, see [`REFERENCES.md`](REFERENCES.md) [12]). Tracks shorter than 3 frames are dropped as flicker. Each class is decided by a confidence-weighted vote across frames, and each defect is counted once when it crosses a line in the frame.
 2. **Duplicate detection in 3 layers:** a GPS radius of about 10–15 m, then an image-embedding similarity check (DINOv2), then a class match. A duplicate updates the existing defect and increments its report count instead of creating a new record.
 3. **Explainable risk score:** severity + road class and speed limit (OpenStreetMap) + 3-day rain forecast (Open-Meteo, free) + nearby schools or hospitals + report frequency. Every score lists its factors.
 4. **Verification and active learning:** the admin can confirm, reject, relabel or redraw a box. Corrections are exported as a YOLO dataset and used to fine-tune the model, and the dashboard shows the before/after metrics.

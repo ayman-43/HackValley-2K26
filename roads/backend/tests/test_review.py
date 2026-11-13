@@ -1,4 +1,4 @@
-"""Tests for admin review, workflow, corrections export and reports (Agent 4)."""
+"""Tests for admin review, workflow, corrections export and reports."""
 import io
 import json
 import sys

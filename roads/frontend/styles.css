@@ -1,7 +1,6 @@
 /* Nagrik Roads — civic public-record style, matched to Nagrik (nagrik.in.net), whose ward/officer/tender
    data Nagrik Roads uses. Light civic grey, slate ink, Instrument Sans with tight headlines, thin-bordered
-   white cards, monospace blue for data, one amber accent. Nagrik Roads keeps its own name and logo.
-   Previous themes: themes/styles.dark.css (night HUD), themes/styles.old.css (original), not loaded. */
+   white cards, monospace blue for data, one amber accent. Nagrik Roads keeps its own name and logo. */
 
 @import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 

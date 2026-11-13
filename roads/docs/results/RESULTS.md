@@ -41,10 +41,13 @@ RDD India validation images, so its RDD India score is optimistic. It almost nev
 
 ## Counting each defect once
 
-Detection is per frame; Nagrik Roads then tracks every defect across frames (ByteTrack, at least 3 frames)
-and merges repeat sightings by GPS distance and image similarity. On the 15-second demo video, about
-1,230 per-frame detections become **39 unique potholes**; a second drive over the same road matches the
-same potholes instead of creating duplicates.
+Detection is per frame; Nagrik Roads then links every defect across frames (`detector.FrameLinker`: seen in
+2+ analysed frames, or once above 0.5 confidence) and merges repeat sightings by GPS distance and image
+similarity. On the 15-second demo video, 1,768 per-frame detections become **49 unique potholes** (ByteTrack,
+our first tracker, kept 39 and missed potholes that were detected only now and then). On a 9-second motorbike
+ride over a badly damaged road, ByteTrack counted 1 pothole and `FrameLinker` counts 8 potholes and 2 cracks.
+A second drive over the same road matches the same potholes instead of creating duplicates. Reproduce with
+`scripts/evaluate.py --video dataset/sample/sample_video.mp4 --model backend/models/roadsense_y26s.pt --compare-bytetrack`.
 
 ## Speed (laptop CPU, no GPU)
 

@@ -1,132 +1,129 @@
-# Nagrik Roads – build contract (read this first)
+# Nagrik Roads – architecture
 
-AI road-damage detection for Bengaluru (Hackathon PS 02). Six people/agents build in parallel.
-**Only edit the files you own.** Connect to other parts ONLY through the signatures below.
-If you need something from another owner's file, write it in your final report instead of editing it.
+AI road-damage detection for Bengaluru (HackValley 2K26, PS 02). A phone, dashcam or uploaded photo goes in;
+one record per physical pothole or crack comes out, with a location, severity, risk score, the responsible
+ward and officer, and a repair history. Papers and tools behind each part: [`REFERENCES.md`](REFERENCES.md).
 
-## Hard rules for every agent
-- Python env: `.venv\Scripts\python.exe` (Windows, Python 3.12). Already installed: fastapi, uvicorn,
-  python-multipart, ultralytics, supervision, opencv, numpy, pillow, imagehash, httpx, transformers,
-  onnxruntime. **Do NOT pip install anything** (shared env; parallel installs break it). Use stdlib
-  or these. Need something else? Say so in your report.
-- **The GPU is busy training a model for ~7 hours. Never use the GPU.** Any model call in tests must
-  pass `device="cpu"`. Keep tests small (a few images / a 5-second clip).
-- Do not touch `reference/`, `.venv/`, `scripts/prepare_dataset.py`, `scripts/train.py`,
-  or anything in `C:\Users\ayman\roadsense-data\`.
-- No paid APIs, no API keys. Free services only: OpenStreetMap Overpass + Nominatim, Open-Meteo,
-  Nagrik (`https://nagrik.in.net/api/v1`, public, rate-limited 120 req/window → cache everything).
-- Every network call: timeout ≤ 8 s, wrapped in try/except, cached to `backend/data/cache/`,
-  and the app must keep working offline (fallback values, never crash).
-- Keep it lightweight. Plain functions, type hints, short docstrings.
+## Overview
 
-## Models
-- Pothole Pilot model (works now): `reference/pothole-pilot/ai_model/weights.onnx` (YOLO26n, ONNX).
-- RDD2022 YOLOv8s: `backend/models/rdd_yolov8s.pt`.
-- Our model (after training): `backend/models/roadsense_y26n.pt` + `.onnx` + `roadsense_y26n_metrics.json`.
-- Classes (all models): 0 longitudinal_crack, 1 transverse_crack, 2 alligator_crack, 3 pothole.
-- `detector.py` picks the first existing of: env `ROADSENSE_MODEL`, roadsense_y26n.pt, rdd_yolov8s.pt, Pothole Pilot ONNX
-  (Pothole Pilot ONNX is last because it scores ~0 F1 on Indian data; see `backend/data/eval/compare.json`).
+```
+ phone / dashcam / photo                     website + installable phone app (frontend/, no build step)
+          │                                                   ▲
+          ▼                                                   │ JSON
+  POST /api/inspections ──► job queue ──► pipeline.process_inspection
+  POST /api/live/{id}/frame (live scan, ~3 fps)        │
+                                                       ▼
+   detector   YOLO26s per frame ─► FrameLinker (one track per physical defect)
+   severity   damage type + visible size (+ optional Depth Anything V2 index)
+   privacy    blur faces and number plates before anything is stored
+   geo        EXIF / uploaded GPS track / GPS embedded in the video (dashcam) ─► lat, lon per defect
+   dedup      GPS radius + perceptual hashes + class ─► existing defect or a new one; trend; repaired?
+   risk       road class, speed, schools/hospitals (OSM), rain (Open-Meteo), repeats ─► score 0-100 + reasons
+   nagrik     ward, corporation, officials, recent road tenders (Nagrik public API, cached)
+                                                       │
+                                                       ▼
+                                            SQLite: inspections · defects · observations · users
+```
 
-## Environment variables
+Everything runs on a CPU. Network services (Overpass, Open-Meteo, OSRM, Nagrik) are optional: every call has a
+timeout, is cached under `backend/data/cache/`, and falls back to defaults so the app keeps working offline.
+
+## Backend modules (`backend/app/`)
+
+| Module | Responsibility |
+|---|---|
+| `main.py` | FastAPI app, upload endpoint, background job queue, stats/metrics/training endpoints, serves `frontend/` under `/roads/` |
+| `pipeline.py` | One inspection end to end: detect → severity → privacy → location → dedup → save → risk/forecast → civic data → absence check |
+| `detector.py` | Model loading, per-image detection, video tracking (`FrameLinker`), drawing. Optional crack model combined with the pothole model |
+| `severity.py` | Severity score and label from damage type, box size and optional depth index |
+| `privacy.py` | Face and number-plate blurring with a COCO-trained detector |
+| `geo.py`, `dashcam.py` | EXIF GPS, GPS track files (GPX/CSV/JSON), interpolation; GPS streams embedded in dashcam videos (via ExifTool) |
+| `dedup.py` | Image fingerprints, matching a sighting to an existing defect, trend (worsening/improving), absence → possibly repaired, failed repairs within 90 days |
+| `risk.py` | Road context, weather, transparent additive risk score with per-factor points, "days until high risk" forecast |
+| `nagrik.py` | Ward and officials lookup, road tenders for the ward |
+| `review.py` | Officer review queue (confirm / reject / correct box and class), workflow, corrections export for retraining |
+| `reports.py` | Printable complaint per defect, officer digest, CSV export |
+| `crew.py` | Repair route over the top defects (OSRM), "repaired by" crew ID |
+| `roads.py` | Road health: whole road segments coloured by condition |
+| `live.py` | Live scan sessions: frames in, boxes back to the phone, confirmed defects saved at the GPS fix |
+| `auth.py`, `auth_store.py` | Email sign-up/sign-in, cookie sessions, roles, server-side access rules and rate limits |
+| `db.py` | SQLite schema and helpers |
+
+## Data model (SQLite, `backend/app/db.py`)
+
+- **inspections**: one upload or live session (source type, file, location, raw and unique detection counts).
+- **defects**: one *physical* defect, with code `PH-0001` / `CR-0001`, class, location, severity, risk score and factors,
+  trend, forecast, report count, workflow (`reported → verified → scheduled → repaired → closed`, or `rejected`),
+  ward, corporation and officials, failed-repair flag.
+- **observations**: every sighting of a defect: box, confidence, severity, frame and crop images, location, track ID,
+  frames seen, why it was matched to this defect, absent flag, review status.
+- **users / sessions** (`auth_store.py`): accounts with roles `citizen`, `crew`, `officer`, `admin`.
+
+## API (all JSON unless noted)
+
+| Area | Endpoints |
+|---|---|
+| Inspections | `POST /api/inspections` (file, optional `lat`, `lon`, `gps_track`, `road_type`, `notes`) → `{inspection_id, job_id}` · `GET /api/jobs/{id}` (progress, result) · `GET /api/inspections[/{id}]` |
+| Defects | `GET /api/defects?workflow=&damage_class=&min_risk=` (sorted by risk) · `GET /api/defects/{id}` (with observation timeline) · `GET /api/stats` · `GET /api/wards/geojson` |
+| Live scan | `POST /api/live/start` · `POST /api/live/{id}/frame` · `POST /api/live/{id}/stop` · `GET /api/live/feed` |
+| Review and workflow | `GET /api/review/queue` · `POST /api/observations/{id}/review` · `PATCH /api/defects/{id}/workflow` · `POST /api/defects/{id}/repair` · `GET /api/export/corrections` (zip, YOLO format) |
+| Reports | `GET /api/defects/{id}/complaint` (HTML) · `GET /api/digest` (HTML) · `GET /api/report/summary.csv` |
+| Crews and roads | `POST /api/crew/route` · `POST /api/defects/{id}/repaired_by` · `GET /api/roads/health` |
+| Model | `GET /api/metrics` · `GET /api/training` · `GET /api/health` |
+| Accounts | `POST /api/auth/signup`, `/login`, `/logout` · `GET /api/auth/me`, `/config` · `GET/POST/PATCH /api/auth/users` (admin) |
+
+Access rules are enforced on the server (`auth.RULES`): reading is public, reviewing and workflow changes need an
+officer or admin, repair actions need a crew member or above, and account management needs an admin.
+
+## Frontend (`frontend/`, plain HTML/CSS/JS)
+
+| Page | Purpose |
+|---|---|
+| `home.html` (`/roads/`) | Website and installable phone app: report a photo or video, "near you" map, how it works |
+| `index.html` + `app.js` (`/roads/dashboard`) | Dashboard: map, defects, defect detail, upload, review, reports, metrics |
+| `live.html`, `livemap.html` | Live scan from the phone camera, and the live map of what it finds |
+| `capture.html` | Record a ride with GPS track and accelerometer bumps, or take a photo |
+| `route.html`, `roads.html` | Repair route planner, road health map |
+| `training.html` | How the model was trained (curves, metrics) |
+| `login.html`, `users.html`, `gate.js` | Sign-in, account management, per-role page access |
+
+Maps use MapLibre GL with OpenFreeMap tiles and Nagrik ward boundaries (`rsmap.js`). `manifest.webmanifest` and `sw.js`
+make the site installable as a phone app.
+
+## Detector
+
+- Model: `backend/models/roadsense_y26s.pt`, YOLO26s trained by us on RDD2022 (India, US), BharatPotHole and Kaggle
+  potholes (17,909 train / 3,653 val images, 4 classes). Val mAP50 0.686. Details: [`results/RESULTS.md`](results/RESULTS.md).
+- Classes: 0 longitudinal_crack, 1 transverse_crack, 2 alligator_crack, 3 pothole.
+- Uploads add cracks from an optional RDD2022 YOLOv8s crack model (`ROADSENSE_COMBINE`); live scan uses one model for speed.
+- Counting: `FrameLinker` links detections across frames by distance, tolerating missed frames and fast motion. A defect
+  counts when seen in 2+ analysed frames or once above 0.5 confidence. It replaced ByteTrack, which dropped most
+  potholes on real bike rides (see `REFERENCES.md` [12]).
+
+## Configuration (environment variables)
+
 | Variable | Default | Meaning |
 |---|---|---|
-| `ROADSENSE_MODEL` | auto (order above) | Path to detector weights |
-| `ROADSENSE_DEVICE` | `cpu` | `0` to run inference on the GPU |
-| `ROADSENSE_NAGRIK` | `1` | `0` disables Nagrik ward/officer/tender enrichment |
-| `ROADSENSE_DEPTH` | `0` | `1` enables Depth-Anything depth index in severity (heavy) |
-| `ROADSENSE_DATA_DIR` | `backend/data` | Database + media folder (tests use a temp dir) |
-| `ROADSENSE_CONF` | `0.20` | Detection confidence threshold (tuned for roadsense_y26s with scripts/tune_detector.py) |
-| `ROADSENSE_COMBINE` | `1` | Uploads (photos/videos) use potholes from the main model + cracks from the crack model; `0` = main model only. Live scan always uses the main model |
-| `ROADSENSE_CRACK_MODEL` | `backend/models/rdd_yolov8s.pt` | Crack model for the combined detector (scripts/eval_combo.py) |
-| `ROADSENSE_CRACK_CONF` | `0.35` | Confidence threshold for crack boxes from the crack model |
-| `PIN_MEMORY` | – | Set `False` when training on Windows (avoids CUDA "resource already mapped" crash) |
+| `ROADSENSE_MODEL` | `roadsense_y26s.pt` → `roadsense_y26n.pt` → `rdd_yolov8s.pt` | Detector weights |
+| `ROADSENSE_DEVICE` | `cpu` | `0` for the first GPU |
+| `ROADSENSE_CONF` | `0.20` | Detection confidence (tuned with `scripts/tune_detector.py`) |
+| `ROADSENSE_COMBINE`, `ROADSENSE_CRACK_MODEL`, `ROADSENSE_CRACK_CONF` | `1`, `rdd_yolov8s.pt`, `0.35` | Optional crack model for uploads |
+| `ROADSENSE_SOLO_CONF` | `0.5` | A defect seen in only one frame counts above this confidence |
+| `ROADSENSE_DEPTH` | `0` | `1` adds the Depth Anything V2 depth index to severity (slow on CPU) |
+| `ROADSENSE_NAGRIK` | `1` | `0` turns off ward, officer and tender lookup |
+| `ROADSENSE_DATA_DIR` | `backend/data` | Database, media and cache (tests use a temporary folder) |
+| `ROADSENSE_ADMIN_EMAILS` | – | Emails that become administrators when they sign up |
+| `ROADSENSE_TRUST_PROXY` | `0` | `1` behind a hosting proxy, so rate limits use the visitor's address |
 
-## Data model (`backend/app/db.py`, SQLite, owned by Agent 1 — already written)
-- `inspections`: one upload (image or video).
-- `defects`: one PHYSICAL defect (unique pothole/crack). code `PH-0001`. Fields include lat/lon,
-  severity_score/label, risk_score/label/risk_factors(JSON), trend, report_count, workflow,
-  forecast(JSON), ward_name/ward_id/corporation/city, nagrik(JSON), bad_repair, embedding(JSON).
-- `observations`: every sighting of a defect (bbox, confidence, severity, frame_path, crop_path,
-  lat/lon, track_id, frames_seen, match_info, absent, review_status pending|confirmed|rejected|corrected).
-- Use `db.connect()` (context manager, row_factory=Row) and `db.row(r)` to turn rows into dicts.
+## Deployment
 
-## Module contracts (function signatures are fixed)
+- **Local**: `start.cmd` runs the FastAPI backend (port 8000) and the Nagrik site (port 5501), which forwards
+  `/roads`, `/api`, `/media` and `/eval` to the backend.
+- **Online**: the website is static on Vercel (`vercel.json`, `deploy/vercel-build.mjs`), and Vercel forwards the API
+  to the backend on a Hugging Face Space. Uploads over 12 MB go to the Space directly.
 
-### Agent 1 – core pipeline + API server  (owns `backend/app/main.py, detector.py, severity.py, geo.py, pipeline.py, db.py`)
-- `geo.exif_gps(path) -> tuple[float,float] | None`
-- `geo.load_track(path) -> list[dict]`  # GPX, CSV (t,lat,lon) or JSON [{t,lat,lon}] ; t = seconds from video start
-- `geo.interpolate(track, t: float) -> tuple[float,float] | None`
-- `geo.haversine_m(lat1, lon1, lat2, lon2) -> float`
-- `pipeline.process_inspection(inspection_id) -> dict` runs: detect/track → severity → crop+frame
-  saved under `backend/data/media/` → dedup.match_defect → create/update defect + observation →
-  risk + nagrik enrichment → dedup.update_progress → dedup.mark_absent.
-- REST API (all JSON, under `/api`):
-  - `POST /api/inspections` multipart: `file` (image/video), optional `lat`, `lon`, `gps_track` (file),
-    `road_type`, `notes` → `{inspection_id, job_id}`; processing runs in a background thread.
-  - `GET /api/jobs/{job_id}` → `{status: queued|running|done|error, progress 0..1, result?, error?}`
-  - `GET /api/inspections`, `GET /api/inspections/{id}` (incl. annotated media URL + observations)
-  - `GET /api/defects?status=&severity=&damage_class=&ward=&min_risk=` → list (sorted by risk desc)
-  - `GET /api/defects/{id}` → defect + observations (timeline, oldest first)
-  - `GET /api/stats` → counts by class, severity, workflow, trend; totals; raw vs unique detections
-  - `GET /api/metrics` → contents of `backend/models/*_metrics.json` + `backend/data/eval/*.json`
-  - Static: `/media/...` → `backend/data/media`, `/` → `frontend/` (index.html), `/capture` → `frontend/capture.html`
-  - Includes `review.router` and `reports.router` (Agent 4) with `app.include_router(...)`.
-- Run: `.venv\Scripts\python.exe -m uvicorn backend.app.main:app --port 8000` (from repo root).
+## Tests
 
-### Agent 2 – duplicate detection + progress monitoring  (owns `backend/app/dedup.py`, `backend/tests/test_dedup.py`)
-- `fingerprint(crop_bgr: np.ndarray) -> dict`  # pHash + colour histogram, JSON-serialisable
-- `similarity(fp_a: dict, fp_b: dict) -> float`  # 0..1
-- `match_defect(conn, damage_class: str, lat: float|None, lon: float|None, fp: dict) -> tuple[int|None, dict]`
-  3 layers: GPS radius (≤15 m) + image similarity + compatible class. Returns (defect_id or None, match_info
-  `{"reason": str, "distance_m": float|None, "similarity": float, "candidates": int}`).
-  No GPS → only match on very high similarity (≥0.92).
-- `update_progress(conn, defect_id: int) -> str` compares latest vs previous non-absent observation
-  (severity_score / area_ratio): `worsening | improving | stable | new`; writes `defects.trend`.
-- `mark_absent(conn, lat: float, lon: float, inspection_id: int, seen_defect_ids: set[int], radius_m=12) -> list[int]`
-  open defects near a re-inspected location that were NOT seen → insert absent observation; 1st absence
-  → trend `possibly_repaired`; 2nd consecutive or workflow=repaired → `repaired`.
-- `check_bad_repair(conn, defect_id: int) -> bool` defect seen again within 90 days of `repaired_at` → set `bad_repair=1`, reopen.
-
-### Agent 3 – risk, forecast, civic data  (owns `backend/app/risk.py`, `backend/app/nagrik.py`, `backend/tests/test_risk.py`)
-- `risk.road_context(lat, lon) -> dict` (Overpass, cached by ~50 m grid): `{road_type, road_name, speed_limit, lanes, sensitive: [{kind: school|hospital|bus_stop, name, distance_m}]}`
-- `risk.weather(lat, lon) -> dict` (Open-Meteo, cached 1 h): `{rain_next_72h_mm, rain_days, temp_c}`
-- `risk.compute_risk(defect: dict, context: dict, weather: dict) -> dict` → `{risk_score 0..100, risk_label Low|Medium|High|Critical, risk_factors: [{factor, detail, points}]}`
-  Transparent additive formula (severity, road class, speed, sensitive places, report_count, rain, trend). Document weights.
-- `risk.forecast(observations: list[dict], weather: dict) -> dict` → `{days_to_high: int|None, text: str, growth_per_week: float|None}`
-- `nagrik.resolve(lat, lon) -> dict|None` (city auto-detected from Nagrik `/cities` bounds; only BLR, DEL, GGN, GZB, MUM, PUN) → `{city, ward_id, ward_name, corporation, officials: [{department, name, phone}]}`
-- `nagrik.ward_works(city, ward_id, query="pothole") -> list[dict]` → `[{title, agency, tender_ref, status, tender_date, budget, contractor_name, source_url}]` (road/pothole works for that ward)
-- Ship a small offline cache for 3 demo Bengaluru points (Indiranagar 100 Ft Rd 12.9719,77.6412; Koramangala 12.9352,77.6245; Majestic 12.9767,77.5713).
-
-### Agent 4 – admin verification, workflow, reports  (owns `backend/app/review.py`, `backend/app/reports.py`, `backend/templates/`, `backend/tests/test_review.py`)
-- `review.router = APIRouter(prefix="/api")`:
-  - `GET /api/review/queue?limit=` pending observations (lowest confidence first) with image URLs
-  - `POST /api/observations/{id}/review` `{action: confirm|reject|correct, corrected_class?, corrected_bbox?, reviewer?}`
-    reject → if the defect has no other non-rejected observation, defect workflow=`rejected`.
-    Auto-approve rule helper `auto_approve(conn)`: confidence ≥0.6 and report_count ≥3 → confirmed.
-  - `PATCH /api/defects/{id}/workflow` `{workflow: verified|scheduled|repaired|closed, note?}` (+ optional repair photo multipart on `POST /api/defects/{id}/repair`)
-  - `GET /api/export/corrections` → zip of YOLO-format images/labels from confirmed+corrected observations (for retraining)
-- `reports.router = APIRouter(prefix="/api")`:
-  - `GET /api/defects/{id}/complaint` → printable HTML complaint (photo, map link, severity, risk factors, ward, officer, tender note, timeline). Print-to-PDF friendly.
-  - `GET /api/digest?ward=&period=daily|weekly` → HTML officer digest (counts by risk, new, worsening, overdue >15 d, top 5 to fix) – what would be emailed (do NOT send email).
-  - `GET /api/report/summary.csv` → all defects as CSV.
-
-### Agent 5 – dashboard UI  (owns `frontend/index.html`, `frontend/app.js`, `frontend/styles.css`, `frontend/assets/`)
-Single-page, plain HTML/CSS/JS, no build step. Leaflet 1.9.4 + Leaflet.heat 0.2.0 from unpkg (pinned).
-Views: Upload/Inspect (progress, annotated result, raw vs unique count) · Map (markers by risk, heatmap
-toggle, filters) · Defects list (sortable) · Defect detail (photo timeline before/after, trend, forecast,
-risk factors, ward/officer/tenders, complaint button, workflow buttons) · Review queue (confirm/reject/
-correct class, redraw box on canvas) · Reports (digest preview, CSV) · Metrics (P/R/F1/mAP per class,
-confusion matrix image if present). Must degrade gracefully when an endpoint 404s. Mobile-friendly. Light/dark.
-
-### Agent 6 – phone capture + evaluation + docs  (owns `frontend/capture.html`, `frontend/capture.js`, `scripts/evaluate.py`, `scripts/compare_models.py`, `scripts/make_demo_gps.py`, `README.md`)
-- `capture.html`: phone web page. Rear camera video via MediaRecorder + `navigator.geolocation.watchPosition`
-  → GPS track JSON `[{t,lat,lon}]` (t = seconds since recording start) → upload to `POST /api/inspections`
-  (file + gps_track). Also photo mode (capture + current location). Works on mobile Chrome over LAN.
-- `scripts/compare_models.py --images <list or dir> --models a.onnx b.pt ... --device cpu` → P/R/F1/mAP50 per
-  model per class on a labelled YOLO val list (e.g. `C:\Users\ayman\roadsense-data\roadsense\val_in.txt`,
-  `val_bp.txt`), writes `backend/data/eval/compare.json`. Must be runnable later after training.
-- `scripts/evaluate.py --video <mp4> --model <path>` → raw detections vs unique tracked defects (≥3 frames), fps → `backend/data/eval/tracking_<name>.json`.
-- `scripts/make_demo_gps.py <video> --start lat,lon --end lat,lon` → synthetic GPS track JSON for demo videos.
-- `README.md`: what it is, features vs PS requirements, architecture, how to run, credits/licenses
-  (Ultralytics AGPL-3.0, Pothole Pilot GPL-3.0 weights, RDD2022 CC BY-SA 4.0, BharatPotHole CC BY 4.0,
-  Kaggle potholes CC0, OSM ODbL, Open-Meteo, Nagrik).
+`backend/tests/` covers the pipeline end to end (photo and video), dedup, risk, review/workflow, roads, crew and
+privacy, and dashcam GPS. Each test uses a temporary data folder and runs on the CPU:
+`python backend/tests/test_pipeline.py` (likewise for the other files).

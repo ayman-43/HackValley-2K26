@@ -89,7 +89,7 @@ Nagrik Roads turns any phone into a road-survey dashcam. You record a ride (or u
 
 Combined, deduplicated and remapped to 4 classes (`scripts/prepare_dataset.py`), the training set has **17,909 train / 3,653 val images**: 6,936 India, 5,067 BharatPotHole, 4,325 US and 1,581 Kaggle for training. Classes are 0 longitudinal_crack, 1 transverse_crack, 2 alligator_crack and 3 pothole. The split lists, per-class counts and a labelled sample are in [`dataset/`](dataset/README.md); the full 2.4 GB set is rebuilt from the source archives with `scripts/prepare_dataset.py`.
 
-**Model:** YOLO26n at 640 px, trained with the same recipe as [Pothole Pilot](reference/pothole-pilot/) (built at the Technology for Good 2026 hackathon, King's AI Club, Edmonton) **plus Indian data** (RDD India + BharatPotHole) → `backend/models/roadsense_y26n.pt` / `.onnx`.
+**Model:** we first trained YOLO26n on a laptop GPU (30 epochs, results below), starting from the training recipe of Pothole Pilot (Technology for Good 2026 hackathon, King's AI Club, Edmonton) **plus Indian data** (RDD India + BharatPotHole). The app now uses **YOLO26s trained on Kaggle** (148 epochs, val mAP50 **0.686**, BharatPotHole F1 0.68 vs 0.49 for YOLO26n) → `backend/models/roadsense_y26s.pt`. Full YOLO26s results: [`docs/results/RESULTS.md`](docs/results/RESULTS.md).
 
 ### Results
 
@@ -116,7 +116,7 @@ Baseline comparison on a CPU, using a random 200-image subsample per split, conf
 
 § Nagrik Roads numbers are from the full validation splits (Ultralytics val on GPU), not the 200-image CPU subsample used for the baselines, so the columns are indicative rather than identical protocols. Nagrik Roads is the only model that works on all four splits, including BharatPotHole (F1 0.46 vs about 0.01 for both baselines). ‡ in-domain for Pothole Pilot. † RDD YOLOv8s was trained on CRDDC2022, which includes RDD India and US training images, so these numbers may be optimistic. **Neither baseline works on BharatPotHole**, the Indian dashcam footage closest to what a Bengaluru phone sees. That gap is why we retrained with Indian data.
 
-Tracking (`scripts/evaluate.py`, Pothole Pilot ONNX, CPU): on the 15 s sample video (375 frames) the model makes **3,520 raw detections, which collapse to 94 unique potholes** at conf 0.1, or 2,986 raw detections → 84 unique at conf 0.25. It runs at about 6–7 fps on a CPU. That clip comes from the Kaggle dataset the model was trained on, so this result is in-domain. A Nagrik Roads-model tracking run on a recorded Bengaluru ride is still to be added.
+Tracking (`detector.track_video`, YOLO26s, CPU): on the 15 s sample road video the model makes 1,768 raw detections, which collapse to **49 unique potholes** (ByteTrack gave 39 and missed potholes it saw only now and then). On a 9 s phone video ridden on a motorbike over a badly damaged road, ByteTrack counted **1** pothole; `FrameLinker` counts **8 potholes + 2 cracks**, each checked by eye. Why we replaced ByteTrack: [`docs/REFERENCES.md`](docs/REFERENCES.md) [12].
 
 ## How to run
 
@@ -204,21 +204,22 @@ services (Open-Meteo, Overpass, Nagrik) skip themselves when offline.
 # 2. train YOLO26n (GPU), evaluate on all val + India only, export ONNX -> backend/models/roadsense_y26n.*
 .venv\Scripts\python.exe scripts/train.py --data <dataset dir>/data.yaml --epochs 60
 # 3. compare detectors per class / per dataset on CPU -> backend/data/eval/compare.json
-.venv\Scripts\python.exe scripts/compare_models.py --images <dataset>/val_in.txt <dataset>/val_bp.txt <dataset>/val_kg.txt <dataset>/val_us.txt --models backend/models/roadsense_y26n.onnx reference/pothole-pilot/ai_model/weights.onnx backend/models/rdd_yolov8s.pt --limit 200
+.venv\Scripts\python.exe scripts/compare_models.py --images <dataset>/val_in.txt <dataset>/val_bp.txt <dataset>/val_kg.txt <dataset>/val_us.txt --models backend/models/roadsense_y26s.pt backend/models/rdd_yolov8s.pt <baseline weights> --limit 200
 # 4. raw vs unique tracked defects on a video -> backend/data/eval/tracking_<model>.json
-.venv\Scripts\python.exe scripts/evaluate.py --video <clip.mp4> --model backend/models/roadsense_y26n.onnx
+.venv\Scripts\python.exe scripts/evaluate.py --video dataset/sample/sample_video.mp4 --model backend/models/roadsense_y26s.pt
 ```
 
 `compare_models.py` takes `.txt` image lists, image directories or single images. It finds each label by swapping `images` for `labels` in the path. It reports P/R/F1 at conf 0.25 and IoU 0.5, plus mAP50 and mAP50-95 from Ultralytics `ap_per_class`. It maps class names across models (D40 / "Potholes" / "pothole" → `pothole`). Pass `--limit N` to subsample for speed. `--device` defaults to `cpu`.
 
 ## Credits and licences
 
-- **Ultralytics YOLO** (detection, ByteTrack): AGPL-3.0. Nagrik Roads is therefore released under **AGPL-3.0**.
-- **[Pothole Pilot](reference/pothole-pilot/)**: GPL-3.0. We use its YOLO26n weights and training recipe as a reference and baseline. Credit to its authors.
+- **Ultralytics YOLO** (detection and training): AGPL-3.0. Nagrik Roads is therefore released under **AGPL-3.0**.
+- **Pothole Pilot** (GPL-3.0): its YOLO26n weights were a comparison baseline and its training recipe our starting point; its route planner inspired `crew.py` (our own code). None of its code or weights ship in Nagrik Roads. Credit to its authors.
+- **iWatchRoad**: the idea of colouring whole roads by condition (`roads.py`, our own code).
 - **RDD2022**: Arya et al., CC BY-SA 4.0. **BharatPotHole** (via Roboflow Universe): CC BY 4.0. **Kaggle Potholes YOLOv8 dataset**: CC0.
 - **RDD2022 YOLOv8s baseline weights**: [oracl4/RoadDamageDetection](https://github.com/oracl4/RoadDamageDetection).
 - **Supervision** (Roboflow): MIT. **Depth-Anything-V2-Small**: Apache-2.0. **Leaflet** / **Leaflet.heat**: BSD-2-Clause.
 - **Map data** © OpenStreetMap contributors, ODbL (Overpass API, Nominatim). Tiles follow the OSM tile usage policy.
 - **Weather**: [Open-Meteo](https://open-meteo.com/), free non-commercial API, CC BY 4.0 data.
 - **Civic data**: [Nagrik](https://nagrik.in.net/) public API (wards, officials, tenders). Used with attribution, responses are cached, and we have requested permission for continued use.
-- Research notes: [`docs/RESEARCH.md`](docs/RESEARCH.md). Build contract: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- Research papers and how each is used: [`docs/REFERENCES.md`](docs/REFERENCES.md). Similar projects we studied: [`docs/RESEARCH.md`](docs/RESEARCH.md). Architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

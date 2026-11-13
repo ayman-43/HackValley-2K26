@@ -10,6 +10,7 @@ needed to inspect it and rebuild it exactly:
 | `splits/val_in.txt`, `val_bp.txt`, `val_kg.txt`, `val_us.txt` | Per-source validation lists used for per-dataset evaluation |
 | `stats.json` | Image and label counts per split, source and class |
 | `sample/images`, `sample/labels` | 20 labelled validation images (5 per source) in YOLO format |
+| `sample/sample_video.mp4` | 15 s road video from the Kaggle "Potholes YOLOv8" dataset (CC0), used by the tests and `scripts/evaluate.py` |
 
 ## Sources
 

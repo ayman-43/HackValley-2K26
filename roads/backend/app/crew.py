@@ -62,8 +62,8 @@ def _point(v: Any, name: str) -> Optional[dict]:
         return None
     try:
         lat, lon = float(v["lat"]), float(v.get("lon", v.get("lng")))
-    except (TypeError, KeyError, ValueError):
-        raise HTTPException(400, f"{name} must be {{lat, lon}}")
+    except (TypeError, KeyError, ValueError) as e:
+        raise HTTPException(400, f"{name} must be {{lat, lon}}") from e
     if not (-90 <= lat <= 90 and -180 <= lon <= 180):
         raise HTTPException(400, f"{name} out of range")
     return {"lat": lat, "lon": lon, "name": v.get("name") if isinstance(v, dict) else None}

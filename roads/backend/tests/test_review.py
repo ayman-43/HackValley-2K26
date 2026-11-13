@@ -77,10 +77,11 @@ def test_queue_sorted_with_urls(env):
     client, media = env
     d = add_defect()
     (media / "frames" / "a.jpg").write_bytes(JPEG)
-    add_obs(d, confidence=0.9)
+    add_obs(d, confidence=0.5)
     add_obs(d, confidence=0.3, frame_path=str(media / "frames" / "a.jpg"), crop_path="frames/a.jpg")
+    add_obs(d, confidence=0.9)  # >= AUTO_SURE_CONF: auto-approved, never reaches the queue
     q = client.get("/api/review/queue?limit=10").json()
-    assert [round(x["confidence"], 1) for x in q] == [0.3, 0.9]
+    assert [round(x["confidence"], 1) for x in q] == [0.3, 0.5]  # lowest confidence first
     assert q[0]["frame_url"] == "/media/frames/a.jpg"
     assert q[0]["crop_url"] == "/media/frames/a.jpg"
     assert q[0]["defect_code"] == "PH-0001"
@@ -123,13 +124,16 @@ def test_auto_approve(env):
     d_few = add_defect(code="PH-0002", report_count=1)
     a = add_obs(d_many, confidence=0.7)
     b = add_obs(d_many, confidence=0.4)
-    c_ = add_obs(d_few, confidence=0.9)
+    c_ = add_obs(d_few, confidence=0.9)   # very confident on its own
+    e = add_obs(d_few, confidence=0.7)    # fairly confident, but the defect has only 1 report
     with db.connect() as conn:
-        assert review.auto_approve(conn) == 1
+        assert review.auto_approve(conn) == 2
+        assert review.auto_approve(conn) == 0  # idempotent
     assert get("observations", a)["review_status"] == "confirmed"
     assert get("observations", a)["reviewer"] == "auto"
     assert get("observations", b)["review_status"] == "pending"
-    assert get("observations", c_)["review_status"] == "pending"
+    assert get("observations", c_)["review_status"] == "confirmed"
+    assert get("observations", e)["review_status"] == "pending"
 
 
 def test_workflow_and_repair(env):

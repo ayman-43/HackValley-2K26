@@ -130,8 +130,8 @@ def review_observation(obs_id: int, body: dict = Body(...)) -> dict:
                 raise HTTPException(400, "corrected_bbox must be [x1,y1,x2,y2]")
             try:
                 cb = [float(v) for v in cb]
-            except (TypeError, ValueError):
-                raise HTTPException(400, "corrected_bbox must be numeric")
+            except (TypeError, ValueError) as e:
+                raise HTTPException(400, "corrected_bbox must be numeric") from e
     with db.connect() as c:
         r = c.execute("SELECT * FROM observations WHERE id=?", (obs_id,)).fetchone()
         if r is None:

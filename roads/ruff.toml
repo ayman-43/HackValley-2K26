@@ -1,0 +1,12 @@
+# Lint rules for Nagrik Roads:  .venv\Scripts\python.exe -m ruff check backend scripts
+line-length = 120
+target-version = "py312"
+extend-exclude = ["reference", "runs", ".venv"]
+
+[lint]
+# pyflakes (F), syntax errors (E9), likely bugs (B), pylint errors (PLE)
+select = ["E9", "F", "B", "PLE"]
+ignore = [
+    "B008",  # FastAPI declares request bodies and uploads as File()/Body() defaults on purpose
+    "B905",  # several zip() calls intentionally stop at the shorter sequence
+]

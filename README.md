@@ -250,6 +250,9 @@ To scan from a phone on the same Wi-Fi, run `set HOST=0.0.0.0` before `start.cmd
 | `/roads/login.html` | Sign in / create account |
 | `/roads/training.html` | Model training and accuracy |
 
+**Tests and checks** (from `roads/`): `.venv\Scripts\python.exe -m pytest backend/tests` runs 72 tests (71 pass,
+live-service checks skip when offline), and `.venv\Scripts\python.exe -m ruff check backend scripts` passes clean.
+
 On first start, demo **admin**, **officer** and **crew** accounts are created with random passwords, saved to
 `roads/backend/data/demo_accounts.txt` (never committed). The trained model `roads/backend/models/roadsense_y26s.pt`
 is included.

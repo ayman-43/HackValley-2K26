@@ -319,9 +319,9 @@ def _verify_google(credential: str) -> dict:
     try:
         info = id_token.verify_oauth2_token(credential, g_requests.Request(), GOOGLE_CLIENT_ID, clock_skew_in_seconds=10)
     except ValueError as e:
-        raise HTTPException(401, f"Google sign-in could not be verified ({e}).")
+        raise HTTPException(401, f"Google sign-in could not be verified ({e}).") from e
     except Exception as e:  # network problem fetching Google's keys
-        raise HTTPException(503, f"Could not reach Google to check the sign-in ({type(e).__name__}). Try again.")
+        raise HTTPException(503, f"Could not reach Google to check the sign-in ({type(e).__name__}). Try again.") from e
     if info.get("iss") not in ("accounts.google.com", "https://accounts.google.com"):
         raise HTTPException(401, "That sign-in did not come from Google.")
     if not info.get("email") or not info.get("email_verified"):
@@ -364,7 +364,7 @@ def supabase_login(body: SupabaseLogin, response: Response):
         r = httpx.get(f"{SUPABASE_URL}/auth/v1/user", timeout=15,
                       headers={"apikey": SUPABASE_KEY, "Authorization": f"Bearer {body.access_token}"})
     except httpx.HTTPError as e:
-        raise HTTPException(503, f"Could not reach Supabase to check the sign-in ({type(e).__name__}). Try again.")
+        raise HTTPException(503, f"Could not reach Supabase to check the sign-in ({type(e).__name__}). Try again.") from e
     if r.status_code != 200:
         raise HTTPException(401, "Supabase did not accept this sign-in. Please sign in again.")
     info = r.json()

@@ -9,12 +9,11 @@ import threading
 import traceback
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import db, detector, pipeline
@@ -460,7 +459,7 @@ def wards_geojson(city: str = "BLR"):
             WARDS_CACHE.mkdir(parents=True, exist_ok=True)
             p.write_text(json.dumps(data), encoding="utf-8")
         except Exception as e:
-            raise HTTPException(503, f"ward boundaries unavailable: {e}")
+            raise HTTPException(503, f"ward boundaries unavailable: {e}") from e
     return FileResponse(p, media_type="application/geo+json", headers={"Cache-Control": "public, max-age=86400"})
 
 
@@ -474,7 +473,7 @@ def _frontend_file(rel: str):
     try:
         p.relative_to(FRONTEND.resolve())
     except ValueError:
-        raise HTTPException(404)
+        raise HTTPException(404) from None  # path escapes the frontend folder
     if p.is_file():
         return FileResponse(p)
     raise HTTPException(404, f"{rel} not found (frontend not built yet?)")

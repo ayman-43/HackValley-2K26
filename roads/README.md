@@ -185,6 +185,17 @@ defects appear on the dashboard map within seconds (same tracking and de-duplica
 
 Use `--server http://<laptop-ip>:8000` when the bridge runs on a different machine from the server.
 
+## Tests and code checks
+
+```bash
+.venv\Scripts\pip install -r requirements-dev.txt        # pytest + ruff, development only
+.venv\Scripts\python.exe -m pytest backend/tests          # 72 tests: pipeline, tracking, dedup, risk, review, roads, dashcam GPS, privacy
+.venv\Scripts\python.exe -m ruff check backend scripts    # lint rules in ruff.toml
+```
+
+The tests run on the CPU with a temporary database, so they never touch real data. Tests that call live
+services (Open-Meteo, Overpass, Nagrik) skip themselves when offline.
+
 ## Training and evaluation
 
 ```bash

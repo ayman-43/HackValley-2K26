@@ -356,8 +356,11 @@ def process_inspection(inspection_id: int, progress_cb=None) -> dict:
     with db.connect() as conn:
         for i, (det, frame, lat, lon) in enumerate(items):
             tag = f"t{det['track_id']}" if det.get("track_id") is not None else f"d{i}"
+            # Two tracks of one video may merge into one defect only when a GPS track places them: without
+            # one, every pothole in the clip shares the same point and similar-looking asphalt would merge
+            # different potholes (the tracker already counts each pothole in the clip once).
             summaries.append(_record(conn, insp, det, frame, lat, lon, media_dir, tag, seen,
-                                     allow_same_inspection_merge=insp["source_type"] == "video"))
+                                     allow_same_inspection_merge=insp["source_type"] == "video" and bool(track)))
         if dedup is not None:  # trend before risk, so risk can use it
             for did in seen:
                 try:

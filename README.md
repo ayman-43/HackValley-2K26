@@ -51,7 +51,7 @@ really happened.
 |---|---|
 | 📷 **See** | Any phone or dashcam becomes a road scanner: live from a moving vehicle, from a recorded video, or a single photo |
 | 🔍 **Detect** | A YOLO26s model trained on Indian roads finds potholes and three kinds of crack |
-| 1️⃣ **Count once** | Tracking follows each defect across frames: **~1,230 per-frame detections become 39 unique potholes** |
+| 1️⃣ **Count once** | Tracking follows each defect across frames: **1,768 per-frame detections become 49 unique potholes** |
 | 📍 **Pin and de-duplicate** | GPS puts every defect on Bengaluru's 369-ward map; a repeat report updates the existing pothole instead of creating a new one |
 | ⚠️ **Rank by danger** | An explainable 0–100 score: severity, road type, speed limit, nearby schools and hospitals, repeat reports, rain forecast |
 | 🏛️ **Send to the right person** | Each defect is linked to its ward, the responsible officer and recent road tenders |
@@ -147,7 +147,7 @@ really happened.
 | **Detector** | YOLO26s, trained on a Kaggle Tesla T4 GPU for 148 epochs |
 | **Accuracy** | **mAP50 0.686** on 3,653 road images it never saw (precision 0.72, recall 0.63) |
 | **Indian dashcam potholes** | **F1 0.68**, up from **0.03** with an off-the-shelf RDD2022 model |
-| **Counting once** | ~1,230 per-frame detections in a 15 s video become **39 unique potholes** |
+| **Counting once** | 1,768 per-frame detections in a 15 s video become **49 unique potholes**; a 9 s bike ride over ~10 potholes counts 8 potholes + 2 cracks |
 | **Speed** | ~135 ms per frame on a laptop CPU, fast enough for live scanning |
 
 **How it improved** (F1 on Indian validation images, higher is better):

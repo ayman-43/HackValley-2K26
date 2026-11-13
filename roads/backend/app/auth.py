@@ -54,6 +54,7 @@ GOOGLE_CLIENT_ID = os.environ.get("ROADSENSE_GOOGLE_CLIENT_ID", "").strip()
 SUPABASE_URL = os.environ.get("ROADSENSE_SUPABASE_URL", "").strip().rstrip("/")
 SUPABASE_KEY = os.environ.get("ROADSENSE_SUPABASE_KEY", "").strip()  # publishable (public) key only
 ADMIN_EMAILS = {e.strip().lower() for e in os.environ.get("ROADSENSE_ADMIN_EMAILS", "").split(",") if e.strip()}
+TRUST_PROXY = os.environ.get("ROADSENSE_TRUST_PROXY", "").strip().lower() in ("1", "true", "yes")
 
 STORE = None          # set by init()
 STORE_PROBLEM = None  # why MongoDB is not used although configured
@@ -204,10 +205,11 @@ def _start_session(response: Response, user: dict) -> None:
 
 def client_ip(request: Request) -> str:
     """The visitor's address. Behind the local Nagrik site (Node on :5501) every request comes from 127.0.0.1,
-    so the X-Forwarded-For it adds is used, but only when the request itself comes from this machine."""
+    so the X-Forwarded-For it adds is used, but only when the request itself comes from this machine.
+    Hosted behind other proxies (Vercel -> Hugging Face), set ROADSENSE_TRUST_PROXY=1 to always use it."""
     ip = request.client.host if request.client else "?"
     fwd = request.headers.get("x-forwarded-for", "")
-    if fwd and ip in ("127.0.0.1", "::1", "localhost"):
+    if fwd and (ip in ("127.0.0.1", "::1", "localhost") or TRUST_PROXY):
         ip = fwd.split(",")[0].strip().removeprefix("::ffff:") or ip
     return ip
 

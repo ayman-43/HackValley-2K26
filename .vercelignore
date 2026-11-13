@@ -1,0 +1,12 @@
+# Only the Nagrik site, the Roads frontend and the build/function files are needed on Vercel.
+.git
+public
+node_modules
+roads/*
+!roads/frontend
+roads/frontend/themes
+**/.venv
+**/__pycache__
+**/*.pt
+**/*.onnx
+**/*.log

@@ -2,7 +2,7 @@
   "name": "Nagrik Roads Bengaluru",
   "short_name": "Nagrik Roads",
   "description": "Report potholes and scan roads. Damage is pinned on Bengaluru's ward map and routed to the responsible officer.",
-  "start_url": "/roads/app",
+  "start_url": "/roads/?source=app",
   "scope": "/roads/",
   "display": "standalone",
   "background_color": "#f1f3f5",
@@ -10,10 +10,10 @@
   "icons": [
     { "src": "/roads/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "/roads/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/roads/assets/logo.png", "sizes": "256x256", "type": "image/png" }
+    { "src": "/roads/assets/mark.png", "sizes": "256x256", "type": "image/png" }
   ],
   "shortcuts": [
-    { "name": "Report a pothole", "url": "/roads/app" },
+    { "name": "Report a pothole", "url": "/roads/#near" },
     { "name": "Scan while driving", "url": "/roads/live.html" }
   ]
 }

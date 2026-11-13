@@ -1,0 +1,33 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "node deploy/vercel-build.mjs",
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "functions": {
+    "api/nagrik.mjs": { "includeFiles": "nagrik/**", "maxDuration": 30 }
+  },
+  "redirects": [
+    { "source": "/roads", "destination": "/roads/", "permanent": false }
+  ],
+  "rewrites": [
+
+    { "source": "/api/v1/:path*", "destination": "/api/nagrik?__path=/api/v1/:path*" },
+    { "source": "/api/health", "destination": "/api/nagrik?__path=/api/health" },
+    { "source": "/__manifest", "destination": "/api/nagrik?__path=/__manifest" },
+    { "source": "/cdn-cgi/:path*", "destination": "/api/nagrik?__path=/cdn-cgi/:path*" },
+    { "source": "/:path(.*[.]data)", "destination": "/api/nagrik?__path=/:path" },
+
+    { "source": "/api/:path*", "destination": "https://ayman43-nagrik-roads-backend.hf.space/api/:path*" },
+    { "source": "/media/:path*", "destination": "https://ayman43-nagrik-roads-backend.hf.space/media/:path*" },
+    { "source": "/eval/:path*", "destination": "https://ayman43-nagrik-roads-backend.hf.space/eval/:path*" },
+
+    { "source": "/fonts/:path*", "destination": "/assets/:path*" },
+    { "source": "/landmarks/:path*", "destination": "/assets/landmarks/:path*" },
+    { "source": "/:file([^/]+[.][a-z0-9]+)", "destination": "/assets/:file" }
+  ],
+  "headers": [
+    { "source": "/roads/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }, { "key": "Service-Worker-Allowed", "value": "/roads/" }] }
+  ]
+}

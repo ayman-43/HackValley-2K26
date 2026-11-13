@@ -539,7 +539,9 @@
       btn.disabled = true;
       btn.textContent = 'Uploading…';
       try {
-        const r = await api('/api/inspections', { method: 'POST', body: fd });
+        // on the Vercel site, files over 12 MB go straight to the backend (Vercel's proxy rejects big uploads)
+        const direct = f.size > 12e6 && location.hostname.endsWith('.vercel.app') ? 'https://ayman43-nagrik-roads-backend.hf.space' : '';
+        const r = await api(direct + '/api/inspections', { method: 'POST', body: fd });
         lastJob = { job_id: r.job_id, inspection_id: r.inspection_id, file: f.name, status: 'queued', progress: 0 };
         if (alive()) watchJob(root, alive);
       } catch (err) {

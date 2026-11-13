@@ -309,7 +309,10 @@
     $("result").classList.add("hidden");
     setStatus("Uploading " + label + "…");
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", API + "/inspections");
+    // on the Vercel site, files over 12 MB go straight to the backend (Vercel's proxy rejects big uploads)
+    const file = fd.get("file");
+    const direct = file && file.size > 12e6 && location.hostname.endsWith(".vercel.app") ? "https://ayman43-nagrik-roads-backend.hf.space" : "";
+    xhr.open("POST", direct + API + "/inspections");
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
         bar.value = e.loaded / e.total;

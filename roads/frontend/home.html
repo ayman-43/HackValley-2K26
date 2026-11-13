@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nagrik Roads Bengaluru</title>
   <meta name="description" content="Nagrik Roads finds potholes and cracks on Bengaluru roads from a phone camera, counts each one once, ranks them by risk and tracks them until they are fixed.">
-  <link rel="icon" href="assets/logo.png" type="image/png">
+  <meta name="theme-color" content="#f1f3f5">
+  <link rel="icon" href="assets/favicon-64.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" crossorigin="">
   <link rel="stylesheet" href="styles.css">
   <style>
@@ -114,6 +117,53 @@
       .ledger > * { grid-template-columns: 1.2fr 1fr; }
       .ledger .v:last-child { display: none; }
     }
+    /* near you + report (the phone app, now part of the website) */
+    .near-sec { padding-top: 56px; padding-bottom: 8px; }
+    .ward-line { color: var(--ink-2); margin: 0 0 4px; min-height: 1.5em; }
+    .ward-line b { color: var(--ink); font-weight: 600; }
+    .report-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .btn-report { display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; background: var(--ink); color: #fff; border: 1px solid var(--ink);
+      border-radius: var(--r-sm); font: 600 1rem var(--font-ui); cursor: pointer; }
+    .btn-report:hover { background: #343c46; }
+    .btn-report svg { color: #f0b46c; }
+    .near-stats { display: flex; gap: 26px; margin-top: 22px; padding-top: 14px; border-top: 1px dashed var(--line-strong); max-width: 46ch; }
+    .near-stats small { display: block; font: 600 .62rem/1.3 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+    .near-stats b { font: 600 1.15rem/1.3 var(--font-mono); color: var(--data); font-variant-numeric: tabular-nums; }
+    .near-stats .hot b { color: var(--risk-high); }
+    .status-box { background: #fff; border: 1px solid var(--line-strong); border-radius: var(--r-md); padding: 14px 16px; margin-top: 18px; max-width: 46ch; }
+    .status-box h3 { margin: 0 0 6px; }
+    .status-box .big { font: 650 1.9rem/1.1 var(--font-ui); letter-spacing: -.05em; margin: 2px 0 6px; }
+    .status-box .ledger { margin-top: 10px; }
+    .near-box { padding: 0; overflow: hidden; }
+    #near-map { height: 280px; border-bottom: 1px solid var(--line-strong); }
+    .near-box .ledger { margin: 18px; }
+    .near-box .ledger > * { grid-template-columns: 1.5fr .8fr 1fr; }
+    .near-box .ledger .v:last-child { display: block; }
+
+    /* phone tab bar: the website works as the installed app */
+    .tabbar { display: none; }
+    .install-chip { font: inherit; cursor: pointer; }
+    .acct-pop { position: fixed; right: 12px; bottom: calc(80px + env(safe-area-inset-bottom)); z-index: 1100; min-width: 230px; background: #fff; border: 1px solid var(--line-strong);
+      border-radius: var(--r-md); box-shadow: 0 10px 30px -18px rgba(32, 38, 45, .45); padding: 14px; font-size: .9rem; }
+    .acct-pop b { display: block; }
+    .acct-pop .muted { display: block; font-size: .8rem; margin-bottom: 4px; }
+    .acct-pop .btn { width: 100%; margin-top: 8px; justify-content: center; }
+    @media (max-width: 720px) {
+      body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+      .tabbar { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000; background: rgba(251, 252, 252, .96);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line-strong); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); }
+      .tabbar nav { display: flex; justify-content: space-around; align-items: end; }
+      .tabbar a, .tabbar button { all: unset; box-sizing: border-box; cursor: pointer; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+        padding: 4px 0; font: 600 .68rem var(--font-ui); color: var(--ink-3); text-align: center; }
+      .tabbar [aria-current="page"] { color: var(--ink); }
+      .tabbar a:focus-visible, .tabbar button:focus-visible { box-shadow: var(--focus); border-radius: 8px; }
+      .tabbar .fab { color: var(--ink); }
+      .tabbar .fab .ring { width: 52px; height: 52px; margin-top: -22px; border-radius: 14px; display: grid; place-items: center; background: var(--ink); color: #f0b46c;
+        border: 4px solid var(--bg); box-shadow: 0 8px 20px -8px rgba(32, 38, 45, .6); }
+      .site-header .h-links .go { display: none; }
+      .near-sec { padding-top: 36px; }
+      .near-stats { gap: 18px; }
+    }
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -122,13 +172,13 @@
   <header class="site-header">
     <div class="header-inner">
       <a class="brand" href="/roads/" aria-label="Nagrik Roads home">
-        <img src="assets/logo.png" alt="" width="36" height="36">
         <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Bengaluru road condition desk</span></span>
       </a>
       <nav class="h-links" aria-label="Main">
         <a href="/" class="hide-s">← Nagrik</a>
         <a href="#how" class="hide-s">How it works</a>
-        <a href="/roads/app" class="chip">Phone app</a>
+        <button type="button" class="chip install-chip" id="install" hidden>Install app</button>
+        <a href="#near" class="chip hide-s" data-need="public citizen crew">Report a pothole</a>
         <span id="acct"><a href="/roads/login.html" class="chip">Sign in</a></span>
         <a href="/roads/dashboard#/map" class="go">Open dashboard ↗</a>
       </nav>
@@ -143,14 +193,14 @@
         <p class="tagline">Find the damage. <span>Fix what's most dangerous.</span></p>
 
         <div class="cards">
-          <article class="card">
+          <article class="card" data-need="public citizen crew">
             <a class="card-top" href="/roads/dashboard#/upload">
               <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="13" width="38" height="27" rx="3"/><path d="M16 13l3-5h10l3 5"/><circle cx="24" cy="26.5" r="8"/><circle cx="24" cy="26.5" r="3.5"/><path d="M36 19h3"/></svg>
               <div><h2>Scan a road</h2><div class="sub">Phone camera, dashcam video or a photo</div></div>
               <span class="arrow" aria-hidden="true">↗</span>
               <div class="card-stat"><div><small>Scans so far</small><b id="s-insp">–</b></div><div><small>Detections → defects</small><b id="s-tally">–</b></div></div>
             </a>
-            <div class="card-links"><a href="/roads/live.html">Live camera</a><a href="/roads/dashboard#/upload">Dashcam video</a><a href="/roads/app">Phone app</a></div>
+            <div class="card-links"><a href="#near" class="js-photo">Photo report</a><a href="/roads/live.html">Live camera</a><a href="/roads/dashboard#/upload">Dashcam video</a></div>
           </article>
 
           <article class="card">
@@ -170,7 +220,7 @@
               <span class="arrow" aria-hidden="true">↗</span>
               <div class="card-stat"><div><small>Awaiting review</small><b id="s-review">–</b></div><div><small>Repaired</small><b id="s-fixed">–</b></div></div>
             </a>
-            <div class="card-links"><a href="/roads/dashboard#/review" data-need="officer admin">Review</a><a href="/roads/route.html" data-need="crew officer admin">Repair route</a><a href="/roads/dashboard#/reports" data-need="officer admin">Reports</a><a href="/roads/login.html?mode=signup" data-need="public citizen" id="fix-cta">Join as an official</a></div>
+            <div class="card-links"><a href="/roads/dashboard#/review" data-need="officer admin">Review</a><a href="/roads/route.html" data-need="crew officer admin">Repair route</a><a href="/roads/dashboard#/reports" data-need="officer admin">Reports</a><a href="/roads/login.html?next=%2Froads%2Fdashboard%23%2Freview" data-need="public" id="fix-cta">Official sign in</a><a href="/roads/dashboard#/defects" data-need="citizen">Track repairs</a></div>
           </article>
         </div>
       </div>
@@ -179,12 +229,39 @@
     <section class="strip" aria-label="Detection model">
       <div class="wrap">
         <span class="lbl">The detector</span>
-        <span class="fact"><b>YOLO26n</b> object detector</span>
-        <span class="fact">trained on <b>21,562</b> road images</span>
+        <span class="fact"><b>YOLO26s</b> trained on a Kaggle GPU for <b>148</b> epochs</span>
+        <span class="fact"><b>0.686</b> mAP50 on 3,653 unseen road images</span>
         <span class="fact"><b>4</b> damage types: potholes and three kinds of crack</span>
-        <a href="/roads/dashboard#/metrics">Model accuracy ↗</a>
+        <a href="/roads/training.html">How it was trained ↗</a>
       </div>
     </section>
+
+    <div class="wrap near-sec" id="near" data-need="public citizen crew">
+      <section class="sec" style="padding:0">
+        <div>
+          <p class="kicker">Near you</p>
+          <h2>Spotted a pothole?</h2>
+          <p class="ward-line" id="ward">Finding your ward…</p>
+          <p>Take a photo. Your location is added for you, the AI checks it, and the ward officer sees it on the map.</p>
+          <div class="report-row">
+            <button type="button" class="btn-report js-photo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Report a pothole</button>
+            <button type="button" class="btn-out" id="act-video" style="cursor:pointer;font:inherit">Upload a video ↗</button>
+          </div>
+          <div class="near-stats" aria-live="polite">
+            <div><small>Within 2 km</small><b id="st-near">–</b></div>
+            <div class="hot"><small>High risk nearby</small><b id="st-hot">–</b></div>
+            <div><small>Repaired citywide</small><b id="st-fixed">–</b></div>
+          </div>
+          <div class="status-box" id="status" aria-live="polite" hidden></div>
+          <input type="file" id="f-photo" accept="image/*" capture="environment" hidden>
+          <input type="file" id="f-video" accept="video/*" hidden>
+        </div>
+        <div class="box near-box">
+          <div id="near-map" role="region" aria-label="Map of nearby road defects"></div>
+          <div class="ledger" id="near-list"><span class="empty">Finding your location…</span></div>
+        </div>
+      </section>
+    </div>
 
     <div class="wrap" id="how">
       <section class="sec">
@@ -192,7 +269,7 @@
           <p class="kicker">01 / Detect</p>
           <h2>One pothole, counted once.</h2>
           <p>A video sees the same pothole in dozens of frames. Nagrik Roads tracks each one across frames and pins it once, at the GPS point where it was seen. Drive the same road again and it updates the old record instead of adding a new one.</p>
-          <a class="btn-out" href="/roads/dashboard#/upload">Scan a road ↗</a>
+          <a class="btn-out" href="/roads/dashboard#/upload" data-need="public citizen crew">Scan a road ↗</a>
         </div>
         <div class="box">
           <div class="ledger" id="ledger-tally"><span class="empty">Loading…</span></div>
@@ -245,7 +322,7 @@
         <div>
           <h3>Sections</h3>
           <ul>
-            <li><a href="/roads/dashboard#/upload">Scan a road</a></li>
+            <li data-need="public citizen crew"><a href="/roads/dashboard#/upload">Scan a road</a></li>
             <li><a href="/roads/dashboard#/map">Map</a></li>
             <li><a href="/roads/dashboard#/defects">Defects</a></li>
             <li data-need="officer admin"><a href="/roads/dashboard#/review">Review</a></li>
@@ -259,7 +336,7 @@
             <li><a href="/roads/dashboard#/metrics">Model accuracy</a></li>
             <li><a href="/roads/training.html">Model training</a></li>
             <li><a href="/roads/roads.html">Road health by street</a></li>
-            <li><a href="/roads/app">Install the phone app</a></li>
+            <li data-need="public citizen crew"><a href="/roads/app">Install the phone app</a></li>
           </ul>
         </div>
       </div>
@@ -270,8 +347,167 @@
     </div>
   </footer>
 
+  <div class="tabbar">
+    <nav aria-label="App">
+      <a href="#main" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+      <a href="/roads/dashboard#/map"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Map</a>
+      <button type="button" class="fab js-photo" data-need="public citizen crew"><span class="ring" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>Report</button>
+      <a href="/roads/dashboard#/review" data-need="officer admin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Review</a>
+      <a href="/roads/live.html" data-need="public citizen crew"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>Scan</a>
+      <a href="/roads/dashboard#/defects" data-need="officer admin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Defects</a>
+      <button type="button" id="tab-acct"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Account</button>
+    </nav>
+  </div>
+  <div class="acct-pop" id="acct-pop" hidden></div>
+
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin=""></script>
   <script src="rsmap.js"></script>
+  <script>
+  /* The phone app, built into the website: report a photo or video, see what is near you, install. */
+  (function () {
+    'use strict';
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const NAMES = { pothole: 'Pothole', alligator_crack: 'Alligator crack', transverse_crack: 'Transverse crack', longitudinal_crack: 'Longitudinal crack' };
+    const STAGE = { reported: 'Reported', verified: 'Verified', scheduled: 'Scheduled', repaired: 'Repaired', closed: 'Closed', rejected: 'Rejected' };
+    let here = null, map = null, meMarker = null, me = null;
+
+    // install as an app (Android/Chrome/Edge); iPhone: Share -> Add to Home Screen
+    let deferred = null;
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; $('install').hidden = false; });
+    $('install').onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $('install').hidden = true; };
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/roads/sw.js').catch(() => {});
+
+    // account sheet (Account tab)
+    const signInUrl = '/roads/login.html?next=' + encodeURIComponent('/roads/');
+    function renderAccount() {
+      $('acct-pop').innerHTML = me
+        ? `<b>${esc(me.name)}</b><span class="muted">${esc(me.role_label || me.role)}${me.email ? ' · ' + esc(me.email) : ''}</span>
+           <a class="btn" href="/roads/dashboard#/map">Open dashboard</a><button type="button" class="btn" id="pop-signout">Sign out</button>`
+        : `<b>You're not signed in</b><span class="muted">You can report without an account. Sign in to keep your name on your reports.</span>
+           <a class="btn btn-primary" href="${signInUrl}">Sign in</a><a class="btn" href="/roads/login.html?mode=signup">Create account</a>`;
+      const so = $('pop-signout');
+      if (so) so.onclick = () => fetch('/api/auth/logout', { method: 'POST' }).finally(() => location.reload());
+    }
+    $('tab-acct').onclick = (e) => { e.stopPropagation(); $('acct-pop').hidden = !$('acct-pop').hidden; };
+    document.addEventListener('click', (e) => { if (!e.target.closest('#acct-pop, #tab-acct')) $('acct-pop').hidden = true; });
+    fetch('/api/auth/me', { cache: 'no-store' }).then((r) => r.json()).then((d) => { me = d.user || null; renderAccount(); }).catch(renderAccount);
+
+    function locate() {
+      return new Promise((res) => {
+        if (!navigator.geolocation) return res(null);
+        navigator.geolocation.getCurrentPosition((p) => res(p.coords), () => res(null), { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+      });
+    }
+
+    // report: upload -> job progress -> result
+    const status = $('status');
+    function show(html) { status.innerHTML = html; status.hidden = false; status.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    async function send(file, kind) {
+      show(`<h3>${kind === 'photo' ? 'Sending your photo' : 'Uploading your video'}…</h3><p class="muted small">Getting your location.</p>`);
+      const pos = kind === 'photo' ? (here || await locate()) : null;
+      const fd = new FormData();
+      fd.append('file', file, file.name || (kind === 'photo' ? 'photo.jpg' : 'ride.mp4'));
+      if (pos) { fd.append('lat', pos.latitude); fd.append('lon', pos.longitude); }
+      fd.append('notes', kind === 'photo' ? 'citizen report from the Nagrik Roads app' : 'ride video from the Nagrik Roads app');
+      const xhr = new XMLHttpRequest();
+      // on the Vercel site, files over 12 MB go straight to the backend (Vercel's proxy rejects big uploads)
+      const direct = file.size > 12e6 && location.hostname.endsWith('.vercel.app') ? 'https://ayman43-nagrik-roads-backend.hf.space' : '';
+      xhr.open('POST', direct + '/api/inspections');
+      xhr.upload.onprogress = (e) => {
+        if (!e.lengthComputable) return;
+        const pct = Math.round(100 * e.loaded / e.total);
+        show(`<h3>Uploading… ${pct}%</h3><div class="progress"><span style="width:${pct}%"></span></div>`);
+      };
+      xhr.onerror = () => show('<h3>Upload failed</h3><p class="muted">No connection to Nagrik Roads. Check your internet and try again.</p>');
+      xhr.onload = () => {
+        let j = null; try { j = JSON.parse(xhr.responseText); } catch (e) { /* */ }
+        if (xhr.status >= 300 || !j) { show(`<h3>Upload failed</h3><p class="muted">${esc((j && j.detail) || 'The server rejected the file.')}</p>`); return; }
+        poll(j.job_id, !!pos);
+      };
+      xhr.send(fd);
+    }
+    async function poll(jobId, located) {
+      for (;;) {
+        let j;
+        try { j = await (await fetch('/api/jobs/' + encodeURIComponent(jobId), { cache: 'no-store' })).json(); } catch (e) { await new Promise((r) => setTimeout(r, 2000)); continue; }
+        if (j.status === 'done' && j.result) return done(j.result, located);
+        if (j.status === 'failed' || j.status === 'error') { show(`<h3>Could not check this one</h3><p class="muted">${esc(j.error || 'Processing failed.')}</p>`); return; }
+        const pct = Math.round(100 * (j.progress || 0));
+        show(`<h3>Looking for damage… ${pct}%</h3><div class="progress"><span style="width:${pct}%"></span></div><p class="muted small" style="margin-top:8px">Videos take about a minute and a half per 15 seconds of footage.</p>`);
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+    }
+    function done(r, located) {
+      const n = r.unique_defects || 0;
+      const rows = (r.defects || []).slice(0, 4).map((d) => `<a href="/roads/dashboard#/defect/${esc(d.defect_id)}"><span class="name">${esc(d.code)}<small>${esc(NAMES[d.damage_class] || d.damage_class)}</small></span>
+        <span class="v"><b>${d.new ? 'New' : 'Known'}</b><small>record</small></span><span class="v"><small>${d.new ? 'added to the map' : 'sighting added'}</small></span></a>`).join('');
+      show(n
+        ? `<h3>Thank you</h3><div class="big">${n} defect${n > 1 ? 's' : ''} found</div>
+           <p class="muted small">${r.new_defects || 0} new, ${n - (r.new_defects || 0)} already known${located ? ', pinned at your location.' : '. No location was shared, so it is not on the map.'}</p>
+           <div class="ledger">${rows}</div>`
+        : `<h3>No damage found</h3><p class="muted small">Nagrik Roads did not see a pothole or crack in this ${r.source_type === 'video' ? 'video' : 'photo'}. Try a closer, clearer shot of the damage.</p>`);
+      loadNear();
+    }
+    document.querySelectorAll('.js-photo').forEach((el) => el.addEventListener('click', (e) => { e.preventDefault(); $('f-photo').click(); }));
+    $('act-video').onclick = () => $('f-video').click();
+    $('f-photo').onchange = (e) => { const f = e.target.files[0]; if (f) send(f, 'photo'); e.target.value = ''; };
+    $('f-video').onchange = (e) => { const f = e.target.files[0]; if (f) send(f, 'video'); e.target.value = ''; };
+
+    // near you: ward, stats, map and the closest open defects
+    const km = (a, b) => {
+      const dLat = (b[1] - a[1]) * Math.PI / 180, dLon = (b[0] - a[0]) * Math.PI / 180;
+      const x = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * Math.PI / 180) * Math.cos(b[1] * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return 2 * 6371 * Math.asin(Math.sqrt(x));
+    };
+    const fmtDist = (k) => (k < 1 ? Math.round(k * 1000) + ' m' : k.toFixed(1) + ' km');
+    async function loadNear() {
+      if ($('near').hidden) return;
+      let all = [];
+      try { all = await (await fetch('/api/defects', { cache: 'no-store' })).json(); all = Array.isArray(all) ? all : (all.items || all.defects || []); } catch (e) { /* offline */ }
+      const wf = (d) => (d.workflow || (d.status === 'repaired' ? 'repaired' : 'reported'));
+      const list = all.filter((d) => d.lat != null && d.lon != null && !['repaired', 'closed', 'rejected'].includes(wf(d)));
+      const origin = here ? [here.longitude, here.latitude] : null;
+      const ranked = list.map((d) => ({ d, k: km(origin || RSMap.BLR, [d.lon, d.lat]) })).sort((a, b) => a.k - b.k);
+      const within = ranked.filter((x) => x.k <= 2);
+      $('st-near').textContent = origin ? within.length : '–';
+      $('st-hot').textContent = origin ? within.filter((x) => ['High', 'Critical'].includes(x.d.risk_label)).length : '–';
+      $('st-fixed').textContent = all.filter((d) => ['repaired', 'closed'].includes(wf(d))).length;
+      if (origin) {
+        const w = RSMap.wardAt(await RSMap.loadWards(), origin[0], origin[1]);
+        $('ward').innerHTML = w ? `You're in <b>Ward ${esc(w.properties.ward_number)} · ${esc(w.properties.name)}</b>, ${esc(RSMap.corpName(w.properties.corporation))}.`
+          : "You're outside the Bengaluru wards Nagrik maps. Showing the closest defects in the city.";
+      } else {
+        $('ward').textContent = 'Allow location to see your ward and the potholes around you.';
+      }
+      if (!map) {
+        map = RSMap.create('near-map', { zoom: 11, cooperative: true });
+        await RSMap.ready(map);
+        await RSMap.addWards(map, { fillOpacity: 0.14 });
+        map.addSource('d', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        map.addLayer({ id: 'd', type: 'circle', source: 'd', paint: {
+          'circle-color': ['match', ['get', 'risk'], ...Object.entries(RSMap.RISK).flat(), RSMap.RISK.Low],
+          'circle-radius': 7, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } });
+      }
+      map.getSource('d').setData({ type: 'FeatureCollection', features: list.map((d) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [d.lon, d.lat] }, properties: { risk: d.risk_label || 'Low' } })) });
+      if (origin) {
+        if (!meMarker) { const el = document.createElement('div'); el.className = 'me-dot'; meMarker = new maplibregl.Marker({ element: el }); }
+        meMarker.setLngLat(origin).addTo(map);
+      }
+      const near = ranked.slice(0, 5);
+      if (near.length) {
+        const b = new maplibregl.LngLatBounds(); near.forEach(({ d }) => b.extend([d.lon, d.lat])); if (origin) b.extend(origin);
+        map.fitBounds(b, { padding: 40, maxZoom: 15, duration: 0 });
+      } else if (origin) map.jumpTo({ center: origin, zoom: 14 });
+      $('near-list').innerHTML = near.length ? near.map(({ d, k }) => `<a href="/roads/dashboard#/defect/${esc(d.id)}">
+          <span class="name">${esc(d.code)}<small>${esc(NAMES[d.damage_class] || d.damage_class)}${d.road_name || d.ward_name ? ' · ' + esc(d.road_name || d.ward_name) : ''}</small></span>
+          <span class="v"><b>${origin ? fmtDist(k) : '–'}</b><small>${esc(STAGE[wf(d)] || wf(d))}</small></span>
+          <span class="v rk-${esc(d.risk_label)}"><b>${esc(d.risk_label || 'Low')}</b><small>risk</small></span></a>`).join('')
+        : '<span class="empty">No open potholes recorded nearby.</span>';
+    }
+    locate().then((c) => { here = c; loadNear(); });
+  })();
+  </script>
   <script>
   (function () {
     'use strict';
@@ -298,7 +534,6 @@
         $('acct').innerHTML = '<a href="/roads/login.html" class="chip">Sign in</a> <a href="/roads/login.html?mode=signup" class="chip hide-s">Create account</a>';
         return;
       }
-      if (u.requested_role) $('fix-cta').textContent = 'Official request pending';
       $('acct').innerHTML = `<a href="/roads/dashboard#/map" class="chip" title="${esc(u.role_label)}">${esc(u.name.split(' ')[0])} · ${esc(u.role_label)}</a>
         <button type="button" class="chip" id="signout" style="font:inherit;cursor:pointer">Sign out</button>`;
       $('signout').addEventListener('click', () => fetch('/api/auth/logout', { method: 'POST' }).finally(() => location.reload()));

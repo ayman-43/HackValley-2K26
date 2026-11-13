@@ -499,7 +499,8 @@ function proxyToRoads(req, res) {
 // adds the "Roads" entry points to Nagrik's own pages (see nagrik-roads-link.js)
 const ROADS_LINK_TAG = '<script src="/nagrik-roads-link.js" defer></script>';
 
-const server = createServer(async (req, res) => {
+// exported so Vercel can run the same code as a function (api/nagrik.mjs)
+export async function handle(req, res) {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 if (isRoadsPath(url.pathname)) return proxyToRoads(req, res);
@@ -615,11 +616,14 @@ if (isRoadsPath(url.pathname)) return proxyToRoads(req, res);
     console.error(error);
     json(res, 500, { error: { code: 'INTERNAL_ERROR', message: 'The local data service failed to complete the request.' } });
   }
-});
+}
 
+if (!process.env.VERCEL) {
+const server = createServer(handle);
 // last line of defence during a live demo: log unexpected errors instead of exiting
 process.on('uncaughtException', (err) => console.error('[nagrik] unexpected error (server keeps running):', err?.message || err));
 
 // HOST=0.0.0.0 lets phones on the same Wi-Fi open the app (needed for live scanning from a phone)
 const host = process.env.HOST || '127.0.0.1';
 server.listen(port, host, () => console.log(`Nagrik (with Nagrik Roads at /roads/) listening at http://${host === '0.0.0.0' ? 'localhost' : host}:${port}`));
+}

@@ -1,0 +1,1 @@
+const s=/^[a-z]{2,3}$/;function a(e){const t=e?.split("-")[0]?.toLowerCase();return t&&s.test(t)?t:null}function i(e){const t=e.split("/").filter(Boolean)[0]?.toLowerCase();return t&&s.test(t)?t:null}function c(e,t,l){const o=i(e),r=o?e.replace(new RegExp(`^/${o}(?=/|$)`,"i"),"")||"/":e;if(t==="en")return r;const n=a(l);return n?`/${n}${r}`:r}export{a,i as l,c as p};

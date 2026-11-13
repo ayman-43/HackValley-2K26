@@ -1,0 +1,17 @@
+html { scroll-behavior: smooth; }
+body { min-width: 320px; }
+.clone-city-icon { width: 64px; height: 54px; color: #567e91; fill: none; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; }
+.home-city-card-head:focus-visible,
+.home-city-links a:focus-visible,
+.home-nav a:focus-visible,
+.home-nav button:focus-visible,
+.home-products a:focus-visible,
+.home-product-sources a:focus-visible,
+footer a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -1,0 +1,15 @@
+.people-tabs{scrollbar-width:thin;border:1px solid var(--color-border,#343943)}
+.people-tab{flex:none;border:1px solid transparent;background:transparent;color:var(--color-muted-foreground,#8f98a6);cursor:pointer;transition:background-color .15s,color .15s,border-color .15s}
+.people-tab:hover{color:var(--color-foreground,#f3f1eb)}
+.people-tab[aria-selected=true]{border-color:var(--color-border,#343943);background:var(--color-background,#f8f8f6);color:var(--color-foreground,#1f2329);box-shadow:0 1px 2px #0002}
+html.dark .people-tab[aria-selected=true]{background:#262a31;color:#f3f1eb}
+.people-person-card{min-height:3.75rem;cursor:pointer}
+.people-contact-card{min-height:6rem}
+.people-ward-group summary{list-style:none}
+.people-ward-group summary::-webkit-details-marker{display:none}
+.people-ward-group summary::before{content:"▸";display:inline-block;margin-right:.55rem;color:#d49a36;transition:transform .15s}
+.people-ward-group[open] summary::before{transform:rotate(90deg)}
+.people-show-more{cursor:pointer}
+.people-profile-dialog{max-height:86dvh;overflow:auto;background:var(--color-card,#fff)}
+html.dark .people-profile-dialog{background:#171a20;color:#f3f1eb}
+.people-contact-links{display:inline-flex;flex-wrap:wrap;gap:.4rem;align-items:center}

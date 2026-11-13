@@ -1,0 +1,11 @@
+{
+  "name": "nagrik-local",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node backend/server.mjs",
+    "dev": "node --watch backend/server.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

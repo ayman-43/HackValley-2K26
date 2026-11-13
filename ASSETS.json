@@ -1,0 +1,55 @@
+{
+  "source": "https://nagrik.in.net/",
+  "capture_date": "2026-11-13",
+  "captured_html": [
+    "homepage (/)",
+    "about (/about)",
+    "integrations (/integrations)",
+    "Bengaluru (/bengaluru, /bengaluru/works, /bengaluru/people, /bengaluru/sources)",
+    "Delhi (/delhi, /delhi/works, /delhi/people, /delhi/sources)",
+    "Gurugram (/gurugram, /gurugram/works, /gurugram/people, /gurugram/sources)",
+    "Mumbai (/mumbai, /mumbai/works, /mumbai/people, /mumbai/sources)",
+    "Pune (/pune, /pune/works, /pune/people, /pune/sources)"
+  ],
+  "reused_assets": [
+    "53 official React client and route chunks in /assets/",
+    "Instrument Sans latin and latin-ext web fonts in /fonts/",
+    "City landmarks (Bengaluru, Delhi, Gurugram, Mumbai) in /landmarks/",
+    "Brand icons, logos, ChatGPT integration imagery, og-image, and favicons",
+    "OpenFreeMap basemaps and MapLibre assets"
+  ],
+  "local_data": {
+    "bengaluru": "Local snapshot JSON/GeoJSON for offline fidelity",
+    "other_cities": "Real-time upstream Nagrik public API proxies"
+  },
+  "backend": {
+    "runtime": "Node.js built-in HTTP server with live --watch reloading",
+    "port": 5501,
+    "routing": "Exact parity with https://nagrik.in.net/ supporting clean URLs with/without trailing slashes and full API compatibility"
+  },
+  "verified_routes": [
+    "/",
+    "/about",
+    "/integrations",
+    "/bengaluru",
+    "/bengaluru/works",
+    "/bengaluru/people",
+    "/bengaluru/sources",
+    "/delhi",
+    "/delhi/works",
+    "/delhi/people",
+    "/delhi/sources",
+    "/gurugram",
+    "/gurugram/works",
+    "/gurugram/people",
+    "/gurugram/sources",
+    "/mumbai",
+    "/mumbai/works",
+    "/mumbai/people",
+    "/mumbai/sources",
+    "/pune",
+    "/pune/works",
+    "/pune/people",
+    "/pune/sources"
+  ]
+}

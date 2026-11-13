@@ -1,0 +1,37 @@
+{
+  "source": "https://nagrik.in.net/",
+  "capture_date": "2026-11-13",
+  "status": "local recreation with unverified visual parity",
+  "routes": {
+    "captured_local": ["homepage", "Bengaluru", "Delhi", "Gurugram", "Mumbai", "Pune"],
+    "city_sections": ["overview", "works", "people", "sources"],
+    "html_pages": 21
+  },
+  "verified": [
+    "All 20 city route pages reference only existing local interaction scripts",
+    "Node syntax checks pass for 65 JavaScript and MJS files",
+    "City-specific interaction scripts are included on overview, works, Bengaluru people, and sources routes",
+    "Home and city route city pickers target the five captured local city pages",
+    "City overview pages load the Bengaluru map implementation or non-Bengaluru map implementation as appropriate"
+  ],
+  "not_verified": [
+    "Playwright screenshot comparison and browser interaction checks",
+    "Local HTTP routes and API responses from this environment",
+    "Browser console errors and failed network requests",
+    "Responsive visual comparison at desktop, tablet, and mobile sizes",
+    "Live upstream Nagrik API availability and current data for Delhi, Gurugram, Mumbai, and Pune"
+  ],
+  "backend": {
+    "runtime": "Node.js built-in HTTP server",
+    "database": "None; Bengaluru JSON/GeoJSON snapshot",
+    "authentication": "None; GET-only local API",
+    "live_connections": ["Nagrik public API for four cities and selected Bengaluru works", "OpenFreeMap style and vector tiles", "Open-Meteo weather and air quality", "Google News RSS"]
+  },
+  "limitations": [
+    "Four cities depend on the upstream Nagrik API and internet availability; Bengaluru uses a dated snapshot for ward and people records.",
+    "Issue-topic routes redirect to their original Nagrik pages because those pages were not captured.",
+    "About and Integrations remain source-site links.",
+    "OpenFreeMap basemap and external live feeds require internet access.",
+    "This environment did not provide usable local browser automation or HTTP socket access for screenshot and runtime verification."
+  ]
+}

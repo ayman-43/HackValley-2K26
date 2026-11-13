@@ -1,0 +1,38 @@
+.ward-selection-details[hidden]{display:none}
+.ward-selection-details{min-width:0;max-width:none;margin:1rem 0 1.5rem;padding:1rem 0;border-top:1px solid var(--color-border,#d5dae1);color:var(--color-foreground,#20262d)}
+html.dark .ward-selection-details{border-color:#343a43;color:#f2f0e9}
+.ward-selection-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}
+.ward-selection-heading .home-kicker{margin:0;color:var(--color-muted-foreground,#667085);font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.ward-clear{flex:none;border:1px solid var(--color-border,#d5dae1);border-radius:.4rem;padding:.35rem .55rem;background:transparent;color:inherit;font:inherit;font-size:.75rem;cursor:pointer}
+html.dark .ward-clear{border-color:#343a43}
+.ward-clear:hover{border-color:var(--color-primary,#e6a629)}
+.ward-selection-heading h2{font-size:1.22rem;font-weight:650;line-height:1.2;margin:.35rem 0}
+.ward-selection-heading .local-name{margin:.25rem 0;color:var(--color-muted-foreground,#667085);font-size:.85rem}
+.ward-selection-details .detail-list{display:grid;grid-template-columns:minmax(92px,.7fr) minmax(0,1.4fr);margin:.85rem 0 1rem;border-top:1px solid var(--color-border,#d5dae1)}
+.ward-selection-details .detail-row{display:contents}
+.ward-selection-details .detail-row dt,.ward-selection-details .detail-row dd{min-width:0;margin:0;padding:.55rem .35rem;border-bottom:1px solid var(--color-border,#d5dae1);font-size:.76rem;line-height:1.45;overflow-wrap:anywhere}
+.ward-selection-details .detail-row dt{color:var(--color-muted-foreground,#667085)}
+.ward-selection-details .detail-row dd{white-space:pre-wrap}
+.ward-selection-details a,.ward-project a{color:var(--color-primary,#e6a629);text-decoration:underline;text-underline-offset:3px}
+.ward-detail-section{border-top:1px solid var(--color-border,#d5dae1);margin-top:1rem;padding-top:.8rem}
+.ward-detail-section h3{font-size:.95rem;font-weight:650;margin:0 0 .35rem}
+.ward-detail-section p{font-size:.78rem;line-height:1.5;margin:.35rem 0;color:var(--color-muted-foreground,#667085)}
+html.dark .ward-detail-section p{color:#aab2bf}
+.ward-project{border:1px solid var(--color-border,#d5dae1);border-radius:.45rem;padding:.7rem;margin-top:.6rem}
+.ward-project h4{font-size:.85rem;font-weight:600;line-height:1.4;margin:0}
+.ward-project details{font-size:.76rem;line-height:1.5;margin-top:.55rem}
+.ward-project summary{cursor:pointer;font-weight:600}
+.ward-project .detail-list{margin:.5rem 0}
+.ward-selection-details .dialog-list{padding-left:1rem;font-size:.8rem}
+.ward-selection-details .dialog-list li{margin:.5rem 0}
+.ward-selection-details .dialog-list span{display:block;color:var(--color-muted-foreground,#667085);font-size:.75rem}
+.ward-selection-details .ward-loading{font-size:.82rem;color:var(--color-muted-foreground,#667085)}
+.ward-controls-column .relative>.map-popover{position:absolute;z-index:40;top:calc(100% + .4rem);left:0;width:100%;max-height:min(22rem,60vh);overflow:auto;padding:.55rem;border:1px solid var(--color-border,#343943);border-radius:.55rem;background:var(--color-card,#171a20);color:var(--color-foreground,#f2f0e9);box-shadow:0 12px 32px #0006;font-size:.82rem}
+.ward-controls-column .relative>.map-popover[hidden]{display:none}
+.ward-controls-column .relative>.map-popover>strong{display:block;padding:.35rem .45rem .5rem;font-size:.72rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--color-muted-foreground,#aab2bf)}
+.ward-controls-column .relative>.map-popover>div{display:grid;gap:.2rem}
+.ward-controls-column .relative>.map-popover button{display:grid;width:100%;gap:.2rem;padding:.5rem .45rem;border:0;border-radius:.35rem;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}
+.ward-controls-column .relative>.map-popover button:hover,.ward-controls-column .relative>.map-popover button:focus-visible{background:var(--color-muted,#282d33);outline:none}
+.ward-controls-column .relative>.map-popover button small{color:var(--color-muted-foreground,#aab2bf);font-size:.72rem}
+.ward-controls-column .relative>.map-popover>p{margin:0;padding:.45rem;color:var(--color-muted-foreground,#aab2bf);line-height:1.5}
+@media(max-width:640px){.ward-selection-details .detail-list{grid-template-columns:1fr}.ward-selection-details .detail-row dt{padding-bottom:.12rem;border-bottom:0}.ward-selection-details .detail-row dd{padding-top:.12rem}}

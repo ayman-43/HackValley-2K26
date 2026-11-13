@@ -7,6 +7,8 @@
   <link rel="icon" href="assets/favicon-64.png" type="image/png">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#f1f3f5">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" crossorigin="">
   <link rel="stylesheet" href="styles.css">
   <style>
     main { max-width: 1080px; padding-top: 18px; }
@@ -41,6 +43,14 @@
     .feed img { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; background: #14181d; }
     .feed .code { font-family: var(--font-mono); font-weight: 600; color: var(--data); }
     .feed .loc { font-size: .78rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+    .loc-panel h2 { margin-bottom: 8px; }
+    #loc-map { height: 260px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--bg-2); }
+    .loc-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-top: 8px; font-size: .86rem; }
+    .loc-line .coords { font-family: var(--font-mono); color: var(--data); font-variant-numeric: tabular-nums; }
+    .loc-line .age { color: var(--ink-2); }
+    .loc-state { font-size: .86rem; margin: 8px 0 0; }
+    .loc-state.err { color: var(--danger); }
+    .side { display: grid; gap: 18px; align-content: start; }
     @media (max-width: 520px) { main { padding: 12px 12px 40px; } .panel { padding: 12px; } .brand-sub { display: none; } }
   </style>
 </head>
@@ -99,13 +109,24 @@
         <p class="muted small" id="msg"></p>
       </section>
 
-      <section class="panel">
-        <h2>Found on this ride</h2>
-        <ul class="feed" id="feed"><li style="grid-template-columns:1fr" class="muted small">Potholes appear here, with the place where each one was seen.</li></ul>
-      </section>
+      <div class="side">
+        <section class="panel loc-panel" aria-labelledby="loc-h">
+          <h2 id="loc-h">Your location</h2>
+          <div id="loc-map" role="img" aria-label="Map of your current position and the potholes found on this ride"></div>
+          <div class="loc-line" aria-live="polite"><span class="coords" id="loc-coords">Waiting for location…</span><span class="age" id="loc-age"></span></div>
+          <p class="loc-state" id="loc-state" hidden></p>
+        </section>
+        <section class="panel">
+          <h2>Found on this ride</h2>
+          <ul class="feed" id="feed"><li style="grid-template-columns:1fr" class="muted small">Potholes appear here, with the place where each one was seen.</li></ul>
+        </section>
+      </div>
     </div>
   </main>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin=""></script>
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js" crossorigin=""></script>
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
@@ -117,20 +138,74 @@
 
     function msg(t, err) { $('msg').textContent = t; $('msg').style.color = err ? 'var(--danger)' : ''; }
 
-    // ---- GPS: real device location, updated continuously
-    if ('geolocation' in navigator) {
-      navigator.geolocation.watchPosition((p) => {
+    // ---- live map: your position (blue dot + accuracy circle) and the potholes found on this ride
+    let map = null, meMarker = null, meCircle = null, follow = true, fixAt = 0;
+    const potholeLayer = window.L ? L.layerGroup() : null;
+    if (window.L) {
+      map = L.map('loc-map', { zoomControl: true, attributionControl: true }).setView([12.9716, 77.5946], 12);
+      if (L.maplibreGL) {
+        L.maplibreGL({ style: 'https://tiles.openfreemap.org/styles/positron',
+          attribution: '&copy; OpenFreeMap &copy; OpenStreetMap contributors' }).addTo(map);
+      } else {
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+      }
+      potholeLayer.addTo(map);
+      map.on('dragstart', () => { follow = false; });  // stop following once the user pans; the next scan start re-enables it
+    } else {
+      $('loc-map').hidden = true;
+    }
+    function showPosition(f, label) {
+      fixAt = Date.now();
+      $('loc-coords').textContent = `${f.latitude.toFixed(5)}, ${f.longitude.toFixed(5)}  ±${Math.round(f.accuracy)} m`;
+      locState(label || '');
+      if (!map) return;
+      const ll = [f.latitude, f.longitude];
+      if (!meMarker) {
+        meCircle = L.circle(ll, { radius: f.accuracy, color: '#2b6c9b', weight: 1, fillOpacity: 0.12 }).addTo(map);
+        meMarker = L.circleMarker(ll, { radius: 8, color: '#fff', weight: 3, fillColor: '#2b6c9b', fillOpacity: 1 }).addTo(map).bindTooltip('You are here');
+        map.setView(ll, 17);
+      } else {
+        meMarker.setLatLng(ll); meCircle.setLatLng(ll).setRadius(f.accuracy);
+        if (follow) map.panTo(ll, { animate: true });
+      }
+    }
+    function locState(t, err) {
+      const el = $('loc-state');
+      el.hidden = !t; el.textContent = t; el.classList.toggle('err', !!err);
+    }
+    setInterval(() => {
+      if (!fixAt) return;
+      const age = Math.round((Date.now() - fixAt) / 1000);
+      $('loc-age').textContent = age <= 1 ? 'live' : `updated ${age} s ago`;
+    }, 1000);
+
+    // ---- GPS: real device location, updated continuously. A precise fix can time out on laptops
+    // (no GPS chip), so after a timeout we retry with normal accuracy (Wi-Fi / network location).
+    let watchId = null;
+    const GPS_ERR = {
+      1: 'Location permission is blocked. Click the lock icon in the address bar → Site settings → Location → Allow, then press Real GPS.',
+      2: 'This device cannot find its location. On Windows turn on Settings → Privacy & security → Location, or use a phone.',
+      3: 'Finding your location is taking too long. Move near a window or press Real GPS to try again.',
+    };
+    function startGps(precise = true) {
+      if (!('geolocation' in navigator)) { $('gps-pill').textContent = 'No GPS'; locState('This browser has no location support. Choose Demo route to try the scan.', true); return; }
+      if (!window.isSecureContext) { locState('Location needs https (or localhost). Open the site over https.', true); }
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      if (!fix) $('gps-pill').textContent = 'GPS: finding you…';
+      watchId = navigator.geolocation.watchPosition((p) => {
         fix = p.coords;
-        if (!sim) $('gps-pill').textContent = `GPS ±${Math.round(fix.accuracy)} m`;
+        if (!sim) { $('gps-pill').textContent = `GPS ±${Math.round(fix.accuracy)} m`; showPosition(fix); }
         if ($('msg').dataset.gps) { msg(''); delete $('msg').dataset.gps; }
       }, (e) => {
         if (fix) return;  // a later timeout while we already have a position is harmless
+        if (precise && e.code !== 1) { startGps(false); return; }  // retry with network location
         $('gps-pill').textContent = 'GPS unavailable';
-        msg('Location is blocked or off. Allow location for this site (and turn on Windows Location), or choose "Simulated route (demo)". Without a location, detections are not pinned on the map.', true);
+        locState((GPS_ERR[e.code] || 'Location is unavailable.') + ' Or choose Demo route.', true);
+        msg('Without a location, detections are found but not pinned on the map.', true);
         $('msg').dataset.gps = '1';
-      },
-      { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 });
-    } else { $('gps-pill').textContent = 'No GPS'; }
+      }, { enableHighAccuracy: precise, maximumAge: precise ? 1000 : 10000, timeout: precise ? 15000 : 30000 });
+    }
+    startGps(true);
 
     // ---- simulated demo route: 100 Feet Road, Indiranagar, north to south at 25 km/h (7 m/s), clearly labelled
     const ROUTE = [[12.9784, 77.6408], [12.9634, 77.6411]];
@@ -144,11 +219,16 @@
       $('gps-pill').textContent = 'Demo route (simulated GPS)';
       return f;
     }
+    setInterval(() => { if (sim) showPosition(simFix(), 'Demo route: simulated position on 100 Feet Road, Indiranagar.'); }, 1000);
     function setSim(on) {
       sim = on; simT0 = performance.now();
       $('btn-simgps').setAttribute('aria-pressed', String(on)); $('btn-realgps').setAttribute('aria-pressed', String(!on));
-      if (on) { currentFix(); if ($('msg').dataset.gps) { msg(''); delete $('msg').dataset.gps; } msg('Demo route: the position moves along 100 Feet Road, Indiranagar at 25 km/h. Switch to Real GPS on a real drive.'); }
-      else $('gps-pill').textContent = fix ? `GPS ±${Math.round(fix.accuracy)} m` : 'GPS: waiting';
+      if (on) { follow = true; showPosition(simFix(), 'Demo route: simulated position on 100 Feet Road, Indiranagar.'); if ($('msg').dataset.gps) { msg(''); delete $('msg').dataset.gps; } msg('Demo route: the position moves along 100 Feet Road, Indiranagar at 25 km/h. Switch to Real GPS on a real drive.'); }
+      else {
+        follow = true;
+        $('gps-pill').textContent = fix ? `GPS ±${Math.round(fix.accuracy)} m` : 'GPS: waiting';
+        if (fix) showPosition(fix); else { $('loc-coords').textContent = 'Waiting for location…'; startGps(true); }
+      }
     }
     $('btn-simgps').onclick = () => setSim(true);
     $('btn-realgps').onclick = () => setSim(false);
@@ -202,6 +282,11 @@
         <span class="badge ${item.new ? 'risk-Medium' : ''}">${item.new ? 'New' : 'Seen again'}</span>
         <div class="loc">${new Date().toLocaleTimeString()} · ${loc}</div></div>`;
       $('feed').prepend(li);
+      if (map && item.lat != null) {
+        const c = COLORS[item.damage_class] || '#b83a3f';
+        L.circleMarker([item.lat, item.lon], { radius: 7, color: '#fff', weight: 2, fillColor: c, fillOpacity: 0.95 })
+          .bindPopup(`<b>${item.code}</b><br>${NAMES[item.damage_class] || item.damage_class}`).addTo(potholeLayer);
+      }
     }
 
     // ---- live loop: send a frame, wait for the reply, keep ~1 frame per second
@@ -247,11 +332,12 @@
         sid = (await r.json()).session_id;
       } catch (e) { $('btn-start').disabled = false; msg('Could not reach the Nagrik Roads server.', true); return; }
       $('btn-start').disabled = false;
-      running = true; seenCodes = new Set();
+      running = true; seenCodes = new Set(); follow = true;
+      if (potholeLayer) potholeLayer.clearLayers();
       $('btn-start').hidden = true; $('btn-stop').hidden = false; $('scanline').hidden = false;
       $('state-pill').textContent = 'LIVE'; $('state-pill').classList.add('live');
       msg(cf0 ? `Live session ${sid} started${sim ? ' with the simulated route' : ''}. Pins appear on the dashboard map within seconds.`
-              : `Live session ${sid} started WITHOUT a location: detections are found but not pinned. Allow location or choose Simulated route.`, !cf0);
+              : `Live session ${sid} started WITHOUT a location: detections are found but not pinned. Allow location or choose Demo route.`, !cf0);
       try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch (e) { /* optional */ }
       loop();
     };

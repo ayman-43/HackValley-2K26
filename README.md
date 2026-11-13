@@ -297,12 +297,6 @@ for Bengaluru's wards, officials and public works. The Nagrik site in `nagrik/` 
 application, and each pothole is linked to its ward, the responsible officers and recent road tenders through
 Nagrik's API.
 
-**What was built for HackValley 2K26:** everything in `roads/` (detector training, counting, dedup, risk, the
-website and phone app, live scan, review and repair workflow) plus the deployment (`api/`, `deploy/`, `vercel.json`).
-**What existed before:** the Nagrik site in `nagrik/` is a production build of our existing platform, included so
-both run as one application. The hackathon work on it is the Roads links (`nagrik/nagrik-roads-link.js`) and the
-forwarding of Roads requests in its local server (`nagrik/backend/server.mjs`).
-
 ## Research
 
 The design follows published work on smartphone road-damage detection, tracking-by-detection and perceptual

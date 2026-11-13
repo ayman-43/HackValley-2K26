@@ -114,6 +114,7 @@
       .ledger > * { grid-template-columns: 1.2fr 1fr; }
       .ledger .v:last-child { display: none; }
     }
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
@@ -128,7 +129,7 @@
         <a href="/" class="hide-s">← Nagrik</a>
         <a href="#how" class="hide-s">How it works</a>
         <a href="/roads/app" class="chip">Phone app</a>
-        <a href="/roads/login.html?next=%2Froads%2Fdashboard%23%2Freview" class="chip">Official sign in</a>
+        <span id="acct"><a href="/roads/login.html" class="chip">Sign in</a></span>
         <a href="/roads/dashboard#/map" class="go">Open dashboard ↗</a>
       </nav>
     </div>
@@ -169,7 +170,7 @@
               <span class="arrow" aria-hidden="true">↗</span>
               <div class="card-stat"><div><small>Awaiting review</small><b id="s-review">–</b></div><div><small>Repaired</small><b id="s-fixed">–</b></div></div>
             </a>
-            <div class="card-links"><a href="/roads/dashboard#/review">Review</a><a href="/roads/route.html">Repair route</a><a href="/roads/dashboard#/reports">Reports</a></div>
+            <div class="card-links"><a href="/roads/dashboard#/review" data-need="officer admin">Review</a><a href="/roads/route.html" data-need="crew officer admin">Repair route</a><a href="/roads/dashboard#/reports" data-need="officer admin">Reports</a><a href="/roads/login.html?mode=signup" data-need="public citizen" id="fix-cta">Join as an official</a></div>
           </article>
         </div>
       </div>
@@ -247,9 +248,9 @@
             <li><a href="/roads/dashboard#/upload">Scan a road</a></li>
             <li><a href="/roads/dashboard#/map">Map</a></li>
             <li><a href="/roads/dashboard#/defects">Defects</a></li>
-            <li><a href="/roads/dashboard#/review">Review</a></li>
-            <li><a href="/roads/route.html">Repair route</a></li>
-            <li><a href="/roads/dashboard#/reports">Reports</a></li>
+            <li data-need="officer admin"><a href="/roads/dashboard#/review">Review</a></li>
+            <li data-need="crew officer admin"><a href="/roads/route.html">Repair route</a></li>
+            <li data-need="officer admin"><a href="/roads/dashboard#/reports">Reports</a></li>
           </ul>
         </div>
         <div>
@@ -288,6 +289,20 @@
         RSMap.ready(map).then(() => RSMap.addWards(map, { labels: false, fillOpacity: 0.28 })).catch(() => {});
       }
     } catch (e) { /* decorative only */ }
+
+    // signed-in account: show the name, and only the links this role may use
+    fetch('/api/auth/me', { cache: 'no-store' }).then((r) => r.json()).then((d) => {
+      const u = d.user, role = u ? u.role : 'public';
+      document.querySelectorAll('[data-need]').forEach((el) => { el.hidden = !el.dataset.need.split(' ').includes(role); });
+      if (!u) {
+        $('acct').innerHTML = '<a href="/roads/login.html" class="chip">Sign in</a> <a href="/roads/login.html?mode=signup" class="chip hide-s">Create account</a>';
+        return;
+      }
+      if (u.requested_role) $('fix-cta').textContent = 'Official request pending';
+      $('acct').innerHTML = `<a href="/roads/dashboard#/map" class="chip" title="${esc(u.role_label)}">${esc(u.name.split(' ')[0])} · ${esc(u.role_label)}</a>
+        <button type="button" class="chip" id="signout" style="font:inherit;cursor:pointer">Sign out</button>`;
+      $('signout').addEventListener('click', () => fetch('/api/auth/logout', { method: 'POST' }).finally(() => location.reload()));
+    }).catch(() => {});
 
     get('/api/stats').then((s) => {
       const risk = s.by_risk || {}, wf = s.by_workflow || {};

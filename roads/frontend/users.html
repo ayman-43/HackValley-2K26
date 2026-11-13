@@ -14,6 +14,17 @@
     .new-user input[type="password"] { font: inherit; width: 100%; border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 8px 11px; }
     td .btn { min-height: 28px; }
     .off td { color: var(--ink-3); }
+    .requests { border: 1px solid var(--line-strong); border-left: 5px solid var(--amber); border-radius: var(--r-md);
+      background: var(--surface-solid); padding: 16px 18px; margin-bottom: 18px; }
+    .requests h2 { font-size: 1.1rem; margin: 0 0 4px; }
+    .requests > p { color: var(--ink-2); margin: 0 0 12px; font-size: .9rem; }
+    .req { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 10px 0; border-top: 1px solid var(--line); }
+    .req-who { flex: 1 1 240px; min-width: 0; }
+    .req-who b { display: block; }
+    .req-who span { color: var(--ink-2); font-size: .86rem; overflow-wrap: anywhere; }
+    .req-act { display: flex; gap: 8px; }
+    .gtag { display: inline-block; font-size: .72rem; border: 1px solid var(--line-strong); border-radius: 999px; padding: 0 7px; margin-left: 4px; color: var(--ink-2); }
+    .new-user input[type="email"] { font: inherit; width: 100%; border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 8px 11px; }
   </style>
 </head>
 <body>
@@ -21,14 +32,14 @@
     <div class="header-inner">
       <a class="brand" href="/roads/" aria-label="Nagrik Roads home">
         <img src="assets/logo.png" alt="" width="36" height="36">
-        <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Official accounts</span></span>
+        <span class="brand-text"><span class="brand-name">Nagrik Roads</span><span class="brand-sub">Accounts</span></span>
       </a>
       <a class="btn btn-small" href="/roads/dashboard#/map">← Back to the dashboard</a>
     </div>
   </header>
   <main id="main">
-    <div class="view-head"><h1>Official accounts</h1>
-      <p>Who can review detections, schedule work and mark repairs. The public needs no account to view the map or report a pothole.</p></div>
+    <div class="view-head"><h1>Accounts</h1>
+      <p>Who can review detections, schedule work and mark repairs. Anyone who creates an account starts as a citizen. Officers and crews who sign up appear under access requests; you can also change any role here. The public needs no account to view the map or report a pothole.</p></div>
     <div id="body"><div class="state loading">Loading accounts</div></div>
   </main>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -36,7 +47,7 @@
   (function () {
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    const ROLES = { officer: 'Ward officer', crew: 'Repair crew', admin: 'Administrator' };
+    const ROLES = { citizen: 'Citizen', officer: 'Ward officer', crew: 'Repair crew', admin: 'Administrator' };
     const when = (s) => (s ? new Date(s).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Never');
     function toast(m, err) { const t = $('toast'); t.textContent = m; t.className = 'toast show' + (err ? ' error' : ''); setTimeout(() => { t.className = 'toast'; }, 3000); }
     async function call(path, method, body) {
@@ -54,23 +65,41 @@
         return;
       }
       const users = await call('/api/auth/users', 'GET');
-      $('body').innerHTML = `<div class="acc-grid">
+      const pending = users.filter((u) => u.requested_role && u.active);
+      const requestsHtml = pending.length ? `<section class="requests" aria-labelledby="rq-h">
+          <h2 id="rq-h">${pending.length === 1 ? '1 access request' : pending.length + ' access requests'}</h2>
+          <p>These people signed up as officials. Check their ID, then approve or decline. Until then they have citizen access.</p>
+          ${pending.map((u) => `<div class="req">
+            <div class="req-who"><b>${esc(u.name)} wants ${esc(u.requested_role_label)} access</b>
+              <span>${esc(u.email || u.username)}${u.details ? ' · ' + esc(u.details) : ''} · signed up ${esc(when(u.created_at))}</span></div>
+            <div class="req-act"><button class="btn btn-small btn-primary" data-approve="${u.id}" data-role-to="${esc(u.requested_role)}">Approve</button>
+              <button class="btn btn-small" data-decline="${u.id}">Decline</button></div></div>`).join('')}
+        </section>` : '';
+      $('body').innerHTML = requestsHtml + `<div class="acc-grid">
         <section class="table-wrap"><table>
           <thead><tr><th>Name</th><th>Role</th><th>Last sign-in</th><th></th></tr></thead>
           <tbody>${users.map((u) => `<tr class="${u.active ? '' : 'off'}">
-            <td><b>${esc(u.name)}</b><br><span class="muted small">${esc(u.username)}${u.active ? '' : ' · disabled'}</span></td>
+            <td><b>${esc(u.name)}</b><br><span class="muted small">${esc(u.email || u.username)}${u.google ? '<span class="gtag">Google</span>' : ''}${u.active ? '' : ' · disabled'}</span></td>
             <td><select data-role="${u.id}" ${u.id === me.id ? 'disabled' : ''}>${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === u.role ? 'selected' : ''}>${v}</option>`).join('')}</select></td>
             <td class="small">${esc(when(u.last_login))}</td>
             <td>${u.id === me.id ? '<span class="muted small">You</span>' : `<button class="btn btn-small" data-toggle="${u.id}" data-active="${u.active ? 1 : 0}">${u.active ? 'Disable' : 'Enable'}</button>`}</td>
           </tr>`).join('')}</tbody></table></section>
         <form class="panel new-user" id="nu" novalidate>
           <h2>Add an official</h2>
+          <p class="small muted" style="margin:0">They sign in with this email (or the username) and the starting password.</p>
           <div class="field"><label for="nu-name">Full name</label><input type="text" id="nu-name" placeholder="e.g. Shankarappa K"></div>
           <div class="field"><label for="nu-user">Username</label><input type="text" id="nu-user" autocomplete="off" autocapitalize="none" placeholder="e.g. shankarappa"></div>
-          <div class="field"><label for="nu-role">Role</label><select id="nu-role">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
+          <div class="field"><label for="nu-email">Email</label><input type="email" id="nu-email" autocomplete="off" placeholder="e.g. officer@bbmp.gov.in"></div>
+          <div class="field"><label for="nu-role">Role</label><select id="nu-role">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === 'officer' ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
           <div class="field"><label for="nu-pw">Starting password <span class="hint">at least 8 characters</span></label><input type="password" id="nu-pw" autocomplete="new-password"></div>
           <button class="btn btn-primary" type="submit">Add account</button>
         </form></div>`;
+      document.querySelectorAll('[data-approve]').forEach((b) => b.addEventListener('click', async () => {
+        try { await call('/api/auth/users/' + b.dataset.approve, 'PATCH', { role: b.dataset.roleTo }); toast('Approved.'); load(); } catch (e) { toast(e.message, true); }
+      }));
+      document.querySelectorAll('[data-decline]').forEach((b) => b.addEventListener('click', async () => {
+        try { await call('/api/auth/users/' + b.dataset.decline, 'PATCH', { decline_request: true }); toast('Request declined. They keep citizen access.'); load(); } catch (e) { toast(e.message, true); }
+      }));
       document.querySelectorAll('[data-role]').forEach((sel) => sel.addEventListener('change', async () => {
         try { await call('/api/auth/users/' + sel.dataset.role, 'PATCH', { role: sel.value }); toast('Role changed.'); } catch (e) { toast(e.message, true); load(); }
       }));
@@ -80,7 +109,7 @@
       $('nu').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
-          await call('/api/auth/users', 'POST', { name: $('nu-name').value, username: $('nu-user').value, role: $('nu-role').value, password: $('nu-pw').value });
+          await call('/api/auth/users', 'POST', { name: $('nu-name').value, username: $('nu-user').value, email: $('nu-email').value, role: $('nu-role').value, password: $('nu-pw').value });
           toast('Account added.'); load();
         } catch (ex) { toast(ex.message, true); }
       });

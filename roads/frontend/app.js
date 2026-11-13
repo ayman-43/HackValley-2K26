@@ -115,18 +115,33 @@
   // ---------------------------------------------------------------- signed-in official
   let ME = null;  // { username, name, role, role_label } or null for the public
   const can = (...roles) => !!ME && roles.includes(ME.role);
+  const STAFF = () => can('crew', 'officer', 'admin');  // signed in as a city official (not a citizen)
   const loginUrl = () => '/roads/login.html?next=' + encodeURIComponent(location.pathname + location.hash);
   async function loadMe() {
     if (MOCK) { ME = { username: 'demo', name: 'Demo officer', role: 'officer', role_label: 'Ward officer' }; return; }
     try { const r = await fetch('/api/auth/me', { cache: 'no-store' }); ME = (await r.json()).user || null; } catch (e) { ME = null; }
   }
+  // show only the sections this account may use (the server enforces the same rules)
+  function applyNav() {
+    document.querySelectorAll('[data-need]').forEach((el) => { el.hidden = !can(...el.dataset.need.split(' ')); });
+  }
   function renderUserBox() {
+    applyNav();
     const box = document.getElementById('user-box');
     if (!box) return;
-    if (!ME) { box.innerHTML = `<a class="btn btn-small" href="${esc(loginUrl())}">Official sign in</a>`; return; }
-    box.innerHTML = `<details class="user-menu"><summary><span class="avatar" aria-hidden="true">${esc((ME.name || ME.username).trim()[0] || '?')}</span>
+    if (!ME) {
+      box.innerHTML = `<a class="btn btn-small" href="${esc(loginUrl())}">Sign in</a>
+        <a class="btn btn-small btn-primary" href="/roads/login.html?mode=signup">Create account</a>`;
+      return;
+    }
+    const initial = esc((ME.name || ME.username).trim()[0] || '?');
+    const avatar = ME.picture
+      ? `<img class="avatar" src="${esc(ME.picture)}" alt="" referrerpolicy="no-referrer" width="28" height="28">`
+      : `<span class="avatar" aria-hidden="true">${initial}</span>`;
+    box.innerHTML = `<details class="user-menu"><summary>${avatar}
         <span class="user-txt"><b>${esc(ME.name)}</b><span>${esc(ME.role_label || ME.role)}</span></span></summary>
       <div class="nav-menu user-pop">
+        ${ME.requested_role ? `<p class="small muted" style="margin:4px 10px 8px;max-width:220px">${esc(ME.requested_role_label)} access requested. An administrator will review it.</p>` : ''}
         ${ME.role === 'admin' ? '<a href="/roads/users.html">Manage accounts</a>' : ''}
         <button type="button" id="signout">Sign out</button></div></details>`;
     document.getElementById('signout').addEventListener('click', async () => {
@@ -137,7 +152,7 @@
   function signInHtml(what) {
     return `<div class="state signin-state"><h2>Sign in to ${esc(what)}</h2>
       <p>This is for city officials. Anyone can view the map and the defect list, and report a pothole from the phone app.</p>
-      <p><a class="btn btn-primary" href="${esc(loginUrl())}">Official sign in</a></p></div>`;
+      <p><a class="btn btn-primary" href="${esc(loginUrl())}">Sign in</a></p></div>`;
   }
 
   // ---------------------------------------------------------------- toast
@@ -1239,26 +1254,27 @@
           <section class="panel" aria-labelledby="wf-title">
             <h2 id="wf-title">Workflow</h2>
             <p>Current stage: ${wfBadge(wf)}</p>
-            <div class="field" style="margin-bottom:10px" ${ME ? '' : 'hidden'}>
+            <div class="field" style="margin-bottom:10px" ${STAFF() ? '' : 'hidden'}>
               <label for="wf-note">Note <span class="hint">optional, saved with the change</span></label>
               <input type="text" id="wf-note" placeholder="e.g. Work order WO-2291 issued">
             </div>
-            <div class="field" style="margin-bottom:10px" ${ME ? '' : 'hidden'}>
+            <div class="field" style="margin-bottom:10px" ${STAFF() ? '' : 'hidden'}>
               <label for="wf-photo">Repair photo <span class="hint">optional, used with Mark repaired</span></label>
               <input type="file" id="wf-photo" accept="image/*">
             </div>
-            <div class="field" style="margin-bottom:10px" ${ME ? '' : 'hidden'}>
+            <div class="field" style="margin-bottom:10px" ${STAFF() ? '' : 'hidden'}>
               <label for="wf-crew">Repaired by (crew / employee ID) <span class="hint">${isRepaired ? 'who did the repair' : 'optional, saved with Mark repaired'}</span></label>
               <div class="row crew-row">
                 <input type="text" id="wf-crew" maxlength="64" autocomplete="off" placeholder="e.g. BBMP-CREW-07" value="${esc(crewId)}">
                 ${isRepaired ? `<button type="button" class="btn btn-small" id="wf-crew-save">${crewId ? 'Update crew ID' : 'Save crew ID'}</button>` : ''}
               </div>
             </div>
-            ${ME ? `<div class="workflow-steps">${WORKFLOW_ACTIONS.filter((a) => can('officer', 'admin') || a.value === 'repaired').map((a) =>
+            ${STAFF() ? `<div class="workflow-steps">${WORKFLOW_ACTIONS.filter((a) => can('officer', 'admin') || a.value === 'repaired').map((a) =>
               `<button type="button" class="btn btn-small${a.value === wf ? ' current' : ''}" data-wf="${a.value}" ${a.value === wf ? 'aria-current="step"' : ''}>${a.label}</button>`).join('')}</div>
               <p class="small muted" style="margin:8px 0 0">Signed in as ${esc(ME.name)} (${esc(ME.role_label || ME.role)}).</p>`
+            : ME ? `<div class="callout"><b>Only city officials can update this defect.</b> You are signed in as ${esc(ME.name)} (${esc(ME.role_label || ME.role)}). An administrator can give your account official access.</div>`
             : `<div class="callout"><b>Sign in to update this defect.</b> Ward officers verify and schedule repairs; repair crews mark them done.
-                <p style="margin:8px 0 0"><a class="btn btn-small" href="${esc(loginUrl())}">Official sign in</a></p></div>`}
+                <p style="margin:8px 0 0"><a class="btn btn-small" href="${esc(loginUrl())}">Sign in</a></p></div>`}
             <p style="margin:14px 0 0"><a class="btn btn-primary" href="${esc(complaint)}" target="_blank" rel="noopener">Open complaint</a></p>
             <p class="small muted" style="margin:6px 0 0">Opens a printable complaint with photo, location, risk and the responsible officer.</p>
           </section>

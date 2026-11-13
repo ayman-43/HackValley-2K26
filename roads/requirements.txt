@@ -11,3 +11,5 @@ httpx
 onnxruntime
 transformers
 requests
+pymongo[srv]
+google-auth

@@ -506,6 +506,7 @@ td a.code:hover { text-decoration: underline; }
 .user-menu > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 3px 8px 3px 3px; border-radius: 999px; border: 1px solid var(--line); background: #fff; }
 .user-menu > summary::-webkit-details-marker { display: none; }
 .user-menu > summary:hover, .user-menu[open] > summary { border-color: var(--line-strong); }
+img.avatar { object-fit: cover; background: var(--line); }
 .avatar { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: #fff; font-weight: 600; font-size: .86rem; text-transform: uppercase; }
 .user-txt { display: flex; flex-direction: column; line-height: 1.15; }
 .user-txt b { font-size: .84rem; font-weight: 600; }

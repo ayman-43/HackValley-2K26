@@ -32,16 +32,17 @@
       <a href="#/map" data-route="map">Map</a>
       <a href="#/defects" data-route="defects">Defects</a>
       <a href="#/upload" data-route="upload">Scan a road</a>
-      <a href="#/review" data-route="review">Review <span class="nav-count" id="nav-review-count" hidden></span></a>
-      <a href="#/reports" data-route="reports">Reports</a>
+      <a href="#/review" data-route="review" data-need="officer admin">Review <span class="nav-count" id="nav-review-count" hidden></span></a>
+      <a href="#/reports" data-route="reports" data-need="officer admin">Reports</a>
       <details class="nav-more">
         <summary>More</summary>
         <div class="nav-menu">
           <a href="/">Nagrik home (wards, works, people)</a>
-          <a href="/roads/route.html">Repair route planner</a>
+          <a href="/roads/route.html" data-need="crew officer admin">Repair route planner</a>
           <a href="/roads/roads.html">Road health by street</a>
           <a href="#/metrics" data-route="metrics">Model accuracy</a>
-          <a href="/roads/training.html">Model training</a>
+          <a href="/roads/training.html" data-need="admin">Model training</a>
+          <a href="/roads/users.html" data-need="admin">Manage accounts</a>
         </div>
       </details>
       <a href="/roads/app" class="nav-app">Phone app</a>

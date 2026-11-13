@@ -490,6 +490,12 @@ td a.code:hover { text-decoration: underline; }
 
 .me-dot { width: 16px; height: 16px; border-radius: 50%; background: #2b6c9b; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(43, 108, 155, .2); }
 .vehicle-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--ink); border: 3px solid #fff; box-shadow: 0 0 0 7px rgba(32, 38, 45, .16); }
+.vehicle-marker { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.vehicle-marker .vehicle-dot { animation: vehicle-pulse 1.6s ease-out infinite; }
+.vehicle-tag { background: var(--ink); color: #fff; font: 600 .7rem var(--font-mono); padding: 2px 7px; border-radius: 999px; white-space: nowrap; box-shadow: var(--shadow); }
+@keyframes vehicle-pulse { 0% { box-shadow: 0 0 0 0 rgba(43, 108, 155, .45); } 100% { box-shadow: 0 0 0 14px rgba(43, 108, 155, 0); } }
+@media (prefers-reduced-motion: reduce) { .vehicle-marker .vehicle-dot { animation: none; } }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .maplibregl-popup-content { border-radius: var(--r-md); padding: 12px 14px; box-shadow: var(--shadow); border: 1px solid var(--line); font-family: var(--font-ui); }
 .maplibregl-popup-close-button { font-size: 18px; padding: 0 6px; color: var(--ink-2); }
 .maplibregl-ctrl-group { border-radius: var(--r-sm) !important; box-shadow: var(--shadow) !important; }

@@ -6,7 +6,8 @@ confident detection is saved as a defect/observation at the GPS position where i
 Risk / forecast / Nagrik enrichment runs in a background thread so the frame reply stays fast.
 
     POST /api/live/start              -> {session_id}
-    POST /api/live/{sid}/frame        (frame=jpeg, lat, lon, accuracy) -> {detections, saved, stats}
+    POST /api/live/{sid}/frame        (frame=jpeg, lat, lon, accuracy, speed, heading) -> {detections, saved, stats}
+    POST /api/live/{sid}/position     (lat, lon, accuracy, speed, heading) -> real-time location only, every second
     POST /api/live/{sid}/stop         -> summary
     GET  /api/live/feed?since=<obs id> -> newest observations from live sessions (for the live map)
 """
@@ -21,7 +22,7 @@ import numpy as np
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
-from . import db, detector, pipeline
+from . import db, detector, geo, pipeline
 
 log = logging.getLogger("roadsense.live")
 router = APIRouter(prefix="/api/live", tags=["live"])
@@ -92,7 +93,8 @@ def _enrich_bg(ids: set[int]):
 
 @router.post("/{sid}/frame")
 async def frame(sid: int, frame: UploadFile = File(...), lat: float | None = Form(None),
-                lon: float | None = Form(None), accuracy: float | None = Form(None)):
+                lon: float | None = Form(None), accuracy: float | None = Form(None),
+                speed: float | None = Form(None), heading: float | None = Form(None)):
     s = _session(sid)
     buf = np.frombuffer(await frame.read(), np.uint8)
     img = cv2.imdecode(buf, cv2.IMREAD_COLOR)
@@ -170,8 +172,7 @@ async def frame(sid: int, frame: UploadFile = File(...), lat: float | None = For
             log.warning("evidence frame failed: %s", e)
     s["frames"] += 1
     s["raw"] += len(dets)
-    if lat is not None and lon is not None:
-        s["pos"] = {"lat": lat, "lon": lon, "accuracy": accuracy, "at": pipeline.now_iso()}
+    _set_position(s, lat, lon, accuracy, speed, heading)
     with db.connect() as conn:
         conn.execute("UPDATE inspections SET frames_processed=?, raw_detections=?, unique_defects=?, "
                      "new_defects=?, duplicate_defects=?, lat=COALESCE(lat, ?), lon=COALESCE(lon, ?) WHERE id=?",
@@ -180,6 +181,47 @@ async def frame(sid: int, frame: UploadFile = File(...), lat: float | None = For
     return {"frame_w": W, "frame_h": H, "detections": reply, "saved": saved,
             "stats": {"frames": s["frames"], "raw_detections": s["raw"], "unique_defects": len(s["seen"]),
                       "new_defects": len(s["new"])}}
+
+
+TRAIL_MAX_POINTS = 1000   # ~15-30 min of driving at one point every 1-2 s
+TRAIL_MIN_STEP_M = 3.0    # skip GPS jitter while standing still
+
+
+def _set_position(s: dict, lat: float | None, lon: float | None, accuracy: float | None,
+                  speed: float | None = None, heading: float | None = None) -> None:
+    """Latest position of a live vehicle (for the officials' map) and its trail.
+    Speed comes from the phone when it reports one; otherwise it is estimated from the distance
+    travelled since the last trail point (many browsers and laptops report no speed)."""
+    if lat is None or lon is None:
+        return
+    now = time.time()
+    trail = s.setdefault("trail", [])
+    last = s.get("last_point")  # (time, lat, lon) of the newest trail point
+    moved = geo.haversine_m(last[1], last[2], lat, lon) if last else None
+    if speed is None and last:
+        dt = now - last[0]
+        if moved >= TRAIL_MIN_STEP_M and dt >= 0.8:
+            speed = moved / dt
+        elif dt > 5:
+            speed = 0.0  # no real movement for 5 s
+        else:
+            speed = (s.get("pos") or {}).get("speed")
+    s["pos"] = {"lat": lat, "lon": lon, "accuracy": accuracy, "speed": speed, "heading": heading,
+                "at": pipeline.now_iso(), "t": now}
+    if last is None or moved >= TRAIL_MIN_STEP_M:
+        trail.append([round(lon, 6), round(lat, 6)])
+        del trail[:-TRAIL_MAX_POINTS]
+        s["last_point"] = (now, lat, lon)
+
+
+@router.post("/{sid}/position")
+def position(sid: int, lat: float = Form(...), lon: float = Form(...), accuracy: float | None = Form(None),
+             speed: float | None = Form(None), heading: float | None = Form(None)):
+    """Real-time location only (no frame): the phone sends it every second while scanning, so the vehicle
+    keeps moving on the officials' map even while a frame is still being processed."""
+    s = _session(sid)
+    _set_position(s, lat, lon, accuracy, speed, heading)
+    return {"ok": True}
 
 
 @router.post("/{sid}/stop")
@@ -212,7 +254,10 @@ def feed(since: int = 0, limit: int = 50):
             "WHERE i.source_type='live' AND o.id>? ORDER BY o.id DESC LIMIT ?", (since, limit)).fetchall()
         sess = conn.execute("SELECT id, created_at, frames_processed, raw_detections, unique_defects "
                             "FROM inspections WHERE source_type='live' ORDER BY id DESC LIMIT 1").fetchone()
-    vehicles = [{"session_id": k, **v["pos"], "frame_at": v.get("last_at")}
+    now = time.time()
+    vehicles = [{"session_id": k, **{key: val for key, val in v["pos"].items() if key != "t"},
+                 "age_s": round(now - v["pos"]["t"], 1), "trail": list(v.get("trail", [])),
+                 "frame_at": v.get("last_at")}
                 for k, v in list(_sessions.items()) if v.get("pos")]
     return {"items": [db.row(r) for r in rows][::-1], "active": sorted(_sessions), "vehicles": vehicles,
             "latest_session": db.row(sess) if sess else None}

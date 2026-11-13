@@ -998,8 +998,27 @@
 
     // live: vehicles scanning right now and their newest detections (polls only on the live API)
     if (!MOCK) {
-      const vehicles = {};
-      let since = 0, first = true;
+      const vehicles = {};  // session id -> { marker, tag }
+      let since = 0, first = true, followOn = true;
+      const TRAILS = 'vehicle-trails';
+      map.on('dragstart', () => { followOn = false; });  // the official moved the map: stop following
+      // the road each vehicle has driven this session, as a line under its marker
+      const setTrails = (list) => {
+        const data = { type: 'FeatureCollection', features: list.filter((v) => v.trail && v.trail.length > 1)
+          .map((v) => ({ type: 'Feature', geometry: { type: 'LineString', coordinates: v.trail }, properties: { id: v.session_id } })) };
+        try {
+          if (!map.getSource(TRAILS)) {
+            map.addSource(TRAILS, { type: 'geojson', data });
+            map.addLayer({ id: TRAILS, type: 'line', source: TRAILS, layout: { 'line-cap': 'round', 'line-join': 'round' },
+              paint: { 'line-color': '#2b6c9b', 'line-width': 4, 'line-opacity': 0.8 } });
+          } else map.getSource(TRAILS).setData(data);
+        } catch (e) { /* map style still loading: drawn on the next tick */ }
+      };
+      const vLabel = (v) => {
+        const kmh = v.speed != null && v.speed > 0.5 ? `${Math.round(v.speed * 3.6)} km/h` : 'stopped';
+        const acc = v.accuracy != null ? ` · ±${Math.round(v.accuracy)} m` : '';
+        return `${kmh}${acc} · ${v.age_s <= 2 ? 'live' : Math.round(v.age_s) + ' s ago'}`;
+      };
       const liveTick = async () => {
         let d;
         try { d = await (await fetch('/api/live/feed?since=' + since, { cache: 'no-store' })).json(); } catch (e) { return; }
@@ -1010,20 +1029,32 @@
         const on = d.active.length > 0;
         $('#m-live', root).hidden = !on;
         $('#m-live-text', root).textContent = on ? `Live · ${d.active.length} vehicle${d.active.length > 1 ? 's' : ''} scanning` : 'Live';
-        for (const v of d.vehicles) {
-          if (!vehicles[v.session_id]) { const el = document.createElement('div'); el.className = 'vehicle-dot'; vehicles[v.session_id] = new maplibregl.Marker({ element: el }).setLngLat([v.lon, v.lat]).addTo(map); }
-          else vehicles[v.session_id].setLngLat([v.lon, v.lat]);
+        const list = d.vehicles || [];
+        for (const v of list) {
+          let veh = vehicles[v.session_id];
+          if (!veh) {
+            const el = document.createElement('div'); el.className = 'vehicle-marker';
+            el.innerHTML = '<span class="vehicle-dot"></span><span class="vehicle-tag"></span>';
+            veh = vehicles[v.session_id] = { marker: new maplibregl.Marker({ element: el }).setLngLat([v.lon, v.lat]).addTo(map), tag: el.lastChild };
+          } else veh.marker.setLngLat([v.lon, v.lat]);
+          veh.tag.textContent = `Vehicle ${v.session_id} · ${vLabel(v)}`;
         }
-        Object.keys(vehicles).forEach((k) => { if (!d.active.includes(+k)) { vehicles[k].remove(); delete vehicles[k]; } });
+        Object.keys(vehicles).forEach((k) => { if (!d.active.includes(+k)) { vehicles[k].marker.remove(); delete vehicles[k]; } });
+        setTrails(list);
         const box = $('#m-livebox', root);
         if (on) {
-          const fv = d.vehicles.find((v) => v.frame_at);
+          const fv = list.find((v) => v.frame_at);
           box.hidden = false;
           box.innerHTML = `<span class="side-label"><span class="rec" aria-hidden="true"></span>Scanning now</span>
+            ${list.map((v) => `<p class="small" style="margin:6px 0 0"><b>Vehicle ${v.session_id}</b> · <span class="mono">${v.lat.toFixed(5)}, ${v.lon.toFixed(5)}</span><br>
+              <span class="muted">${esc(vLabel(v))}</span></p>`).join('') || '<p class="muted small">Waiting for the vehicle\'s location…</p>'}
+            ${list.length ? `<button type="button" class="btn btn-small" id="m-follow" style="margin-top:6px">${followOn ? 'Following the vehicle' : 'Follow the vehicle'}</button>` : ''}
             ${fv ? `<img class="live-evidence" src="/api/live/${fv.session_id}/latest.jpg?t=${encodeURIComponent(fv.frame_at)}" alt="Latest frame with detected damage; faces and number plates blurred">
             <p class="muted small" style="margin:4px 0 0">Latest evidence · ${esc(fmtDate(fv.frame_at, true))} · faces and plates blurred</p>` : '<p class="muted small">Waiting for the first detection…</p>'}`;
-          if (d.vehicles[0] && first === false && !box.dataset.followed) { map.flyTo({ center: [d.vehicles[0].lon, d.vehicles[0].lat], zoom: 16 }); box.dataset.followed = '1'; }
-        } else { box.hidden = true; delete box.dataset.followed; }
+          const fb = $('#m-follow', root);
+          if (fb) fb.addEventListener('click', () => { followOn = true; fb.textContent = 'Following the vehicle'; });
+          if (followOn && list[0]) map.easeTo({ center: [list[0].lon, list[0].lat], zoom: Math.max(map.getZoom(), 15.5), duration: 800 });
+        } else { box.hidden = true; followOn = true; }
         if (fresh.length) {
           try { defects = asList(await api('/api/defects'), 'defects'); } catch (e) { return; }
           if (!alive()) return;
@@ -1032,8 +1063,8 @@
         }
       };
       liveTick();
-      const t = setInterval(liveTick, 2500);
-      onCleanup(() => { clearInterval(t); Object.values(vehicles).forEach((m) => m.remove()); });
+      const t = setInterval(liveTick, 1500);
+      onCleanup(() => { clearInterval(t); Object.values(vehicles).forEach((v) => v.marker.remove()); });
     }
   }
 

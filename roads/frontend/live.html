@@ -233,7 +233,8 @@
     const ROUTE = [[12.9784, 77.6408], [12.9634, 77.6411]];
     function simFix() {
       const t = (performance.now() - simT0) / 1000, len = 1670, d = (t * 7) % len, f = d / len;
-      return { latitude: ROUTE[0][0] + (ROUTE[1][0] - ROUTE[0][0]) * f, longitude: ROUTE[0][1] + (ROUTE[1][1] - ROUTE[0][1]) * f, accuracy: 5 };
+      return { latitude: ROUTE[0][0] + (ROUTE[1][0] - ROUTE[0][0]) * f, longitude: ROUTE[0][1] + (ROUTE[1][1] - ROUTE[0][1]) * f,
+               accuracy: 5, speed: 7, heading: 180 };  // 25 km/h, heading south
     }
     function currentFix() {
       if (!sim) return fix;
@@ -311,7 +312,27 @@
       }
     }
 
-    // ---- live loop: send a frame, wait for the reply, keep ~1 frame per second
+    function appendFix(fd, f) {
+      fd.append('lat', f.latitude); fd.append('lon', f.longitude);
+      if (f.accuracy != null) fd.append('accuracy', f.accuracy);
+      if (f.speed != null && !Number.isNaN(f.speed)) fd.append('speed', f.speed);
+      if (f.heading != null && !Number.isNaN(f.heading)) fd.append('heading', f.heading);
+    }
+
+    // ---- real-time location for the officials' map: every second while scanning, independent of the
+    // frame loop, so the vehicle keeps moving on the map even while a frame is being processed
+    let posTimer = null;
+    function startPositionUpdates() {
+      clearInterval(posTimer);
+      posTimer = setInterval(() => {
+        const f = currentFix();
+        if (!running || !sid || !f) return;
+        const fd = new FormData(); appendFix(fd, f);
+        fetch(`/api/live/${sid}/position`, { method: 'POST', body: fd }).catch(() => {});
+      }, 1000);
+    }
+
+    // ---- live loop: send a frame, wait for the reply, keep ~3 frames per second
     async function loop() {
       while (running) {
         const t0 = performance.now();
@@ -323,7 +344,7 @@
           const fd = new FormData();
           fd.append('frame', blob, 'frame.jpg');
           const cf = currentFix();
-          if (cf) { fd.append('lat', cf.latitude); fd.append('lon', cf.longitude); fd.append('accuracy', cf.accuracy); }
+          if (cf) appendFix(fd, cf);
           try {
             const res = await fetch(`/api/live/${sid}/frame`, { method: 'POST', body: fd });
             if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -361,10 +382,11 @@
       msg(cf0 ? `Live session ${sid} started${sim ? ' with the simulated route' : ''}. Pins appear on the dashboard map within seconds.`
               : `Live session ${sid} started WITHOUT a location: detections are found but not pinned. Allow location or choose Demo route.`, !cf0);
       try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch (e) { /* optional */ }
+      startPositionUpdates();
       loop();
     };
     $('btn-stop').onclick = async () => {
-      running = false;
+      running = false; clearInterval(posTimer);
       $('btn-start').hidden = false; $('btn-stop').hidden = true; $('scanline').hidden = true;
       $('state-pill').textContent = 'Stopped'; $('state-pill').classList.remove('live');
       try {

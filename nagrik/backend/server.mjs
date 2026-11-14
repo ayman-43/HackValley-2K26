@@ -261,14 +261,26 @@ async function api(url, req, res, bodyText = '') {
       const xml = await response.text();
       const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].slice(0, 8).map(([, item]) => {
         const sourceMatch = item.match(/<source(?:\s[^>]*)?>([\s\S]*?)<\/source>/i);
+        const title = xmlField(item, 'title');
+        const published = new Date(xmlField(item, 'pubDate'));
         return {
-          title: xmlField(item, 'title'),
+          // the city page validates this exact shape (headline, ISO date, topic, query, ...)
+          headline: title,
+          headline_local: null,
+          title,  // kept for news-client.js
           url: xmlField(item, 'link'),
-          published_at: xmlField(item, 'pubDate'),
-          publisher: sourceMatch ? decodeXml(sourceMatch[1]) : 'Google News'
+          publisher: sourceMatch ? decodeXml(sourceMatch[1]) : 'Google News',
+          summary: null,
+          summary_local: null,
+          published_at: Number.isNaN(published.valueOf()) ? null : published.toISOString(),
+          topic: 'civic works',
+          query
         };
-      }).filter((item) => item.title && /^https?:\/\//i.test(item.url));
-      return json(res, 200, { city: citySlug, provider: 'Google News RSS', query, fetched_at: new Date().toISOString(), items });
+      }).filter((item) => item.title && item.published_at && /^https?:\/\//i.test(item.url));
+      return json(res, 200, {
+        city: cityCode, city_slug: citySlug, provider: 'Google News RSS', query, queries: [query],
+        partial: false, fetched_at: new Date().toISOString(), items
+      });
     } catch (error) {
       // Fall back to upstream
       try {

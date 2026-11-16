@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="From 100 teams to the top 5 at HackValley 2K26: the story of building Nagrik Roads.">
+<link rel="icon" href="assets/favicon-64.png" type="image/png">
+<title>Building Nagrik Roads</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column on asphalt-tinted paper; a road-marking dashed line runs down the left of the story; one funnel graphic for 100 → 50 → 5. */
+:root {
+  --bg: #f3f3f0;
+  --paper: #fbfbf9;
+  --ink: #1c1f22;
+  --ink-2: #4a4f55;
+  --line: #d9dad5;
+  --mark: #e0a100;      /* road-marking amber */
+  --mark-ink: #7a5700;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15181b; --paper: #1c2024; --ink: #e9eae6; --ink-2: #a9aea9; --line: #31363b; --mark: #f2b51d; --mark-ink: #f2c24d; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #15181b; --paper: #1c2024; --ink: #e9eae6; --ink-2: #a9aea9; --line: #31363b; --mark: #f2b51d; --mark-ink: #f2c24d; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 1.1rem; line-height: 1.65; }
+.page { max-width: 720px; margin: 0 auto; padding-block: 48px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font-family: var(--font-mono); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--mark-ink); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.2rem, 7vw, 3.6rem); line-height: 1.02; letter-spacing: -.03em; margin: .3em 0 .35em; text-wrap: balance; }
+.dek { font-size: 1.25rem; color: var(--ink-2); margin: 0 0 1.4em; text-wrap: pretty; }
+.byline { font-family: var(--font-mono); font-size: .8rem; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px 16px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 10px; }
+
+.story { position: relative; padding-left: 26px; margin-top: 40px; }
+.story::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 4px;
+  background: repeating-linear-gradient(to bottom, var(--mark) 0 28px, transparent 28px 48px); border-radius: 2px; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.55rem; letter-spacing: -.015em; line-height: 1.2; margin: 2em 0 .5em; text-wrap: balance; }
+h2:first-child { margin-top: 0; }
+p { margin: 0 0 1em; max-width: 65ch; }
+a { color: var(--ink); text-decoration-color: var(--mark); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+a:hover { color: var(--mark-ink); }
+a:focus-visible { outline: 2px solid var(--mark); outline-offset: 2px; }
+ul { padding-left: 1.1em; margin: 0 0 1em; display: grid; gap: .35em; }
+li::marker { color: var(--mark-ink); }
+strong { font-weight: 600; }
+
+.funnel { display: grid; gap: 10px; margin: 1.4em 0 1.6em; }
+.stage { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: 14px; }
+.stage .n { font-family: var(--font-display); font-weight: 800; font-size: 2rem; letter-spacing: -.03em; font-variant-numeric: tabular-nums; text-align: right; }
+.bar { height: 34px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; position: relative; overflow: hidden; }
+.bar span { position: absolute; inset: 0 auto 0 0; background: var(--mark); opacity: .85; }
+.bar em { position: relative; font-style: normal; font-family: var(--font-mono); font-size: .78rem; line-height: 34px; padding-left: 10px; color: var(--ink); white-space: nowrap; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 1.2em 0 1.6em; }
+.stat { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+.stat b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.stat small { font-family: var(--font-mono); font-size: .74rem; color: var(--ink-2); }
+
+blockquote { margin: 1.4em 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--ink); font-size: 1.2rem; font-style: italic; color: var(--ink); }
+.links { display: grid; gap: 8px; margin-top: 1em; font-family: var(--font-mono); font-size: .88rem; }
+.links a { overflow-wrap: anywhere; }
+.tags { font-family: var(--font-mono); font-size: .8rem; color: var(--ink-2); margin-top: 2.4em; }
+@media (max-width: 460px) { .stage { grid-template-columns: 4rem minmax(0, 1fr); } .stage .n { font-size: 1.6rem; } .story { padding-left: 18px; } }
+*{box-sizing:border-box} body{margin:0} img{max-width:100%}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="eyebrow">HackValley 2K26 · Belagavi</div>
+  <h1>From 100 teams to the top 5: building Nagrik Roads</h1>
+  <p class="dek">We built a phone app that finds potholes, counts each one once and tells the city which to fix first. Here is what we built, how far we got, and what happened at the finish.</p>
+  <div class="byline"><span>Team Nagrik</span><span>Jain College of Engineering and Research, Belagavi</span><span>November 2026</span></div>
+
+  <article class="story">
+    <h2>The problem</h2>
+    <p>Every rider in an Indian city knows the pothole that has been there for months. People complain, but complaints get lost, the same pothole is reported fifty times, and nobody can tell which one is most dangerous. The HackValley 2K26 problem statement (PS 02) asked for an AI system that detects road damage and potholes. We wanted to go further and build something a city could actually use to get roads fixed.</p>
+
+    <h2>What we built</h2>
+    <p><strong>Nagrik Roads</strong> turns any phone into a road-survey dashcam. You record a ride or upload photos and videos, and the system does the rest.</p>
+    <ul>
+      <li>A lightweight <strong>YOLO26n</strong> model, trained on Indian roads, detects potholes and three kinds of cracks.</li>
+      <li>A frame-linking tracker follows each defect across video frames, so it is <strong>counted once</strong>.</li>
+      <li>GPS and image matching recognise a pothole that was already reported and update it instead of creating a duplicate.</li>
+      <li>Every defect gets a severity rating and an explainable <strong>0–100 risk score</strong> based on road type, speed limit, nearby schools and hospitals, repeat reports and the rain forecast.</li>
+      <li>Officials can confirm, reject or correct each detection, and re-inspections show whether a defect is getting worse or has been repaired.</li>
+      <li>Repairs that fail within 90 days are flagged, and officers get one daily digest instead of hundreds of alerts.</li>
+      <li>Faces and number plates are blurred automatically, and it all runs on a laptop CPU with free, open tools.</li>
+    </ul>
+
+    <div class="stats">
+      <div class="stat"><b>0.686</b><small>mAP50 on validation</small></div>
+      <div class="stat"><b>1,768 → 49</b><small>raw detections → unique defects, 15 s ride</small></div>
+      <div class="stat"><b>~60 ms</b><small>per image on a laptop CPU</small></div>
+      <div class="stat"><b>4</b><small>damage classes</small></div>
+    </div>
+
+    <h2>Built on Nagrik</h2>
+    <p>Nagrik Roads is part of <a href="https://nagrik.in.net" target="_blank" rel="noopener">Nagrik</a>, our civic-accountability platform. Nagrik tracks wards, officers and public works across Indian cities. Through it, every pothole is linked to its BBMP ward, the officer responsible for it and recent road tenders: who was paid to fix that road, and how much. We merged both into one application, so the same site serves Nagrik and Nagrik Roads.</p>
+
+    <h2>The journey</h2>
+    <p>About 100 teams registered for HackValley 2K26. Each round cut the field down.</p>
+    <div class="funnel" role="img" aria-label="100 teams registered, 50 shortlisted, 5 finalists">
+      <div class="stage"><div class="n">100</div><div class="bar"><span style="width:100%"></span><em>teams registered</em></div></div>
+      <div class="stage"><div class="n">50</div><div class="bar"><span style="width:50%"></span><em>selected for the top 50</em></div></div>
+      <div class="stage"><div class="n">5</div><div class="bar"><span style="width:5%"></span><em>finalists, including us</em></div></div>
+    </div>
+    <p>Reaching the final five with a working, deployed product was the proudest moment of the event for us.</p>
+
+    <h2>What happened at the final</h2>
+    <p>We did not win. In our view, the awards were not decided fairly. We felt the final evaluation was biased and shaped by internal politics, not by the work the teams put on the table. We reached the final five on the strength of a working, deployed product, and we believe it was not judged on its merits at the end.</p>
+    <blockquote>A result decided by politics is not a verdict on the product.</blockquote>
+    <p>We are disappointed, but not discouraged. The app is still live, the code is public, and anyone can judge it for themselves.</p>
+
+    <h2>What we learned</h2>
+    <ul>
+      <li>Build for the people who will use it, not only for the judges. Their verdict is the one that matters.</li>
+      <li>Real-world data beats benchmarks. Our tracker only started counting potholes correctly after we tested it on our own bike rides.</li>
+      <li>A detection is only useful if it reaches the person who can fix it. Linking defects to wards and officers was the part judges asked most about.</li>
+    </ul>
+
+    <h2>Try it</h2>
+    <div class="links">
+      <a href="https://nagrik-roads.vercel.app/roads/blog" target="_blank" rel="noopener">This blog → nagrik-roads.vercel.app/roads/blog</a>
+      <a href="https://nagrik-roads.vercel.app/roads/" target="_blank" rel="noopener">Nagrik Roads (live) → nagrik-roads.vercel.app/roads</a>
+      <a href="https://nagrik-roads.vercel.app/" target="_blank" rel="noopener">Nagrik (live) → nagrik-roads.vercel.app</a>
+      <a href="https://nagrik.in.net" target="_blank" rel="noopener">Nagrik website → nagrik.in.net</a>
+      <a href="https://github.com/ayman-43/HackValley-2K26" target="_blank" rel="noopener">Source code → github.com/ayman-43/HackValley-2K26</a>
+    </div>
+    <p class="tags">#HackValley2K26 · #ComputerVision · #CivicTech · #Bengaluru · #Belagavi</p>
+  </article>
+</main>
+</body>
+</html>
